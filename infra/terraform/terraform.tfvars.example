@@ -1,0 +1,8 @@
+# Copie para terraform.tfvars e ajuste.
+# region      = "sa-east-1"
+# bucket_name = "boraprosdadosbrasil-site"     # precisa ser único no mundo (só minúsculas, números e hífen)
+# domain      = "boraprosdadosbrasil.com.br"   # deixe comentado para subir sem domínio próprio
+# subject_alternative_names = ["www.boraprosdadosbrasil.com.br"]
+# hosted_zone_id = "Z0000000000000000000"      # só se o DNS estiver no Route 53 da mesma conta
+# price_class = "PriceClass_200"
+# enable_access_logs = true

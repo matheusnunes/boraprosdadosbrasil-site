@@ -1,0 +1,6 @@
+dist/
+.env
+.DS_Store
+*.tfstate
+*.tfstate.*
+.terraform/

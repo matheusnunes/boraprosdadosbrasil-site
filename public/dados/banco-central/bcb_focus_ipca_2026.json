@@ -1,0 +1,8 @@
+{
+ "_fonte": "BCB - Focus (olinda.bcb.gov.br)",
+ "indicador": "IPCA",
+ "DataReferencia": "2026",
+ "data_coleta": "2026-10-02",
+ "mediana_pct": 5.0129,
+ "_endpoint": "https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais?$filter=Indicador eq 'IPCA' and DataReferencia eq '2026'"
+}

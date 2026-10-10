@@ -1,0 +1,113 @@
+{
+ "_fonte": "IBGE - SIDRA (servicodados.ibge.gov.br)",
+ "_tabelas": {
+  "7458": "Rendimento medio mensal real domiciliar per capita, a precos do ultimo ano, por recebimento de rendimento de programa social",
+  "7457": "Domicilios, por recebimento de rendimento de programa social (pesos)",
+  "7456": "Numero medio de moradores por domicilio, por recebimento de rendimento de programa social (pesos)"
+ },
+ "_extraido_em": "2026-10-06",
+ "_endpoints": [
+  "https://servicodados.ibge.gov.br/api/v3/agregados/7458/periodos/-8/variaveis/10816?localidades=N1[all]&classificacao=1035[82225,82226]",
+  "https://servicodados.ibge.gov.br/api/v3/agregados/7457/periodos/-8/variaveis/162?localidades=N1[all]&classificacao=1035[82225,82226]",
+  "https://servicodados.ibge.gov.br/api/v3/agregados/7456/periodos/-8/variaveis/10163?localidades=N1[all]&classificacao=1035[all]"
+ ],
+ "7458": [
+  {
+   "categoria": "Recebe programa social",
+   "serie": {
+    "2018": 586,
+    "2019": 590,
+    "2020": 934,
+    "2021": 689,
+    "2022": 695,
+    "2023": 784,
+    "2024": 858,
+    "2025": 886
+   }
+  },
+  {
+   "categoria": "Nao recebe programa social",
+   "serie": {
+    "2018": 2267,
+    "2019": 2292,
+    "2020": 2337,
+    "2021": 2116,
+    "2022": 2196,
+    "2023": 2493,
+    "2024": 2619,
+    "2025": 2787
+   }
+  }
+ ],
+ "7457": [
+  {
+   "categoria": "Domicilios — Recebe programa social",
+   "serie": {
+    "2018": 12325,
+    "2019": 12471,
+    "2020": 22157,
+    "2021": 17745,
+    "2022": 15202,
+    "2023": 17495,
+    "2024": 18233,
+    "2025": 18010
+   }
+  },
+  {
+   "categoria": "Domicilios — Nao recebe programa social",
+   "serie": {
+    "2018": 56323,
+    "2019": 57303,
+    "2020": 48413,
+    "2021": 53303,
+    "2022": 58150,
+    "2023": 58515,
+    "2024": 59097,
+    "2025": 61294
+   }
+  }
+ ],
+ "7456": [
+  {
+   "categoria": "Moradores por domicilio — Recebe programa social",
+   "serie": {
+    "2018": 3.9,
+    "2019": 3.8,
+    "2020": 3.5,
+    "2021": 3.5,
+    "2022": 3.6,
+    "2023": 3.4,
+    "2024": 3.3,
+    "2025": 3.2
+   }
+  },
+  {
+   "categoria": "Moradores por domicilio — Nao recebe programa social",
+   "serie": {
+    "2018": 2.8,
+    "2019": 2.8,
+    "2020": 2.7,
+    "2021": 2.8,
+    "2022": 2.7,
+    "2023": 2.6,
+    "2024": 2.6,
+    "2025": 2.5
+   }
+  }
+ ],
+ "_serie_derivada_domiciliar_per_capita": {
+  "2019": 1904,
+  "2020": 1815,
+  "2021": 1697,
+  "2022": 1808,
+  "2023": 2013,
+  "2024": 2123,
+  "2025": 2267,
+  "_metodo": "media ponderada por pessoas (domicilios x moradores) dos grupos recebe/nao recebe",
+  "_medias_janelas": {
+   "A_2019_2022": 1805.8,
+   "B_2023_2025": 2134.7,
+   "variacao_pct": 18.2
+  }
+ }
+}

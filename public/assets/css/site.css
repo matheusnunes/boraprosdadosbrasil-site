@@ -1,0 +1,289 @@
+/* ==== Bora pros dados Brasil — chrome compartilhado do site (sitebar, footer, dados, consent) ==== */
+:root{--site-green:#02522b;--site-blue:#003fb0}
+.sitebar{background:#ffffff;border-bottom:1px solid #e4e4e7}
+.sitebar .sb-in{max-width:1180px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.sb-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;flex:0 0 auto}
+.sb-brand img{width:124px;height:auto;display:block}
+.sb-nav{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.sb-nav a{font-size:13px;color:#52525b;text-decoration:none;padding:6px 11px;border-radius:999px;border:1px solid transparent;white-space:nowrap}
+.sb-nav a:hover{color:#18181b;border-color:#e4e4e7}
+.sb-nav a.ativo{color:#18181b;background:#f4f4f5;border-color:#e4e4e7;font-weight:600}
+.sb-nav a.sb-cta{background:var(--site-green);color:#fff;font-weight:600;padding:7px 14px}
+.sb-nav a.sb-cta:hover{background:#036b39;border-color:transparent}
+.sitefoot{background:#ffffff;border-top:1px solid #e4e4e7;margin-top:44px}
+.sitefoot .sf-in{max-width:1180px;margin:0 auto;padding:30px 20px 8px;display:grid;gap:22px;grid-template-columns:1fr}
+@media(min-width:760px){.sitefoot .sf-in{grid-template-columns:1.5fr 1fr 1fr 1.1fr}}
+.sf-col h4{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#71717a}
+.sf-col a{display:block;font-size:13.5px;color:#3f3f46;text-decoration:none;padding:2px 0}
+.sf-col a:hover{color:#18181b;text-decoration:underline}
+.sf-col p{font-size:12.5px;color:#71717a;margin:0;line-height:1.65}
+.sf-brand img{width:150px;height:auto;display:block;margin-bottom:10px}
+.sf-brand p{max-width:320px}
+.sf-base{border-top:1px solid #e4e4e7;margin-top:18px;padding:13px 20px;font-size:12px;color:#71717a;text-align:center}
+.sf-base a{color:#52525b}
+/* blocos "Dados e fontes" */
+.dados-blk{margin-top:20px}
+.dados-blk h3{font-size:15px;margin:0 0 8px;letter-spacing:-.01em}
+.tbl-card{background:#ffffff;border:1px solid #e4e4e7;border-radius:14px;overflow:auto;margin:8px 0}
+.dados-tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.dados-tbl th,.dados-tbl td{padding:9px 12px;border-bottom:1px solid #e4e4e7;text-align:left;vertical-align:top}
+.dados-tbl th{font-size:12px;color:#71717a;font-weight:600;background:#ffffff;position:sticky;top:0}
+.dados-tbl tr:last-child td{border-bottom:none}
+.dados-tbl .fname{font-size:12.5px;word-break:break-all;font-variant-numeric:tabular-nums}
+.dl{display:inline-block;padding:5px 11px;border:1px solid #e4e4e7;border-radius:8px;background:#ffffff;text-decoration:none;font-size:12.5px;font-weight:600;white-space:nowrap;color:#18181b}
+.dl:hover{border-color:var(--site-blue);color:var(--site-blue)}
+.sha{display:block;font-size:10.5px;color:#a1a1aa;margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.dados-nota{font-size:12.5px;color:#71717a;margin:10px 0 0;line-height:1.65}
+.dados-nota a{color:#52525b}
+/* faixa de consentimento (só aparece se CONSENT_MODE=banner) */
+.consent{position:fixed;left:0;right:0;bottom:0;background:#18181b;color:#fafafa;padding:12px 18px;display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;z-index:90;font-size:13px;line-height:1.5}
+.consent button{font:inherit;font-size:13px;font-weight:600;border-radius:8px;padding:7px 14px;cursor:pointer;border:1px solid transparent}
+.consent .ok{background:#fff;color:#18181b}
+.consent .no{background:transparent;color:#d4d4d8;border-color:#52525b}
+/* responsivo: permite que cartões com gráfico (canvas) encolham dentro de grids —
+   sem isso, o min-content do canvas trava a célula e vaza a página no celular */
+.grid2 > figure, .grid2 > .card, figure.card { min-width: 0; }
+figure.card canvas { max-width: 100%; }
+/* telas muito estreitas (<=430px): grids inline com minmax não podem estourar */
+@media (max-width: 430px) {
+  [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+}
+
+.howto { overflow-wrap: anywhere; }
+.apx .howto, .apx .howto b { overflow-wrap: anywhere; }
+
+/* util */
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media print{.sitebar,.sitefoot,.consent{display:none!important}}
+
+/* =====================================================================
+   Camada de acabamento visual — hierarquia forte, cartões suaves,
+   espaçamento arejado e microinterações (inspiração: layout de referência)
+   ===================================================================== */
+html { scroll-padding-top: 64px; }
+::selection { background: rgba(2,82,43,.18); }
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline: 2px solid rgba(2,82,43,.45); outline-offset: 2px; border-radius: 6px; }
+
+/* tipografia com mais hierarquia */
+.wrap h1 { font-size: clamp(30px, 3.6vw, 42px); line-height: 1.12; letter-spacing: -.032em; font-weight: 800; }
+.chap h2 { font-size: clamp(22px, 2.4vw, 29px); line-height: 1.22; letter-spacing: -.022em; }
+.lead { font-size: 16px; line-height: 1.6; max-width: 78ch; }
+
+/* respiro entre seções */
+.chap { margin-top: 58px; }
+
+/* cartões: raio maior + sombra suave em camadas */
+.card, .tbl-card { border-radius: 16px; box-shadow: 0 1px 2px rgba(24,24,27,.04), 0 14px 34px -22px rgba(24,24,27,.22); }
+
+/* pills e botões: microinterações */
+.ghost-btn, .close-btn, .detail-btn, .dl, .topnav a, .sb-nav a, .sf-col a { transition: border-color .16s ease, background-color .16s ease, color .16s ease, box-shadow .16s ease; }
+.ghost-btn:hover, .close-btn:hover, .detail-btn:hover { border-color: #d4d4d8; box-shadow: 0 1px 2px rgba(24,24,27,.07); }
+.dl:hover { box-shadow: 0 1px 2px rgba(24,24,27,.07); }
+.topnav a:hover { border-color: #d4d4d8; }
+.topnav a.on { background: #18181b; color: #fff; border-color: #18181b; font-weight: 600; box-shadow: 0 1px 3px rgba(24,24,27,.25); }
+.sb-nav a.sb-cta { box-shadow: 0 1px 2px rgba(2,82,43,.25); }
+.sb-nav a.sb-cta:hover { box-shadow: 0 3px 10px -4px rgba(2,82,43,.5); }
+
+/* tabelas de dados + sitebar */
+.dados-tbl tbody tr:hover { background: #fafafa; }
+.sitebar .sb-in { padding: 12px 20px; }
+
+/* =====================================================================
+   Modernização geral do site (10/10/2026) — tipografia Inter
+   (auto-hospedada), fundo com gradiente de marca, kickers em pill,
+   navegação refinada, micro-interações
+   ===================================================================== */
+@font-face {
+  font-family: 'InterVar';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/assets/fonts/inter-latin-var.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+body {
+  font-family: 'InterVar', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.excerpt-btn, .pageref { font-family: inherit; }
+
+/* fundo: lavagem de gradiente da marca no topo (sutil, sem custo de layout) */
+body {
+  background-image:
+    radial-gradient(1100px 420px at 18% 0px, rgba(2,82,43,.08), rgba(2,82,43,0) 65%),
+    radial-gradient(1100px 520px at 86% 60px, rgba(0,63,176,.06), rgba(0,63,176,0) 62%);
+  background-repeat: no-repeat, no-repeat;
+}
+
+/* kickers das seções em pill */
+.kicker {
+  display: inline-block;
+  background: rgba(2,82,43,.08);
+  border: 1px solid rgba(2,82,43,.15);
+  color: #02522b;
+  padding: 3px 11px 2px;
+  border-radius: 999px;
+}
+
+/* topnav: pills limpos (transparentes; ativo segue destacado) */
+.topnav a { background: transparent; border-color: transparent; }
+.topnav a:hover { background: rgba(24,24,27,.06); border-color: transparent; }
+.topnav a.on { background: #18181b; border-color: #18181b; color: #fff; }
+.topnav a.on:hover { background: #18181b; }
+
+/* tabelas de leitura (.sc): realce de linha */
+.sc tbody tr:hover { background: #fafafa; }
+
+/* filtros: foco moderno */
+.filters select:focus, .filters input:focus {
+  outline: none;
+  border-color: #003fb0;
+  box-shadow: 0 0 0 3px rgba(0,63,176,.12);
+}
+
+/* CTAs e botões grandes */
+.sb-nav a.sb-cta { background: linear-gradient(180deg, #036b39, #02522b); }
+.sb-nav a.sb-cta:hover { background: linear-gradient(180deg, #038048, #026433); box-shadow: 0 3px 12px -4px rgba(2,82,43,.55); }
+.fullbtn { transition: box-shadow .16s ease, transform .16s ease; }
+.fullbtn:hover { box-shadow: 0 8px 20px -10px rgba(0,0,0,.30); transform: translateY(-1px); }
+
+/* detalhes tipográficos */
+a { text-underline-offset: 2px; }
+.chap-hd h2 { text-wrap: balance; }
+
+/* =====================================================================
+   Feedback 10/10 (b): h1 mais equilibrado, sem linhas divisórias
+   (seções, barra da logo, menu), logo maior
+   ===================================================================== */
+.wrap h1 {
+  font-size: clamp(28px, 3.2vw, 38px);
+  font-weight: 720;
+  letter-spacing: -.022em;
+  line-height: 1.16;
+  text-wrap: balance;
+}
+.chap-hd { border-top: none; }
+.sitebar { border-bottom: none; }
+.topnav { border-bottom: none; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.sb-brand img { width: 200px; }
+
+/* =====================================================================
+   Menus: selecionado sem cara de botão (ênfase + sublinhado de marca)
+   ===================================================================== */
+.topnav a.on,
+.topnav a.on:hover {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: #18181b;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: #02522b;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+.sb-nav a.ativo,
+.sb-nav a.ativo:hover {
+  background: transparent;
+  border-color: transparent;
+  color: #18181b;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: #02522b;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+/* =====================================================================
+   Hover sem cara de botão: texto escurece + sublinhado cinza-claro
+   (o selecionado continua com o sublinhado verde; o CTA segue botão)
+   ===================================================================== */
+.topnav a:hover {
+  background: transparent;
+  border-color: transparent;
+  color: #18181b;
+  text-decoration: underline;
+  text-decoration-color: rgba(24,24,27,.22);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+.sb-nav a:hover {
+  background: transparent;
+  border-color: transparent;
+  color: #18181b;
+  text-decoration: underline;
+  text-decoration-color: rgba(24,24,27,.22);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+/* CTA blindado: segue botão (hover com gradiente, sem sublinhado) */
+.sb-nav a.sb-cta, .sb-nav a.sb-cta:hover {
+  text-decoration: none;
+}
+.sb-nav a.sb-cta:hover {
+  background: linear-gradient(180deg, #038048, #026433);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 3px 12px -4px rgba(2,82,43,.55);
+}
+
+/* =====================================================================
+   Ajustes 10/10 (c): barra de acento nos títulos, largura padronizada,
+   bloco "duas fotos", distribuição do rodapé
+   ===================================================================== */
+.wrap h1, .chap h2 {
+  max-width: 1000px;
+  text-wrap: wrap;
+}
+.duasfotos-grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 760px) { .duasfotos-grid { grid-template-columns: 1fr 1fr; } }
+.foto {
+  background: #f7f7f8;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.62;
+}
+.sitefoot .sf-in { align-items: start; }
+@media (min-width: 760px) { .sitefoot .sf-in { grid-template-columns: repeat(4, 1fr); gap: 24px 26px; } }
+
+/* legenda "5 categorias": grade uniforme (era 2+2+1 irregular) */
+.legend { display: grid; grid-template-columns: 1fr; gap: 10px 16px; }
+@media (min-width: 640px) { .legend { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1000px) { .legend { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); } }
+
+/* =====================================================================
+   UX pass 10/10 (d): abas alinhadas à base do cabeçalho, legenda "5
+   categorias" em linhas (chip + texto na mesma linha), ritmo padronizado
+   ===================================================================== */
+.sitebar .sb-in { align-items: flex-end; }
+.sb-nav { margin-bottom: 6px; }
+
+.legend { display: grid; grid-template-columns: 1fr; gap: 8px; font-size: 14px; }
+.legend > span { display: block; }
+@media (min-width: 760px) {
+  .legend > span { display: grid; grid-template-columns: 148px 1fr; gap: 2px 12px; align-items: center; }
+  .legend .chip { text-align: center; }
+}
+
+/* ritmo único entre seções e grades */
+.chap-hd { padding-top: 14px; margin-bottom: 16px; }
+.grid2, .chips3, .verdict { gap: 16px; }
+.chap .lead { margin: 10px 0 14px; }
+
+/* Ajustes 10/10 (e): fontes do menu do topo um pouco maiores */
+.sb-nav a { font-size: 14.5px; }
+.legend .chip { font-size: 12px; }
+
+/* Ajustes 10/10 (f): rodapé 3 colunas (Dados sob Análises), fontes uniformes */
+@media (min-width: 760px) { .sitefoot .sf-in { grid-template-columns: repeat(3, 1fr); gap: 26px 34px; } }
+.sf-col-group .sf-col + .sf-col { margin-top: 22px; }
+.sf-brand p, .sf-col p, .sf-col a { font-size: 13.5px; }
+.sf-col p, .sf-brand p { line-height: 1.62; }
+
+/* Ajustes 10/10 (g): rodapé, todas as fontes na mesma cor */
+.sitefoot .sf-col h4, .sitefoot .sf-col a, .sitefoot .sf-col p,
+.sitefoot .sf-brand p, .sitefoot .sf-base, .sitefoot .sf-base a { color: #52525b; }
