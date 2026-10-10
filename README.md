@@ -49,7 +49,6 @@ Passo a passo completo (com análise "dá para deixar só no S3?"): **docs/DEPLO
 
 ## Decisões de arquitetura
 
-- **Sem Bootstrap** (ou outro framework): as páginas são autocontidas (CSS/JS próprios, funcionam offline) e responsivas; um framework adicionaria ~200 KB, conflitos de estilo e um passo de build sem benefício real. O padrão visual compartilhado fica em `assets/css/site.css` (sitebar, rodapé, blocos de download, consentimento).
 - **Fontes numa página única** (`/fontes/`): todos os 32 arquivos com a coluna “Usado em”; acesso pelo botão “Baixar fontes” no menu (todas as páginas) e pelo link do rodapé.
 - **Integridade dos dados**: SHA-256 de cada arquivo publicado em `dados/SHA256SUMS.txt` e exibido (prefixo) em cada botão de download + **versionamento do bucket S3** (protege contra substituição/exclusão e permite auditoria). Opcional: Object Lock (WORM) — ver docs/DEPLOY.md.
 - **S3 + CloudFront**: balde privado (OAC), HTTPS obrigatório, headers de segurança (HSTS, nosniff, frame-deny, referrer-policy, CSP), compressão, cache e erro 404 customizado.
