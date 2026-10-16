@@ -723,13 +723,22 @@
     for (k in mapa) if (mapa.hasOwnProperty(k)) {
       var alvo = D.getElementById(k); if (!alvo) continue;
       var id = mapa[k][0], rot = mapa[k][1];
-      var host = alvo.querySelector('.vrd-topo') || alvo.querySelector('.chap-hd') || alvo;
+      // cartão .vrd: ao lado do compartilhar (.vrd-acoes, sempre visível); seções de planos/promessas: no cabeçalho
+      var host = alvo.querySelector('.vrd-acoes') || alvo.querySelector('.vrd-topo') || alvo.querySelector('.chap-hd') || alvo;
       if (host.querySelector('.cat-star')) continue;
       var b = estrela(id, rot, null);
       b.classList.add('cat-star--pg');
       if (host.classList.contains('chap-hd')) host.classList.add('cat-com-estrela');
       host.appendChild(b); n += 1;
     }
+    // cartões montados pelo charts.js (montarCard) têm a linha [Compartilhar imagem] [WhatsApp]: a estrela vai para ela
+    function reloca() {
+      Array.prototype.forEach.call(D.querySelectorAll('.cat-star--pg'), function (st) {
+        var card = st.closest('.vrd'), alvo = card && card.querySelector('.bpd-card-acoes');
+        if (alvo && st.parentNode !== alvo) alvo.appendChild(st);
+      });
+    }
+    [0, 600, 1500, 3000].forEach(function (t) { setTimeout(reloca, t); });
     // "Ver todas as comparações" no fim do resumo (decisão do dono, item 9) — só acrescenta, não altera o resumo
     var res = D.getElementById('resumo');
     if (res && !res.querySelector('.cat-ver-todas')) res.appendChild(add(el('p', 'cat-ver-todas'), el('a', 'cat-link', 'Ver todas as comparações e montar sua lista ›', { href: '/comparacoes/' })));
