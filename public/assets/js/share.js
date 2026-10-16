@@ -252,39 +252,78 @@
     if (l) out.push(l); return out;
   }
   /* canvas 1080 px: corpo (pinta) + faixa de rodapé neutra (≥ 90 px, textos de 26 px) */
-  function montar(hCorpo, pinta, r) {
-    var W = 1080, P = 48, cv = document.createElement('canvas'), cx = cv.getContext('2d'), ls = [], i;
-    cx.font = '700 26px ' + FONTE_CV;
-    quebrar(cx, 'Bora pros dados Brasil · ' + r.url, W - 2 * P).forEach(function (t) { ls.push(['700 26px ', '#18181b', t]); });
-    cx.font = '400 26px ' + FONTE_CV;
-    quebrar(cx, (r.fonte ? 'Fonte: ' + r.fonte + ' · ' : '') + 'atualizado em ' + r.data, W - 2 * P).forEach(function (t) { ls.push(['400 26px ', '#52525b', t]); });
-    var hR = Math.max(90, 24 + ls.length * 36 + 20);
-    cv.width = W; cv.height = Math.round(hCorpo + hR);
-    cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, W, cv.height);
-    pinta(cx, W);
-    cx.fillStyle = '#f4f4f5'; cx.fillRect(0, hCorpo, W, hR);
-    cx.fillStyle = '#d4d4d8'; cx.fillRect(0, hCorpo, W, 2);
-    cx.textBaseline = 'top';
-    for (i = 0; i < ls.length; i += 1) { cx.font = ls[i][0] + FONTE_CV; cx.fillStyle = ls[i][1]; cx.fillText(ls[i][2], P, hCorpo + 24 + i * 36); }
-    return new Promise(function (ok, no) { cv.toBlob(function (bl) { if (bl) ok(bl); else no(new Error('png')); }, 'image/png'); });
+  /* logo oficial (charts.js v0.3.9: BPD.carregarLogo, mesmo origin, recorte limpo); sem ela, fica o nome em texto */
+  var LOGO_SH = null;
+  function logoProprio() {        /* páginas sem charts.js (ex.: /fontes/): mesma logo, recortada na área visível */
+    if (LOGO_SH) return LOGO_SH;
+    LOGO_SH = new Promise(function (ok) {
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var cv = document.createElement('canvas'), cx = cv.getContext('2d'), W = img.naturalWidth, H = img.naturalHeight, x0 = W, y0 = H, x1 = -1, y1 = -1, x, y;
+          cv.width = W; cv.height = H; cx.drawImage(img, 0, 0);
+          var d = cx.getImageData(0, 0, W, H).data;
+          for (y = 0; y < H; y++) for (x = 0; x < W; x++) if (d[(y * W + x) * 4 + 3] > 20) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+          if (x1 < 0) { x0 = 0; y0 = 0; x1 = W - 1; y1 = H - 1; }
+          ok({ ok: true, src: cv, crop: { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 } });
+        } catch (e) { ok(null); }
+      };
+      img.onerror = function () { ok(null); };
+      img.src = '/assets/img/logo-800.png';
+    });
+    return LOGO_SH;
+  }
+  function logo() {
+    var B = window.BPD;
+    if (!B || !B.carregarLogo) return logoProprio();
+    return B.carregarLogo().then(function (L) { return L && L.ok && (L.bmp || L.src) && L.crop ? L : logoProprio(); }, function () { return logoProprio(); });
+  }
+  function pintaLogo(cx, L, x, y, h) {
+    var w = Math.round(h * L.crop.w / L.crop.h);
+    if (L.bmp) cx.drawImage(L.bmp, x, y, w, h); else cx.drawImage(L.src, L.crop.x, L.crop.y, L.crop.w, L.crop.h, x, y, w, h);
+    return w;
+  }
+  /* canvas 1080 px: corpo (pinta) + faixa de rodapé neutra (≥ 90 px, textos de 26 px).
+     comLogo: a logo (44 px) fica no rodapé, à esquerda da URL, como assinatura da imagem. */
+  function montar(hCorpo, pinta, r, comLogo) {
+    return logo().then(function (L) {
+      var W = 1080, P = 48, cv = document.createElement('canvas'), cx = cv.getContext('2d'), ls = [], i, LH = 44;
+      var lw = (comLogo && L) ? Math.round(LH * L.crop.w / L.crop.h) : 0, x0 = P + (lw ? lw + 24 : 0), larg = W - x0 - P;
+      cx.font = '700 26px ' + FONTE_CV;
+      quebrar(cx, (lw ? '' : 'Bora pros dados Brasil \u00b7 ') + r.url, larg).forEach(function (t) { ls.push(['700 26px ', '#18181b', t]); });
+      cx.font = '400 26px ' + FONTE_CV;
+      quebrar(cx, (r.fonte ? 'Fonte: ' + r.fonte + ' \u00b7 ' : '') + 'atualizado em ' + r.data, larg).forEach(function (t) { ls.push(['400 26px ', '#52525b', t]); });
+      var hR = Math.max(90, 24 + ls.length * 36 + 20, lw ? LH + 48 : 0);
+      cv.width = W; cv.height = Math.round(hCorpo + hR);
+      cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, W, cv.height);
+      pinta(cx, W, L);
+      cx.fillStyle = '#f4f4f5'; cx.fillRect(0, hCorpo, W, hR);
+      cx.fillStyle = '#d4d4d8'; cx.fillRect(0, hCorpo, W, 2);
+      if (lw) pintaLogo(cx, L, P, Math.round(hCorpo + (hR - LH) / 2), LH);
+      cx.textBaseline = 'top';
+      var y0 = hCorpo + Math.round((hR - (ls.length * 36 - 10)) / 2);
+      for (i = 0; i < ls.length; i += 1) { cx.font = ls[i][0] + FONTE_CV; cx.fillStyle = ls[i][1]; cx.fillText(ls[i][2], x0, y0 + i * 36); }
+      return new Promise(function (ok, no) { cv.toBlob(function (bl) { if (bl) ok(bl); else no(new Error('png')); }, 'image/png'); });
+    });
   }
   function comRodape(bl, r) {
     return bitmap(bl).then(function (im) {
       var h = Math.round(im.height * 1080 / im.width);
-      return montar(h, function (cx, W) { cx.drawImage(im, 0, 0, W, h); }, r);
+      return montar(h, function (cx, W) { cx.drawImage(im, 0, 0, W, h); }, r, true);
     });
   }
-  /* seção sem card nem gráfico: cartão com o próprio texto de compartilhamento */
+  /* seção sem card nem gráfico: cartão com o próprio texto; logo no topo (72 px), como nos cards do charts.js */
   function cartaoTexto(c, r) {
-    var cv = document.createElement('canvas').getContext('2d'), P = 64, ls;
+    var cv = document.createElement('canvas').getContext('2d'), P = 64, ls, TOPO = 72 + 28;
     cv.font = '600 44px ' + FONTE_CV;
     ls = quebrar(cv, body(c), 1080 - 2 * P);
-    return montar(P + 44 + ls.length * 60 + P, function (cx) {
+    return montar(P + TOPO + ls.length * 60 + P - 16, function (cx, W, L) {
       cx.textBaseline = 'top';
-      cx.font = '800 24px ' + FONTE_CV; cx.fillStyle = '#02522b'; cx.fillText('BORA PROS DADOS BRASIL', P, P - 8);
+      if (L) pintaLogo(cx, L, P, P - 8, 72);
+      else { cx.font = '800 24px ' + FONTE_CV; cx.fillStyle = '#02522b'; cx.fillText('BORA PROS DADOS BRASIL', P, P - 8); }
       cx.font = '600 44px ' + FONTE_CV; cx.fillStyle = '#18181b';
-      ls.forEach(function (t, i) { cx.fillText(t, P, P + 44 + i * 60); });
-    }, r);
+      ls.forEach(function (t, i) { cx.fillText(t, P, P + (L ? TOPO : 44) + i * 60); });
+    }, r, false);
   }
   function image(b, c, sec) {
     var src = attr(c, 'image');

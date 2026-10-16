@@ -108,6 +108,7 @@ const CSS = `
 body{width:1080px;height:1350px;background:#f7f7f8;font-family:'InterVar',sans-serif;color:#18181b;-webkit-font-smoothing:antialiased}
 .s{position:relative;width:1080px;height:1350px;padding:72px 72px 64px;display:flex;flex-direction:column}
 .marca{font-size:24px;font-weight:800;letter-spacing:.14em;color:#52525b}
+img.marca{display:block;height:72px;width:auto;align-self:flex-start}
 h1{font-size:64px;line-height:1.08;letter-spacing:-.02em;font-weight:800;margin-top:28px}
 h1 .b{color:#1479B0}h1 .l{color:#7250FB}
 .sub{font-size:32px;line-height:1.35;color:#3f3f46;margin-top:24px;font-weight:500}
@@ -126,17 +127,20 @@ li b{font-weight:700}
 .sint{flex:1;display:flex;justify-content:center;align-items:flex-start;margin-top:28px;min-height:0}
 .sint img{height:100%;max-height:1010px;border-radius:20px;box-shadow:0 2px 0 #e4e4e7,0 8px 28px rgba(0,0,0,.06)}
 `;
+/* logo oficial: o mesmo recorte que o charts.js usa nos cards (BPD.carregarLogo), 72 px de altura como nos cards */
+let LOGO_HREF = '';
+function marca() { return LOGO_HREF ? '<img class="marca" alt="Bora pros dados Brasil" src="' + LOGO_HREF + '">' : '<div class="marca">BORA PROS DADOS BRASIL</div>'; }
 function pe(fonte, ancoraUrl) {
   return `<div class="pe">Fonte: ${fonte}<br><b>${HOST}${ancoraUrl}</b> · atualizado em ${ATUALIZADO}</div>`;
 }
 const PAGINAS_HTML = {
   'capa-governos': (img) => `<div class="s">
-    <div class="marca">BORA PROS DADOS BRASIL</div>
+    ${marca()}
     <h1><span class="b">Governo Bolsonaro</span> ×<br><span class="l">Governo Lula</span></h1>
     <p class="sub">7 quesitos, a mesma régua para os dois lados, só dados oficiais. Arraste para ver cada um →</p>
     <div class="sint"><img alt="" src="${img}"></div></div>`,
   'contracapa-governos': () => `<div class="s">
-    <div class="marca">BORA PROS DADOS BRASIL</div>
+    ${marca()}
     <h1>Como calculamos</h1>
     <ul>
       <li><b>Mesma régua para os dois governos:</b> a média de cada governo, 2019–2022 × 2023–2025. Dívida: dez/2018–dez/2022 × dez/2022–ago/2026 (parcial).</li>
@@ -148,7 +152,7 @@ const PAGINAS_HTML = {
     <p class="arraste">Números, ressalvas e método completos no site.</p>
     ${pe('IBGE, Banco Central e Tesouro Nacional (SICONFI e RTN) · conteúdo informativo, com a mesma regra para os dois lados', '/#apendice')}</div>`,
   'capa-promessas': () => `<div class="s">
-    <div class="marca">BORA PROS DADOS BRASIL</div>
+    ${marca()}
     <h1>Promessas de governo: quanto do plano cada um cumpriu</h1>
     <p class="sub">Item a item, com o trecho do plano registrado no TSE e prova em fonte oficial.</p>
     <div class="lados">
@@ -159,7 +163,7 @@ const PAGINAS_HTML = {
     <p class="arraste">Arraste →</p>
     ${pe('planos de governo registrados no TSE (2018 e 2022) e vereditos só em fontes oficiais', '/balanco/#resumo')}</div>`,
   'contracapa-promessas': () => `<div class="s">
-    <div class="marca">BORA PROS DADOS BRASIL</div>
+    ${marca()}
     <h1>Como classificamos</h1>
     <ul>
       <li><b>As mesmas cinco categorias para os dois planos:</b> cumprida, parcial, em andamento, não cumprida e sem evidência oficial.</li>
@@ -242,6 +246,7 @@ function tamanhoPNG(buf) { return { w: buf.readUInt32BE(16), h: buf.readUInt32BE
     await page.goto(base + car.pagina, { waitUntil: 'networkidle' });
     await page.waitForFunction((v) => window.BPD && window.BPD.cardPNG && window[v] && window[v].length, car.defs);
     await page.evaluate(() => BPD.carregarFonte());
+    if (!LOGO_HREF) LOGO_HREF = await page.evaluate(() => (BPD.carregarLogo ? BPD.carregarLogo().then((L) => (L && L.ok && L.href) || '') : ''));
     const textoPagina = await page.evaluate(() => document.body.innerText);
 
     for (let i = 0; i < car.slides.length; i++) {
