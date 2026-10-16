@@ -1,7 +1,9 @@
 # Deploy no Netlify (alternativa ao S3 + CloudFront de infra/terraform).
-# Build: gera dist/ substituindo __SITE_URL__ / __GA_ID__ / __CONSENT__.
+# Build: gera dist/ substituindo __SITE_URL__ / __GA_ID__ / __CONSENT__ (e as datas das páginas, do git).
 # Configure no painel (Site configuration → Environment variables):
 #   SITE_URL (opcional — sem ela usa a URL principal do Netlify), GA_MEASUREMENT_ID, CONSENT_MODE
+#   opcionais de SEO: GOOGLE_SITE_VERIFICATION, BING_SITE_VERIFICATION (meta de verificação na home),
+#   INDEXNOW_KEY (publica /<chave>.txt para o IndexNow), PRERENDER=0 (desliga a pré-renderização dos catálogos)
 [build]
   command = "python3 scripts/build.py"
   publish = "dist"
@@ -25,3 +27,23 @@
   for = "/assets/img/*"
   [headers.values]
     Cache-Control = "public, max-age=604800"
+# biblioteca de gráficos extraída no build, com a versão no nome do arquivo
+[[headers]]
+  for = "/assets/js/echarts-*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Arquivos para buscadores de IA: texto puro em UTF-8, fora do índice do Google
+# (para não competir com as páginas HTML), mas livres para leitura e citação.
+[[headers]]
+  for = "/llms.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    X-Robots-Tag = "noindex"
+    Cache-Control = "public, max-age=3600"
+[[headers]]
+  for = "/llms-full.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    X-Robots-Tag = "noindex"
+    Cache-Control = "public, max-age=3600"
