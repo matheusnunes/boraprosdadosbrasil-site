@@ -12,7 +12,7 @@
   }
   window.CARDS_PROPOSTAS = [
     c('p-geral', 'Qual plano mais diz COMO vai fazer?', 19, { exp: 1, par: 12, sem: 6 }, { exp: 11, par: 6, sem: 2 },
-      { valor: '13 × 17', texto: 'temas com algum caminho (nomeado ou parcial): Flávio Bolsonaro × Lula' }),
+      { valor: '1 × 11', texto: 'ferramenta nomeada: Flávio 1 de 19 × Lula 11 de 19 temas. Com algum caminho: 13 × 17' }),
     c('p-bolso', 'Bolso (impostos, trabalho, renda, casa): o plano diz como?', 5, { exp: 0, par: 2, sem: 3 }, { exp: 2, par: 3, sem: 0 }),
     c('p-seguranca', 'Segurança e crime organizado: o plano diz como?', 3, { exp: 0, par: 3, sem: 0 }, { exp: 2, par: 1, sem: 0 }),
     c('p-servicos', 'Saúde, educação e serviços: o plano diz como?', 5, { exp: 0, par: 2, sem: 3 }, { exp: 4, par: 1, sem: 0 }),
