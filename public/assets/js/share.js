@@ -68,11 +68,14 @@
   }
 
   function copyBtn() {
-    return IMGCLIP ? btn('copy', 'Copiar imagem', 'Copiar imagem, com a fonte e o link do site') : btn('copy', 'Copiar', 'Copiar mensagem com o link');
+    /* o nome acessível começa pelo texto visível do botão (WCAG 2.5.3) */
+    return IMGCLIP ? btn('copy', 'Copiar imagem', 'Copiar imagem, com a fonte e o link do site') : btn('copy', 'Copiar', 'Copiar o texto com o link e baixar a imagem');
   }
   var TOAST = null;
+  /* a região viva já existe vazia desde o init: leitores de tela só anunciam mudanças em regiões que já estavam no DOM */
+  function regiao() { if (!TOAST && document.body) { TOAST = el('div', 'share-toast', '', { role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true' }); document.body.appendChild(TOAST); } }
   function toast(t) {
-    if (!TOAST) { TOAST = el('div', 'share-toast', '', { role: 'status', 'aria-live': 'polite' }); document.body.appendChild(TOAST); }
+    regiao(); if (!TOAST) return;
     TOAST.textContent = t; TOAST.classList.add('is-on');
     clearTimeout(TOAST.__t); TOAST.__t = setTimeout(function () { TOAST.classList.remove('is-on'); }, 4500);
   }
@@ -132,24 +135,42 @@
     ta.value = txt; document.body.appendChild(ta); ta.select();
     try { ok = document.execCommand('copy'); } catch (e) {} document.body.removeChild(ta); return ok;
   }
-  /* Copiar: 1) imagem PNG + texto (ClipboardItem; a PROMISE do PNG vai direto, para o Safari manter o gesto);
-     2) se não houver suporte, permissão ou a imagem falhar: só o texto com o link; 3) execCommand (navegadores antigos). */
+  /* Copiar: 1) imagem PNG + texto num só ClipboardItem (a PROMISE do PNG vai direto, para o Safari manter o gesto);
+     2) sem ClipboardItem, sem permissão ou com falha: copia o texto com o link (writeText → execCommand) e BAIXA o PNG.
+     Os avisos saem na região viva (aria-live polite); o nome do botão não muda. */
+  function baixar(bl, nome) {
+    var a = document.createElement('a'), u = URL.createObjectURL(bl);
+    a.href = u; a.download = nome; a.style.display = 'none'; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(u); document.body.removeChild(a); }, 2000);
+  }
   function copy(b, c, sec) {
-    var txt = msg(c, 'copy');
-    function okTxt() { toast('Copiamos o texto com o link. Agora é só colar na conversa.'); track('share_success', { method: 'copy_text', section: sec }); }
-    function legado() { if (legacyCopy(txt)) okTxt(); else toast('Não deu para copiar. Use o botão WhatsApp.'); }
-    function soTexto() {
-      if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) navigator.clipboard.writeText(txt).then(okTxt, legado);
-      else legado();
+    var txt = msg(c, 'copy'), copiouTxt = null, baixou = null;
+    function pngOk() { return png(c).then(null, function () { return cartaoTexto(c, ref(c)); }); }
+    function aviso() {         /* espera o texto e o download para um aviso só */
+      if (copiouTxt === null || baixou === null) return;
+      if (copiouTxt && baixou) toast('Imagem baixada e texto com o link copiado. Anexe a imagem e cole o texto na conversa.');
+      else if (baixou) toast('Imagem baixada. Anexe na conversa; o link está no rodapé da imagem.');
+      else if (copiouTxt) toast('Copiamos o texto com o link. Agora é só colar na conversa.');
+      else toast('Não deu para copiar. Use o botão WhatsApp.');
     }
-    if (!IMGCLIP) { soTexto(); return; }
+    function txtFeito(ok) { copiouTxt = ok; if (ok) track('share_success', { method: 'copy_text', section: sec }); aviso(); }
+    function legado() { txtFeito(legacyCopy(txt)); }
+    function plano2() {
+      if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) navigator.clipboard.writeText(txt).then(function () { txtFeito(true); }, legado);
+      else legado();
+      pngOk().then(function (bl) {
+        baixar(bl, 'bora-pros-dados-' + String(sec).replace(/[^a-z0-9-]/gi, '') + '.png');
+        baixou = true; track('share_success', { method: 'download_image', section: sec }); aviso();
+      }, function () { baixou = false; aviso(); });
+    }
+    if (!IMGCLIP) { toast('Preparando a imagem…'); plano2(); return; }
     var item;
-    try { item = new ClipboardItem({ 'image/png': png(c).then(null, function () { return cartaoTexto(c, ref(c)); }), 'text/plain': new Blob([txt], { type: 'text/plain' }) }); } catch (e) { soTexto(); return; }
+    try { item = new ClipboardItem({ 'image/png': pngOk(), 'text/plain': new Blob([txt], { type: 'text/plain' }) }); } catch (e) { plano2(); return; }
     toast('Preparando a imagem…');
     navigator.clipboard.write([item]).then(function () {
-      toast('Imagem copiada — cole no WhatsApp, e-mail ou documento');
+      toast('Imagem copiada. Cole no WhatsApp, e-mail ou documento.');
       track('share_success', { method: 'copy_image', section: sec });
-    }, function () { soTexto(); });
+    }, function () { plano2(); });
   }
 
   /* ---------- PNG da seção, sempre com rodapé de referência ao site ---------- */
@@ -166,7 +187,9 @@
   }
   function semFonte(r) { return { url: r.url, fonte: '', data: r.data }; }
   function acharDef(c) {
-    var id = attr(c, 'card'), k, i, L;
+    var id = attr(c, 'card'), k, i, L, R = window.__shareDefs;
+    /* def registrada pela página para a âncora/seção (ex.: home, que ajusta as defs antes do montarCard) */
+    if (R && (R[attr(c, 'anchor')] || R[attr(c, 'section')])) return R[attr(c, 'anchor')] || R[attr(c, 'section')];
     if (!id) return null;
     for (k in window) {
       if (!/^CARDS_/.test(k) || !(window[k] instanceof Array)) continue;
@@ -182,13 +205,13 @@
     var r = ref(c), prov = window.__shareImgs && (window.__shareImgs[attr(c, 'anchor')] || window.__shareImgs[attr(c, 'section')]);
     var BPD = window.BPD, def = acharDef(c), svg, k, d2 = {};
     try {
-      /* imagem que já traz a linha "Fonte:" (resumo, gráficos do charts.js): o rodapé não repete a fonte */
-      if (prov) return Promise.resolve(prov()).then(function (bl) { return comRodape(bl, semFonte(r)); });
       if (def && BPD && BPD.cardPNG) {         /* o card do charts.js já traz marca, fonte e "url · atualizado em" */
         for (k in def) if (def.hasOwnProperty(k)) d2[k] = def[k];
         d2.url = r.url; d2.atualizado = def.atualizado || r.data;
         return BPD.cardPNG(d2, 'feed');
       }
+      /* imagem que já traz a linha "Fonte:" (resumo, gráficos do charts.js): o rodapé não repete a fonte */
+      if (prov) return Promise.resolve(prov()).then(function (bl) { return comRodape(bl, semFonte(r)); });
       svg = acharSvg(c);
       if (svg && BPD && BPD.paraPNG) {
         var w = +svg.getAttribute('width') || (svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width) || 390;
@@ -275,7 +298,7 @@
     }, { passive: true });
   }
 
-  function init(root) { var n = (root || document).querySelectorAll('.share'), i; for (i = 0; i < n.length; i += 1) render(n[i]); }
+  function init(root) { var n = (root || document).querySelectorAll('.share'), i; regiao(); for (i = 0; i < n.length; i += 1) render(n[i]); }
   /* para os blocos de ações das páginas (ex.: /balanco/ e /propostas/), que escondem o .share da seção e mostram botões próprios */
   function copiarDe(sh) {
     var c = ctx(sh), sec = secao(c);

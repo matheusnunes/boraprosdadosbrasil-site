@@ -1620,6 +1620,16 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   }
 
   /* cards feitos com os gráficos da página, na MESMA moldura e com as MESMAS ações dos cards do sistema */
+  /* "Copiar imagem" (share.js) ao lado de [Compartilhar imagem] [WhatsApp] de cada card: usa o .share (escondido) da seção */
+  function botaoCopiar(box, el){
+    var sh = (el.closest('article') || el).querySelector('.share[data-share-text]');
+    if (!sh || !box || !window.__share || !window.__share.copiar) return;
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'bpd-btn bpd-btn--copiar';
+    b.textContent = window.__share.copiaImagem ? 'Copiar imagem' : 'Copiar';
+    b.setAttribute('aria-label', window.__share.copiaImagem ? 'Copiar imagem, com a fonte e o link do site' : 'Copiar o texto com o link e baixar a imagem');
+    b.addEventListener('click', function(){ window.__share.copiar(sh); });
+    box.insertBefore(b, box.querySelector('.bpd-card-status'));
+  }
   function cardPagina(slot, def){
     slot.classList.add('bpd-card'); slot.classList.add('bpd-card--pagina');
     var area = document.createElement('div'); area.className = 'bpd-card-img'; slot.appendChild(area);
@@ -1684,7 +1694,7 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
     var D = {}; (L.length ? L : []).forEach(function(d){ D[d.id] = d; }); D['q-areas'] = defAreas();
     Array.prototype.forEach.call(document.querySelectorAll('[data-card]'), function(el){
       var PG = montaCardsHome.pg || (montaCardsHome.pg = defsPagina()), pg = PG[el.getAttribute('data-card')];
-      if (pg) { var sl = document.createElement('div'); sl.className = 'card-slot'; sl.id = 'card-' + pg.id; el.insertBefore(sl, el.firstElementChild); cardPagina(sl, pg); el.classList.add('tem-card'); return; }
+      if (pg) { var sl = document.createElement('div'); sl.className = 'card-slot'; sl.id = 'card-' + pg.id; el.insertBefore(sl, el.firstElementChild); cardPagina(sl, pg); botaoCopiar(sl.querySelector('.bpd-card-acoes'), el); el.classList.add('tem-card'); return; }
       var def = D[el.getAttribute('data-card')]; if (!def) return;
       var slot = document.createElement('div'); slot.className = 'card-slot'; slot.id = 'card-' + def.id;
       el.insertBefore(slot, el.firstElementChild);
@@ -1697,6 +1707,8 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
       var share = (el.closest('article') || el).querySelector('.share[data-share-text]');
       if (share && !d.share) d.share = {texto: share.getAttribute('data-share-text'), url: location.origin + location.pathname + '#' + (el.id || def.id)};
       BPD.montarCard(slot, d, {tabela:false});
+      if (share) (window.__shareDefs = window.__shareDefs || {})[share.getAttribute('data-share-anchor') || el.id || d.id] = d;
+      botaoCopiar(slot.querySelector('.bpd-card-acoes'), el);
       el.classList.add('tem-card');
     });
   }
