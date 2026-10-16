@@ -61,3 +61,40 @@
   [headers.values]
     Content-Disposition = "attachment"
     X-Robots-Tag = "noindex"
+
+# Links de seleção compartilhada (/c/1-3-5): fora do índice dos buscadores, mas sem bloquear
+# no robots.txt (os robôs de prévia do WhatsApp/Facebook precisam ler o OG).
+[[headers]]
+  for = "/c/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+# registro único das comparações e livro-razão dos IDs: revalidam a cada 5 min
+[[headers]]
+  for = "/dados/comparacoes.json"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+[[headers]]
+  for = "/dados/comparacoes-ids.json"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+# Catálogo: o nome antigo /meus-dados/ vira /comparacoes/ (301 permanente).
+[[redirects]]
+  from = "/meus-dados"
+  to = "/comparacoes/"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/meus-dados/*"
+  to = "/comparacoes/"
+  status = 301
+  force = true
+
+# Seleção compartilhada (canônico, decisão do dono 8): /c/1-3-5-6-7 → página de chegada
+# (rewrite 200, a URL fica igual). Sem "force": arquivos que existem têm prioridade
+# (shadowing), então /c/<slug>/ estáticos (temas) continuam valendo. O build recusa slug
+# que pareça seleção (^[pb]?\d+(-[pb]?\d+)*$) e os nomes reservados.
+[[redirects]]
+  from = "/c/*"
+  to = "/c/index.html"
+  status = 200

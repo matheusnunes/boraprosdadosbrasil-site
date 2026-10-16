@@ -11,6 +11,8 @@
  *   BPD.card(el, def, formato)  card "a seção é o card" (web inline | feed | story | og)  — v0.3
  *   BPD.montarCard(el, def)     card web + [Compartilhar imagem] [WhatsApp] (sem segundo gráfico)
  *   BPD.cardPNG(def, formato)   Promise<Blob> PNG do card
+ *   BPD.cardSelecao(el, opts)   imagem única de uma seleção /c/1-3-5 (título neutro, contexto no rodapé)
+ *   BPD.carrossel(el, opts)     seção com vários cards vira carrossel no celular (≤ 760 px)
  *   BPD.paraPNG(svg, escala)    Promise<Blob> PNG da imagem (para compartilhar)
  *
  * Cada função devolve o <svg>. O SVG traz <title>/<desc> (leitor de tela) e, se
@@ -407,7 +409,7 @@
    * ===================================================================== */
   function linhaDuelo(c, y, d) {
     var T = c.T, g = c.g, f = fmtFn(d.formato), v = vencedor(d);
-    var nomeW = 72;
+    var nomeW = Math.max(72, Math.max.apply(null, ORDEM.map(function (k) { return largura(c.L[k].curto, 12, 700); })) + 8);
     texto(g, c.x0, y + 15, d.tema, { size: 14, weight: 700, fill: T.ink });
     var wt = largura(d.tema, 14, 700);
     var crit = textoCriterio(d);
@@ -643,6 +645,7 @@
    *       excluir:['sem_evidencia'], grupos:[{tema, linhas}] (mapa tema a tema), fonte, nota
    * ===================================================================== */
   function corCategoria(cat, lado, T, hatch) {
+    if (cat.cor) return cat.cor;   // cor de STATUS fixa, igual para os dois lados (registro de comparações)
     switch (cat.tipo) {
       case 'cheio': return T[lado];
       case 'claro': return T[lado + 'Claro'];
@@ -1101,7 +1104,8 @@
     G.forEach(function (q, gi) {
       var cx = pl + gw * gi + gw / 2, labY = {};
       ORDEM.forEach(function (lado) { var it = q[lado]; if (it && it.v != null && it.v >= 0) labY[lado] = Y(it.v) - c.z(5); });
-      if (escalona && labY.b != null && labY.l != null && Math.abs(labY.b - labY.l) < c.z(15)) {
+      if (escalona && labY.b != null && labY.l != null) {
+        // o rótulo da barra mais baixa não pode encostar na barra vizinha mais alta: sobe acima do rótulo dela
         var baixo = labY.b > labY.l ? 'b' : 'l', alto = baixo === 'b' ? 'l' : 'b';
         labY[baixo] = labY[alto] - c.z(15);
       }
@@ -1151,7 +1155,8 @@
 
   /* vários pares (b × l) em grupos, mesma escala ou escala própria por grupo */
   GRAF.pares = { flex: false, desenhar: function (c, x, y, w, h, gr) {
-    var C = c.C, f = fmtFn(gr.formato), nomeW = c.z(72);
+    var C = c.C, f = fmtFn(gr.formato);
+    var nomeW = Math.max.apply(null, ORDEM.map(function (l) { return c.w(c.L[l].curto, 12.5, 600); })) + c.z(13) + c.z(8);
     var todos = []; gr.grupos.forEach(function (q) { todos.push(q.b, q.l); });
     var hiG = Math.max.apply(null, todos);
     gr.grupos.forEach(function (q) {
@@ -1487,8 +1492,12 @@
     '.bpd-car-seta{width:44px;height:44px;border-radius:22px;border:1px solid currentColor;background:transparent;color:inherit;font:700 20px/1 inherit;cursor:pointer;opacity:.75}' +
     '.bpd-car-seta:disabled{opacity:.25;cursor:default}' +
     '.bpd-car-pontos{display:flex;gap:6px}' +
-    '.bpd-car-ponto{width:8px;height:8px;border-radius:4px;background:currentColor;opacity:.25;border:0;padding:0}' +
-    '.bpd-car-ponto[aria-current="true"]{opacity:.9;width:20px}' +
+    '.bpd-car-pontos{gap:0}' +
+    '.bpd-car-ponto{position:relative;min-width:24px;height:24px;border:0;padding:0;background:transparent;color:inherit;cursor:pointer}' +
+    '.bpd-car-ponto::before{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:4px;background:currentColor;opacity:.3}' +
+    '.bpd-car-ponto[aria-current="true"]{min-width:32px}' +
+    '.bpd-car-ponto[aria-current="true"]::before{width:20px;margin-left:-10px;opacity:.9}' +
+    '.bpd-car-ponto:focus-visible{outline:2px solid currentColor;outline-offset:-2px;border-radius:12px}' +
     '.bpd-car-conta{font:600 13px/1 inherit;min-width:34px;text-align:center;opacity:.8}' +
     '}' +
     '@media (prefers-reduced-motion:reduce){.bpd-car-trilho{scroll-behavior:auto}}';
@@ -1559,11 +1568,118 @@
     return cont.__bpdCar;
   }
 
+
+  /* =====================================================================
+   * CARD DE SELEÇÃO (imagem única de uma seleção /c/1-3-5) — 96-revisao-dataviz §3. (catálogo; revisado v0.3.3)
+   * Título neutro e fixo (nunca "X à frente em N"); uma linha de duelo compacto por item, na ordem dos ids;
+   * selo "✓ à frente" idêntico para os dois lados; "apertada" vazado igual para os dois; contagem só em texto
+   * pequeno no rodapé, junto de "Seleção feita por quem compartilhou" e do resumo do site inteiro.
+   * BPD.cardSelecao(el, {formato:'feed'|'story', titulo, sub, itens:[{tema, criterio?:'menor'|'maior', criterioTexto,
+   *   valores:{b,l}, formato, vencedor?:'b'|'l'|null, apertada, lados:{b:{curto},l:{curto}}, periodo}], resto, rodape:[...], url, atualizado})
+   * Com `criterio`, o vencedor é CALCULADO (e conferido contra `vencedor`, se vier).
+   * feed (1080×1350) e story (1080×1920, com zonas livres): até 6 itens, ou menos se as linhas não couberem; o resto vira "e mais K no link".
+   * ===================================================================== */
+  function cardSelecao(cont, o) {
+    if (typeof cont === 'string') cont = document.querySelector(cont);
+    while (cont.firstChild) cont.removeChild(cont.firstChild);
+    var fmt = o.formato === 'story' ? 'story' : 'feed';
+    var F = FORMATOS[fmt], W = F.W, H = F.H, P = F.P || 64, T = TEMAS.light, C = CLARO;
+    var max = fmt === 'story' ? 9 : 6, todos = o.itens || [], itens = todos.slice(0, max);
+    var resto = todos.length - itens.length + (o.resto || 0);
+    var vencDe = function (it) { return it.criterio && it.valores ? vencedor({ criterio: it.criterio, valores: it.valores, vencedor: it.vencedor, titulo: it.tema }) : (it.vencedor || null); };
+    var svg = el('svg', { xmlns: NS, width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'font-family': FONTE });
+    svg.style.display = 'block'; svg.style.width = '100%'; svg.style.height = 'auto';
+    var titulo = o.titulo || 'Comparações escolhidas, com dados oficiais';
+    var tt = el('title', null, svg); tt.textContent = titulo;
+    var dd = el('desc', null, svg);
+    dd.textContent = itens.map(function (it) {
+      var f = fmtFn(it.formato), L = lados(it), v = vencDe(it);
+      return it.tema + ': ' + L.b.curto + ' ' + f(it.valores.b) + ', ' + L.l.curto + ' ' + f(it.valores.l) +
+        (v ? ' (' + L[v].curto + ' à frente, ' + (it.criterioTexto || '') + ')' : ' (' + (it.criterioTexto || 'sem placar') + ')');
+    }).join('. ') + '. ' + (o.rodape || []).join(' ');
+    el('rect', { x: 0, y: 0, width: W, height: H, fill: C.fundo }, svg);
+    var g = el('g', null, svg), y = P + (F.topo || 0), wU = W - 2 * P;
+    cardTexto(g, P, y + 22, 'BORA PROS DADOS BRASIL', 24, 800, C.muted, 'start', 2);
+    y += 52;
+    quebra(titulo, 54, 800, wU).forEach(function (ln) { y += 60; cardTexto(g, P, y - 12, ln, 54, 800, C.ink); });
+    if (o.sub) { y += 4; quebra(o.sub, 26, 400, wU).forEach(function (ln) { y += 34; cardTexto(g, P, y - 6, ln, 26, 400, C.ink2); }); }
+    y += 26;
+    // rodapé (de baixo para cima): o 1º item do rodapé em destaque (ex.: "Seleção feita por quem compartilhou")
+    var pe = [];
+    (o.rodape || []).forEach(function (t, i) { quebra(t, 21, i === 0 ? 700 : 400, wU).forEach(function (ln) { pe.push([ln, 21, i === 0 ? 700 : 400, i === 0 ? C.ink2 : C.muted]); }); });
+    quebra((o.url || SITE) + (o.atualizado ? ' · atualizado em ' + o.atualizado : ''), 22, 700, wU).forEach(function (ln) { pe.push([ln, 22, 700, C.ink2]); });
+    var altPe = pe.reduce(function (s, l) { return s + l[1] * 1.45; }, 0);
+    var yPe = H - P - (F.base || 0) - altPe;
+    // linhas de duelo compacto: mesma altura e mesma tipografia para todas
+    var seloTxt = '✓ à frente', sw = largura(seloTxt, 20, 700) + 24, sh = 32, aw = largura('apertada', 18, 700) + 22;
+    // cabeçalho de cada linha: tema e critério na mesma linha se couberem; senão, critério na linha de baixo (para TODAS)
+    var critDe = function (it) { return (it.criterioTexto || '') + (it.periodo ? ' · ' + it.periodo : ''); };
+    var duasLinhas = itens.some(function (it) { return largura(it.tema, 26, 800) + 24 + largura(critDe(it), 20, 600) + (it.apertada ? aw + 10 : 0) > wU; });
+    var cab = duasLinhas ? 74 : 50, minRow = cab + 12 + 2 * (16 + 14) + 8;
+    // quantos itens cabem sem apertar as linhas; o resto vira "e mais K no link"
+    var cabem = Math.max(1, Math.floor((yPe - 30 - 44 - y) / minRow));
+    if (itens.length > cabem) { itens = itens.slice(0, cabem); resto = todos.length - itens.length + (o.resto || 0); }
+    var fim = yPe - 30 - (resto > 0 ? 44 : 0), n = Math.max(1, itens.length);
+    var rh = Math.min(176, (fim - y) / n);
+    var bh = Math.max(16, Math.min(26, (rh - cab - 12 - 28 - 8) / 2));
+    var nomeW = 0;
+    itens.forEach(function (it) { var L = lados(it); ORDEM.forEach(function (k) { nomeW = Math.max(nomeW, largura(L[k].curto, 24, 600)); }); });
+    nomeW += 40;
+    itens.forEach(function (it, idx) {
+      var f = fmtFn(it.formato), L = lados(it), y0 = y + idx * rh, v = vencDe(it);
+      el('line', { x1: P, x2: W - P, y1: y0, y2: y0, stroke: C.grid, 'stroke-width': 2 }, g);
+      var tamT = 30, critTxt = critDe(it);
+      var reserva = duasLinhas ? 0 : largura(critTxt, 20, 600) + 24 + (it.apertada ? aw + 10 : 0);
+      if (duasLinhas && it.apertada) reserva = aw + 16;
+      while (tamT > 22 && largura(it.tema, tamT, 800) + reserva > wU) tamT -= 1;
+      cardTexto(g, P, y0 + 44, it.tema, tamT, 800, C.ink);
+      if (it.apertada) {
+        el('rect', { x: W - P - aw, y: y0 + 20, width: aw, height: 30, rx: 15, fill: '#ffffff', stroke: C.ink2, 'stroke-width': 2, 'stroke-dasharray': '6 4' }, g);
+        cardTexto(g, W - P - aw / 2, y0 + 41, 'apertada', 18, 700, C.ink2, 'middle');
+      }
+      if (duasLinhas) cardTexto(g, P, y0 + 72, critTxt, 20, 600, C.muted, 'start');
+      else cardTexto(g, W - P - (it.apertada ? aw + 10 : 0), y0 + 43, critTxt, 20, 600, C.muted, 'end');
+      var vals = ORDEM.map(function (k) { return it.valores[k]; });
+      var lo = Math.min(0, Math.min.apply(null, vals)), hi = Math.max(0, Math.max.apply(null, vals));
+      var labW = Math.max.apply(null, vals.map(function (x) { return largura(f(x), 26, 800); })) + 16 + sw + 10;
+      var pl = P + nomeW + (lo < 0 ? labW * 0.6 : 0), pr = W - P - (hi > 0 ? labW : 0);
+      var X = function (x) { return pl + (x - lo) / ((hi - lo) || 1) * (pr - pl); };
+      var yy = y0 + cab + 12;
+      ORDEM.forEach(function (k) {
+        var val = it.valores[k], xa = X(0), xb = X(val);
+        if (Math.abs(xb - xa) < 3) xb = xa + (val < 0 ? -3 : 3);
+        marca(g, k, P + 12, yy + bh / 2, 20, T);
+        cardTexto(g, P + 30, yy + bh / 2 + 8, L[k].curto, 24, 600, C.ink2);
+        barra(g, xa, xb, yy, bh, T[k]);
+        var tx = val < 0 ? xb - 12 : xb + 12, vt = f(val);
+        cardTexto(g, tx, yy + bh / 2 + 9, vt, 26, 800, C.ink, val < 0 ? 'end' : 'start');
+        if (v === k) {
+          var sx = val < 0 ? xa + 12 : tx + largura(vt, 26, 800) + 12;
+          el('rect', { x: sx, y: yy + bh / 2 - sh / 2, width: sw, height: sh, rx: sh / 2, fill: T[k] }, g);
+          cardTexto(g, sx + sw / 2, yy + bh / 2 + 7, seloTxt, 20, 700, '#ffffff', 'middle');
+        }
+        if (lo < 0) el('line', { x1: X(0), x2: X(0), y1: yy - 4, y2: yy + bh + 4, stroke: C.ink2, 'stroke-width': 2 }, g);
+        yy += bh + 14;
+      });
+    });
+    var yFim = y + itens.length * rh;
+    el('line', { x1: P, x2: W - P, y1: yFim, y2: yFim, stroke: C.grid, 'stroke-width': 2 }, g);
+    if (resto > 0) cardTexto(g, P, yFim + 36, 'e mais ' + resto + (resto === 1 ? ' comparação' : ' comparações') + ' no link', 24, 700, C.ink2);
+    pe.forEach(function (l) { yPe += l[1] * 1.45; cardTexto(g, P, yPe - 4, l[0], l[1], l[2], l[3]); });
+    dd.textContent = itens.map(function (it) {
+      var f = fmtFn(it.formato), L = lados(it), v = vencDe(it);
+      return it.tema + ': ' + L.b.curto + ' ' + f(it.valores.b) + ', ' + L.l.curto + ' ' + f(it.valores.l) +
+        (v ? ' (' + L[v].curto + ' à frente, ' + (it.criterioTexto || '') + ')' : ' (' + (it.criterioTexto || 'sem placar') + ')');
+    }).join('. ') + (resto > 0 ? '. E mais ' + resto + ' no link' : '') + '. ' + (o.rodape || []).join(' ');
+    cont.appendChild(svg);
+    return svg;
+  }
+
   root.BPD = {
     placar: placar, duelo: duelo, trajetoria: trajetoria, distribuicao: distribuicao,
-    promessas: promessas, resumo: resumo, card: card, montarCard: montarCard, carrossel: carrossel, cardPNG: cardPNG, cardSintese: cardSintese,
+    promessas: promessas, resumo: resumo, card: card, montarCard: montarCard, carrossel: carrossel, cardPNG: cardPNG, cardSintese: cardSintese, cardSelecao: cardSelecao,
     carregarFonte: function () { return Promise.all(['400', '600', '700', '800'].map(function (w) { return document.fonts.load(w + ' 20px InterVar'); })); },
     paraPNG: paraPNG, redesenhar: function () { redesenhar(true); redesenharCards(true); },
-    TEMAS: TEMAS, FORMATOS: FORMATOS, STATUS: STATUS, urlFonte: '/assets/fonts/inter-latin-var.woff2', versao: '0.3.1'
+    TEMAS: TEMAS, FORMATOS: FORMATOS, STATUS: STATUS, urlFonte: '/assets/fonts/inter-latin-var.woff2', versao: '0.3.3'
   };
 })(typeof window !== 'undefined' ? window : this);
