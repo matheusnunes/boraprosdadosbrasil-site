@@ -71,6 +71,7 @@ FONTE_PUB = {
     'bc': 'Banco Central', 'nfsp': 'Banco Central (NFSP)', 'tesouro': 'Tesouro Nacional (SICONFI/RREO)',
     'tesouro_pib': 'Tesouro Nacional (SICONFI) e Banco Central', 'rgf': 'Tesouro Nacional (SICONFI/RGF)',
     'fed': 'Federal Reserve Bank of New York', 'sm': 'Banco Central (SGS 1619) e IBGE (IPCA)',
+    'ibge4562': 'IBGE (PNAD Contínua, SIDRA 4562: taxa de desocupação anual)',
     'tse26': 'TSE: planos de governo de 2026 registrados', 'tse_bal': 'TSE: planos de 2018 e 2022 + fonte oficial de cada promessa',
 }
 
@@ -106,8 +107,18 @@ META = {
              selo='menor inflação', bloco='Economia e renda', ress='Só com 2019: 4,3% × 4,6%, inverte. Sem 2020–21: 5,0% × 4,6%.'),
  'H03': dict(slug='desemprego', titulo='Quantos procuravam emprego e não achavam?', tema='trabalho', tc='Desemprego', impacto='bolso',
              como='Mostra a chance de quem procura trabalho encontrar uma vaga.',
-             fonte='pnad', crit='menor', num=(12.1, 7.0), fmt={'casas': 1, 'sufixo': '%'}, ancora='cap-motor', card='q-emprego',
-             selo='menos desemprego', bloco='Economia e renda', ress='Sem 2020–21 (pandemia): 10,8% × 7,0%; só 2019: 12,0% × 7,0%. O resultado não muda.'),
+             fonte='pnad', crit='menor', num=(12.1, 7.0), fmt={'casas': 1, 'sufixo': '%'}, ancora='cap-motor', card=None,
+             selo='menos desemprego', bloco='Economia e renda', ress='Sem 2020–21 (pandemia): 10,8% × 7,0%; só 2019: 12,0% × 7,0%. O resultado não muda.',
+             obs='Descontinuado em 16/10/2026: a home passou a usar a média anual oficial do IBGE (decisão do dono); substituído pela comparação H03A.'),
+ 'H03A': dict(slug='desemprego-media-anual', titulo='Quantos procuravam emprego e não achavam?', tema='trabalho', tc='Desemprego', impacto='bolso',
+             como='Mostra a chance de quem procura trabalho encontrar uma vaga.',
+             fonte='ibge4562', crit='menor', num=(12.3, 6.6), fmt={'casas': 1, 'sufixo': '%'}, ancora='cap-motor', card='q-emprego',
+             selo='menos desemprego', bloco='Economia e renda', ress='Sem 2020–21 (pandemia): 10,7% × 6,6%; só 2019: 11,8% × 6,6%. O resultado não muda.',
+             grupos=[{'rotulo': '1º ano', 'b': {'rot': '2019', 'v': 11.8}, 'l': {'rot': '2023', 'v': 7.7}},
+                     {'rotulo': '2º ano', 'b': {'rot': '2020', 'v': 13.7}, 'l': {'rot': '2024', 'v': 6.6}},
+                     {'rotulo': '3º ano', 'b': {'rot': '2021', 'v': 14.0}, 'l': {'rot': '2025', 'v': 5.6}},
+                     {'rotulo': '4º ano', 'b': {'rot': '2022', 'v': 9.6}, 'l': None}],
+             obs='Média anual oficial do IBGE (decisão do dono, 16/10/2026); substitui a comparação nº 3 (média de trimestres móveis).'),
  'H04': dict(slug='assistencia', titulo='Quanto foi gasto com assistência social, por ano?', tema='protecao', tc='Proteção social', impacto='servicos',
              como='É o dinheiro de programas como Bolsa Família, Auxílio Brasil e BPC, que chega a famílias de baixa renda.',
              fonte='tesouro', crit='maior', num=(188.1, 293.5), fmt={'prefixo': 'R$ ', 'casas': 1, 'sufixo': ' bi/ano'}, ancora='placar', card='q-protecao-social',
@@ -206,7 +217,8 @@ META = {
              val=('déficit médio de 2,0% do PIB', 'déficit médio de 1,0% do PIB')),
  'H28': dict(slug='teste-sem-pandemia', titulo='E sem 2020–21? Crescimento, inflação e desemprego', tema='economia', tc='Teste sem pandemia', impacto=None,
              como='Refaz três contas sem os anos de pandemia, para ver se o resultado muda.',
-             fonte='bc', crit=None, num=None, ancora='cap-divida', variante_de='H01,H02,H03', resultado='sem-placar', per=('2019 e 2022', '2023–25'),
+             fonte='bc', crit=None, num=None, ancora='cap-divida', variante_de='H01,H02,H03A', resultado='sem-placar', per=('2019 e 2022', '2023–25'),
+             val=('PIB 2,1% · IPCA 5,0% · desemprego 10,7%', 'PIB 3,0% · IPCA 4,6% · desemprego 6,6%'),
              obs='Teste de sensibilidade de H01–H03 (não é comparação própria, não conta ponto). Matriz: "Lula segue à frente"; só 2019: IPCA 4,3% × 4,6%.'),
  'P00': dict(slug='planos-caminho-explicito', titulo='Qual plano mais diz COMO vai fazer?', tema='planos', tc='Planos: ferramenta nomeada', impacto='panorama',
              como='Mostra se o plano nomeia a ferramenta (lei, programa, dinheiro), não se a proposta é boa.',
@@ -261,7 +273,19 @@ META = {
              temas_b=None, dest='no', obs='Fora do catálogo: decisão do dono (item 3) tira "não cumpridas" do veredito.'),
 }
 # Itens a descontinuar (ref -> {'substituido_por': ref_novo}); o id fica no livro-razão para sempre.
-DESCONTINUAR = {}
+DESCONTINUAR = {'H03': {'substituido_por': 'H03A'}}
+
+# Linhas que não estão na matriz 10 (mesmo formato dela), em geral substitutas de itens descontinuados.
+EXTRA_ROWS = [
+    {'id': 'H03A', 'pagina': '/', 'secao': 'placar; cap-motor; cap-bolso', 'tema': 'Emprego', 'no_placar': True,
+     'metrica': 'Taxa de desocupação anual do IBGE (PNAD Contínua, SIDRA 4562), média simples dos anos de cada governo',
+     'unidade': '% da força de trabalho', 'periodo_a': '2019-2022 (média anual)', 'periodo_b': '2023-2025 (média anual)',
+     'valor_a': '12,3%', 'valor_b': '6,6%', 'vencedor': 'Governo Lula', 'criterio': 'menor é melhor', 'forca': 'clara',
+     'fonte': 'public/dados/ibge/ibge_sidra_4562_taxa_desocupacao_anual.json',
+     'ressalva': 'Sem 2020–21 (pandemia): 10,7% × 6,6%; só 2019: 11,8% × 6,6%.',
+     'como_reproduzido': 'SIDRA 4562 (taxa de desocupação anual): 2019 11,8; 2020 13,7; 2021 14,0; 2022 9,6 → média 12,3 (12,275); '
+                         '2023 7,7; 2024 6,6; 2025 5,6 → média 6,6 (6,633). Sem 2020–21: 10,7. Substitui a média dos trimestres móveis (SGS 24369), comparação nº 3.'},
+]
 
 
 # ------------------------------------------------------------------ utilidades
@@ -425,6 +449,8 @@ def item_da_matriz(row):
         it['vencedor_matriz'] = row['vencedor']
     if meta.get('variante_de'):
         it['variante_de'] = meta['variante_de'].split(',')
+    if meta.get('grupos'):
+        it['grupos'] = meta['grupos']
     if meta.get('obs'):
         it['revisao'] = meta['obs']
     return it
@@ -526,13 +552,25 @@ def main():
     a = ap.parse_args()
 
     matriz = json.loads(Path(a.matriz).read_text(encoding='utf-8'))
-    itens = [item_da_matriz(r) for r in matriz]
+    itens = [item_da_matriz(r) for r in matriz + EXTRA_ROWS]
+    # ordem de leitura: a do arquivo de origem; o substituto ocupa o lugar do item que substitui
+    pos = {it['ref']: i for i, it in enumerate(itens)}
+    for i, it in enumerate(itens):
+        it['ordem'] = i
+    for velho, d in DESCONTINUAR.items():
+        for it in itens:
+            if it['ref'] == d.get('substituido_por') and velho in pos:
+                it['ordem'] = pos[velho] + 0.5
     if a.novos:
         novos = json.loads(Path(a.novos).read_text(encoding='utf-8'))
         if isinstance(novos, dict):
             TEMAS.update(novos.get('temas_novos') or {})
             novos = novos.get('itens') or novos.get('indicadores') or []
-        itens += [item_novo(r, a.dados) for r in novos]
+        base = len(itens)
+        novos_itens = [item_novo(r, a.dados) for r in novos]
+        for i, it in enumerate(novos_itens):
+            it['ordem'] = base + i
+        itens += novos_itens
 
     # livro-razão: append-only
     livro = json.loads(LIVRO.read_text(encoding='utf-8')) if LIVRO.exists() else {'ids': []}

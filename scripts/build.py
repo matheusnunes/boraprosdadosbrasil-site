@@ -240,6 +240,20 @@ MIME = {'pdf': 'application/pdf', 'zip': 'application/zip', 'json': 'application
         'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'htm': 'text/html', 'html': 'text/html'}
 
 
+RX_TOTAL_ARQ = re.compile(r'\b(?:50|32)(\s+arquivos)\b')
+
+
+def conta_arquivos():
+    """Arquivos oficiais em public/dados (o que entra no SHA256SUMS.txt; os derivados ficam fora)."""
+    return sum(1 for q in (PUB / 'dados').rglob('*') if q.is_file()
+               and q.name not in ('SHA256SUMS.txt', 'SHA256SUMS-derivados.txt') and str(q.relative_to(PUB)) not in DERIVADOS)
+
+
+def total_arquivos(texto, n):
+    """Troca os totais antigos escritos nas páginas ("50 arquivos", "32 arquivos") pela contagem real."""
+    return RX_TOTAL_ARQ.sub(lambda m: f'{n}{m.group(1)}', texto)
+
+
 def fontes_datasets(t, site_url, modified):
     strip = lambda s: ' '.join(html.unescape(re.sub(r'<[^>]+>', ' ', s)).split())
     items = []
@@ -279,7 +293,7 @@ def fontes_datasets(t, site_url, modified):
         '@context': 'https://schema.org',
         '@type': 'DataCatalog',
         '@id': f'{site_url}/fontes/#catalogo',
-        'name': 'Bora pros dados Brasil: fontes primárias das análises (50 arquivos oficiais)',
+        'name': f'Bora pros dados Brasil: fontes primárias das análises ({conta_arquivos()} arquivos oficiais)',
         'description': 'Arquivos originais, sem tratamento, do TSE, Banco Central, IBGE, Tesouro Nacional, Federal Reserve, '
                        'Planalto, Congresso e STF usados nas análises Governo Lula × Bolsonaro, Propostas 2026 e Promessas e Realizações, com hash SHA-256.',
         'url': f'{site_url}/fontes/',
@@ -569,18 +583,27 @@ def mapa_ancoras(reg, pagina):
     return m
 
 
-def bloco_indicadores(reg):
+def bloco_indicadores(reg, pagina_fontes=''):
     """Seção injetada em /fontes/ (no dist) com os arquivos dos indicadores que só existem na página Comparações
     (pré-registrados, cards do dono, contrapeso): arquivo, onde é usado, SHA-256 e download (ou link oficial, se > 5 MB)."""
     usos, ordem = {}, []
+    listados = set(re.findall(r'href="(/dados/[^"]+)"', pagina_fontes))
     for c in reg['comparacoes']:
-        if c.get('status') != 'ativo' or c.get('origem') == 'matriz':
+        if c.get('status') != 'ativo':
             continue
         for a in c.get('arquivos', []):
             k = a['arquivo']
+            if k in listados:
+                continue
             if k not in usos:
                 usos[k] = {'a': a, 'usos': []}; ordem.append(k)
             usos[k]['usos'].append(f'nº {c["id"]} {c.get("tema_curto") or c["titulo"]}')
+    # arquivos publicados em /dados/ que nenhuma seção lista (ex.: tabelas usadas só em gráficos da home)
+    for q in sorted((PUB / 'dados').rglob('*')):
+        k = '/' + str(q.relative_to(PUB))
+        if (q.is_file() and k not in listados and k not in usos and q.name not in ('SHA256SUMS.txt', 'SHA256SUMS-derivados.txt')
+                and str(q.relative_to(PUB)) not in DERIVADOS):
+            usos[k] = {'a': {'arquivo': k, 'sha256': sha256(q)}, 'usos': ['gráficos da página Governo Lula × Bolsonaro']}; ordem.append(k)
     if not ordem:
         return '', 0
     linhas = []
@@ -594,7 +617,7 @@ def bloco_indicadores(reg):
                       f'<td><code style="font-size:12px;overflow-wrap:anywhere">{esc(a.get("sha256", ""))}</code></td><td>{baixar}</td></tr>')
     html_ = ('<section class="chap" id="fonte-indicadores" data-track-section="fontes-indicadores" data-track-name="Indicadores do catálogo">'
              '<div class="chap-hd"><div class="kicker">Página Comparações</div>'
-             '<h2>Arquivos dos indicadores que estão só na página Comparações</h2></div>'
+             '<h2>Mais arquivos: indicadores da página Comparações e de gráficos</h2></div>'
              '<p class="lead">Crédito e dívidas das famílias, preços, emprego, segurança, meio ambiente e contas públicas: os arquivos oficiais '
              'por trás das comparações que entram só em <a href="/comparacoes/">Comparações</a>, com o número de cada comparação que os usa. '
              'Arquivos maiores que 5 MB ficam no site oficial; o SHA-256 é o do arquivo baixado na data da extração.</p>'
@@ -642,6 +665,20 @@ def main():
             print('   -', e)
         return 1
     warns.extend(reg_avisos)
+    try:
+        sys.path.insert(0, str(ROOT / 'scripts'))
+        import conferir_registro
+        reg_div, reg_ok = conferir_registro.conferir()
+    except Exception as e:  # falha de leitura é erro, não silêncio
+        reg_div, reg_ok = [f'conferência do registro com as páginas falhou: {e}'], 0
+    if reg_div:
+        print('build FALHOU: o registro diverge do que as páginas publicam (prevalece a página; ver scripts/conferir_registro.py):')
+        for e in reg_div:
+            print('   -', e)
+        if os.environ.get('CONFERIR_REGISTRO') != 'aviso':
+            return 1
+        warns.extend('registro diverge: ' + e for e in reg_div)
+    reg_resumo += f'; {reg_ok} valores conferidos com as páginas'
     registro = json.loads((PUB / REGISTRO).read_text(encoding='utf-8')) if (PUB / REGISTRO).exists() else None
 
     if DIST.exists():
@@ -655,6 +692,7 @@ def main():
     upd_iso = _git('log', '-1', '--format=%cI')[:10] or datetime.date.today().isoformat()
     upd_br = '%s/%s/%s' % (upd_iso[8:10], upd_iso[5:7], upd_iso[:4])
 
+    n_arq = conta_arquivos()   # total real: substitui os "50 arquivos" escritos à mão nas páginas e no llms.txt
     n_tok = 0
     DADOS_DIST = DIST / 'dados'
     for p in DIST.rglob('*'):
@@ -665,6 +703,8 @@ def main():
             o = s
             s = s.replace('__SITE_URL__', site_url).replace('__GA_ID__', ga).replace('__CONSENT__', consent)
             s = s.replace('__UPDATED_ISO__', upd_iso).replace('__UPDATED__', upd_br)
+            if p.suffix.lower() in ('.html', '.txt'):
+                s = total_arquivos(s, n_arq)
             if p in dist_pages:
                 pub, mod = dates[dist_pages[p]]
                 s = s.replace('__DATE_PUBLISHED__', pub).replace('__DATE_MODIFIED__', mod)
@@ -726,7 +766,7 @@ def main():
         (DIST / 'dados' / 'SHA256SUMS-derivados.txt').write_text(''.join(f'{h}  {r}\n' for r, _, _, h in deriv), encoding='utf-8')
         marca = '<div class="explain">\n    <h4>Notas</h4>'
         if marca in raw['/fontes/']:
-            ind, n_ind = bloco_indicadores(registro) if registro else ('', 0)
+            ind, n_ind = bloco_indicadores(registro, raw['/fontes/']) if registro else ('', 0)
             raw['/fontes/'] = raw['/fontes/'].replace(marca, ind + bloco_derivados(deriv) + '\n  ' + marca, 1)
             if n_ind: notes.append(f'{n_ind} arquivos dos indicadores do catálogo em /fontes/')
             notes.append('derivados com SHA-256 em /fontes/')
@@ -736,7 +776,8 @@ def main():
         (DIST / f).write_text(raw[u], encoding='utf-8')
 
     # llms-full.txt (texto integral, para buscadores de IA)
-    (DIST / 'llms-full.txt').write_text(llms_full(site_url, texts, prop_data, bal_data, dates), encoding='utf-8')
+    (DIST / 'llms-full.txt').write_text(total_arquivos(llms_full(site_url, texts, prop_data, bal_data, dates), n_arq), encoding='utf-8')
+    notes.append(f'total de arquivos nas páginas: {n_arq}')
 
     sobra = [str(p.relative_to(DIST)) for p in DIST.rglob('*') if p.is_file() and DADOS_DIST not in p.parents
              and p.suffix.lower() in ('.html', '.xml', '.txt') and any(t in p.read_text(encoding='utf-8') for t in TOKENS)]

@@ -574,6 +574,13 @@
    "slug": "bolsa-ibovespa",
    "pergunta": "9d9a63e649ea099c",
    "criado_em": "2026-10-16"
+  },
+  {
+   "id": 83,
+   "ref": "H03A",
+   "slug": "desemprego-media-anual",
+   "pergunta": "96ff6c60c4124e77",
+   "criado_em": "2026-10-16"
   }
  ]
 }

@@ -3,8 +3,10 @@
  "gerado_em": "2026-10-16",
  "descricao": "Registro único das comparações do site (governos Bolsonaro × Lula; planos 2026; promessas). IDs permanentes: nunca mudam nem são reaproveitados (livro-razão em /dados/comparacoes-ids.json). Usado pela página /comparacoes/, pelas estrelas das páginas e pelos links /c/1-3-5.",
  "regra_ids": "id inteiro sequencial; permanente; mudar a pergunta exige id novo; item retirado vira \"descontinuado\" e o id vai para ids_retirados.",
- "proximo_id": 83,
- "ids_retirados": [],
+ "proximo_id": 84,
+ "ids_retirados": [
+  3
+ ],
  "config": {
   "impacto_filtro": true,
   "max_selecao": 12,
@@ -147,6 +149,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 0,
    "id": 1,
    "pergunta": "5af7d760a0f4eec5"
   },
@@ -219,13 +222,14 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 1,
    "id": 2,
    "pergunta": "c6683ada363ef921"
   },
   {
    "ref": "H03",
    "slug": "desemprego",
-   "status": "ativo",
+   "status": "descontinuado",
    "origem": "matriz",
    "titulo": "Quantos procuravam emprego e não achavam?",
    "tema": "trabalho",
@@ -235,10 +239,10 @@
    "pagina_id": "comparativo",
    "analise": "Governos",
    "ancora": "cap-motor",
-   "ancora_card": "q-emprego",
+   "ancora_card": null,
    "no_placar": true,
    "bloco_placar": "Economia e renda",
-   "catalogo": true,
+   "catalogo": false,
    "metrica": "Taxa de desemprego PNAD, média das médias anuais",
    "unidade": "% da força de trabalho",
    "lados": {
@@ -291,8 +295,11 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "revisao": "Descontinuado em 16/10/2026: a home passou a usar a média anual oficial do IBGE (decisão do dono); substituído pela comparação H03A.",
+   "ordem": 2,
    "id": 3,
-   "pergunta": "274e3a7469a56775"
+   "pergunta": "274e3a7469a56775",
+   "substituido_por": 83
   },
   {
    "ref": "H04",
@@ -369,6 +376,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 3,
    "id": 4,
    "pergunta": "7b274080ba8966dd"
   },
@@ -441,6 +449,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 4,
    "id": 5,
    "pergunta": "9e89ad2d068acf13"
   },
@@ -519,6 +528,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 5,
    "id": 6,
    "pergunta": "c13509859fd0adac"
   },
@@ -594,6 +604,7 @@
    },
    "dados_ate": "ago/2026",
    "atualizado_em": "2026-10-16",
+   "ordem": 6,
    "id": 7,
    "pergunta": "7d3cff1636603b7d"
   },
@@ -666,6 +677,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 7,
    "id": 8,
    "pergunta": "da08711b67e12a37"
   },
@@ -742,6 +754,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 8,
    "id": 9,
    "pergunta": "62d35f59462c0738"
   },
@@ -819,6 +832,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 9,
    "id": 10,
    "pergunta": "cbb62dd52633a7a8"
   },
@@ -891,6 +905,7 @@
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
    "revisao": "Canal: pela regra estrita o Gini (índice de distribuição) não é \"bolso\"; o rótulo \"Pelas contas do governo\" também não o descreve. Fica sem etiqueta de canal até decisão.",
+   "ordem": 10,
    "id": 11,
    "pergunta": "276a298d7385df13"
   },
@@ -955,6 +970,7 @@
    "atualizado_em": "2026-10-16",
    "vencedor_matriz": "Governo Lula",
    "revisao": "Fora do catálogo: a tabela usada (SIDRA 7438) não está nos arquivos publicados em /dados/.",
+   "ordem": 11,
    "id": 12,
    "pergunta": "625e3a81979cc778"
   },
@@ -1027,6 +1043,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 12,
    "id": 13,
    "pergunta": "978e65ae8684580a"
   },
@@ -1099,6 +1116,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 13,
    "id": 14,
    "pergunta": "a4267affa89194ea"
   },
@@ -1178,6 +1196,7 @@
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
    "vencedor_matriz": "Governo Lula",
+   "ordem": 14,
    "id": 15,
    "pergunta": "cbc740c510b1df3a"
   },
@@ -1257,6 +1276,7 @@
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
    "vencedor_matriz": "Governo Lula",
+   "ordem": 15,
    "id": 16,
    "pergunta": "c54ffe68e0eafbc5"
   },
@@ -1339,6 +1359,7 @@
     4
    ],
    "revisao": "Coerência H04 × H17 (96-revisao-dados §2, opção a): H04 é vitória pelo critério do placar; H17 é a mesma pergunta com 2020, vitória-variante apertada.",
+   "ordem": 16,
    "id": 17,
    "pergunta": "6c764994e3eb4084"
   },
@@ -1412,6 +1433,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 17,
    "id": 18,
    "pergunta": "96ec7427aa5bb961"
   },
@@ -1485,6 +1507,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 18,
    "id": 19,
    "pergunta": "8bf27bcc6290eea7"
   },
@@ -1558,6 +1581,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 19,
    "id": 20,
    "pergunta": "ff503da0e458e30f"
   },
@@ -1636,6 +1660,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 20,
    "id": 21,
    "pergunta": "ca04833a57c9d1bd"
   },
@@ -1715,6 +1740,7 @@
     6
    ],
    "revisao": "Variante de H06 (96-revisao-dados §2): o gasto não conta duas vezes.",
+   "ordem": 21,
    "id": 22,
    "pergunta": "19d3be693200d9aa"
   },
@@ -1790,6 +1816,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 22,
    "id": 23,
    "pergunta": "dfdbe6159dd4f137"
   },
@@ -1862,6 +1889,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 23,
    "id": 24,
    "pergunta": "acd364e4cbd1f07a"
   },
@@ -1934,6 +1962,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 24,
    "id": 25,
    "pergunta": "1421ed1fb4f8ea67"
   },
@@ -2011,6 +2040,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 25,
    "id": 26,
    "pergunta": "baac04f54a406036"
   },
@@ -2083,6 +2113,7 @@
    },
    "dados_ate": "2025",
    "atualizado_em": "2026-10-16",
+   "ordem": 26,
    "id": 27,
    "pergunta": "b1b9a84b0dcfcdd9"
   },
@@ -2110,13 +2141,13 @@
      "nome": "Governo Bolsonaro",
      "curto": "Bolsonaro",
      "periodo": "2019 e 2022",
-     "valor": "PIB 2,1% · IPCA 5,0% · desemprego 10,8%"
+     "valor": "PIB 2,1% · IPCA 5,0% · desemprego 10,7%"
     },
     "l": {
      "nome": "Governo Lula",
      "curto": "Lula",
      "periodo": "2023-2025 (média anual)",
-     "valor": "PIB 3,0% · IPCA 4,6% · desemprego 7,0%"
+     "valor": "PIB 3,0% · IPCA 4,6% · desemprego 6,6%"
     }
    },
    "periodo_curto": {
@@ -2149,9 +2180,10 @@
    "variante_de": [
     1,
     2,
-    3
+    83
    ],
    "revisao": "Teste de sensibilidade de H01–H03 (não é comparação própria, não conta ponto). Matriz: \"Lula segue à frente\"; só 2019: IPCA 4,3% × 4,6%.",
+   "ordem": 27,
    "id": 28,
    "pergunta": "f8f0ce4cea92f9de"
   },
@@ -2262,6 +2294,7 @@
    },
    "dados_ate": "planos registrados no TSE em 2026",
    "atualizado_em": "2026-10-16",
+   "ordem": 28,
    "id": 29,
    "pergunta": "db4de5e15cfc700f"
   },
@@ -2367,6 +2400,7 @@
    "variante_de": [
     29
    ],
+   "ordem": 29,
    "id": 30,
    "pergunta": "b340ac8c9fadc225"
   },
@@ -2477,6 +2511,7 @@
    },
    "dados_ate": "planos registrados no TSE em 2026",
    "atualizado_em": "2026-10-16",
+   "ordem": 30,
    "id": 31,
    "pergunta": "9e257ad94e47fbfd"
   },
@@ -2587,6 +2622,7 @@
    },
    "dados_ate": "planos registrados no TSE em 2026",
    "atualizado_em": "2026-10-16",
+   "ordem": 31,
    "id": 32,
    "pergunta": "9e257ad94e47fbfd"
   },
@@ -2697,6 +2733,7 @@
    },
    "dados_ate": "planos registrados no TSE em 2026",
    "atualizado_em": "2026-10-16",
+   "ordem": 32,
    "id": 33,
    "pergunta": "9e257ad94e47fbfd"
   },
@@ -2807,6 +2844,7 @@
    },
    "dados_ate": "planos registrados no TSE em 2026",
    "atualizado_em": "2026-10-16",
+   "ordem": 33,
    "id": 34,
    "pergunta": "9e257ad94e47fbfd"
   },
@@ -2919,6 +2957,7 @@
    "atualizado_em": "2026-10-16",
    "vencedor_matriz": "Lula",
    "revisao": "Força \"não comparável\" (2 cartões; o resultado depende da régua): sem placar.",
+   "ordem": 34,
    "id": 35,
    "pergunta": "a7c85eb0b3f274cf"
   },
@@ -3046,6 +3085,7 @@
    },
    "dados_ate": "30/09/2026",
    "atualizado_em": "2026-10-16",
+   "ordem": 35,
    "id": 36,
    "pergunta": "518f5b0cfad5de1f"
   },
@@ -3178,6 +3218,7 @@
    "variante_de": [
     36
    ],
+   "ordem": 36,
    "id": 37,
    "pergunta": "ab520919c79b6f44"
   },
@@ -3299,6 +3340,7 @@
    "variante_de": [
     36
    ],
+   "ordem": 37,
    "id": 38,
    "pergunta": "10f5be4e95fb7956"
   },
@@ -3426,6 +3468,7 @@
    },
    "dados_ate": "30/09/2026",
    "atualizado_em": "2026-10-16",
+   "ordem": 38,
    "id": 39,
    "pergunta": "74367531604191bb"
   },
@@ -3553,6 +3596,7 @@
    },
    "dados_ate": "30/09/2026",
    "atualizado_em": "2026-10-16",
+   "ordem": 39,
    "id": 40,
    "pergunta": "7ab08332141ef715"
   },
@@ -3680,6 +3724,7 @@
    },
    "dados_ate": "30/09/2026",
    "atualizado_em": "2026-10-16",
+   "ordem": 40,
    "id": 41,
    "pergunta": "7ab08332141ef715"
   },
@@ -3807,6 +3852,7 @@
    },
    "dados_ate": "30/09/2026",
    "atualizado_em": "2026-10-16",
+   "ordem": 41,
    "id": 42,
    "pergunta": "7ab08332141ef715"
   },
@@ -3935,6 +3981,7 @@
    "dados_ate": "30/09/2026",
    "atualizado_em": "2026-10-16",
    "revisao": "Fora do catálogo: decisão do dono (item 3) tira \"não cumpridas\" do veredito.",
+   "ordem": 42,
    "id": 43,
    "pergunta": "33d2e91cf11e8896"
   },
@@ -4167,6 +4214,7 @@
    ],
    "pre_registro": "Item 1 da lista pré-registrada em 16/10/2026 (50-decisoes-dono item 8; 96-revisao-dados §3), fixada antes do cálculo; publicado com o resultado que deu.",
    "variante": "trajetoria",
+   "ordem": 44,
    "id": 44,
    "pergunta": "008813b6a3d9ce6a"
   },
@@ -4393,6 +4441,7 @@
    ],
    "pre_registro": "Item 2 da lista pré-registrada em 16/10/2026 (50-decisoes-dono item 8; 96-revisao-dados §3), fixada antes do cálculo; publicado com o resultado que deu.",
    "variante": "trajetoria",
+   "ordem": 45,
    "id": 45,
    "pergunta": "fb3d72d0adfe3c8e"
   },
@@ -4626,6 +4675,7 @@
    "pre_registro": "Item 3 da lista pré-registrada em 16/10/2026 (50-decisoes-dono item 8; 96-revisao-dados §3), fixada antes do cálculo; publicado com o resultado que deu.",
    "variante": "trajetoria",
    "revisao": "Transparência: este indicador já havia sido calculado pelo agente de contrapeso (91-contrapeso, recorte de 44 meses) antes do pré-registro de 16/10/2026.",
+   "ordem": 46,
    "id": 46,
    "pergunta": "7ffa4aa7a79c0fca"
   },
@@ -4857,6 +4907,7 @@
    ],
    "pre_registro": "Item 4 da lista pré-registrada em 16/10/2026 (50-decisoes-dono item 8; 96-revisao-dados §3), fixada antes do cálculo; publicado com o resultado que deu.",
    "variante": "trajetoria",
+   "ordem": 47,
    "id": 47,
    "pergunta": "809804d8b67c9bff"
   },
@@ -5117,6 +5168,7 @@
    ],
    "pre_registro": "Item 5 da lista pré-registrada em 16/10/2026 (50-decisoes-dono item 8; 96-revisao-dados §3), fixada antes do cálculo; publicado com o resultado que deu.",
    "variante": "trajetoria",
+   "ordem": 48,
    "id": 48,
    "pergunta": "141f444386e8b112"
   },
@@ -5377,6 +5429,7 @@
    ],
    "pre_registro": "Item 6 da lista pré-registrada em 16/10/2026 (50-decisoes-dono item 8; 96-revisao-dados §3), fixada antes do cálculo; publicado com o resultado que deu.",
    "variante": "trajetoria",
+   "ordem": 49,
    "id": 49,
    "pergunta": "d789863ccecdf734"
   },
@@ -5637,6 +5690,7 @@
    ],
    "pre_registro": "Item 7 da lista pré-registrada em 16/10/2026 (50-decisoes-dono item 8; 96-revisao-dados §3), fixada antes do cálculo; publicado com o resultado que deu.",
    "variante": "trajetoria",
+   "ordem": 50,
    "id": 50,
    "pergunta": "9f1dae9745893e84"
   },
@@ -5900,6 +5954,7 @@
     "Card 3 (Alimentação e bebidas, SGS 1635/SIDRA c315=7170), 44 meses: 44,2% × 15,9% — mesma pergunta, grupo mais amplo; não conta à parte."
    ],
    "variante": "trajetoria",
+   "ordem": 51,
    "id": 51,
    "pergunta": "05629da33d87aef1"
   },
@@ -6061,6 +6116,7 @@
     "Desemprego (card 7) é variante do id 3 (H03); não duplicado."
    ],
    "variante": "barras",
+   "ordem": 52,
    "id": 52,
    "pergunta": "9a94448fb4ede5f9"
   },
@@ -6220,6 +6276,7 @@
     "Rendimento domiciliar per capita (id 10, H10) mede outra coisa (todas as fontes, por pessoa da família); mantido separado."
    ],
    "variante": "barras",
+   "ordem": 53,
    "id": 53,
    "pergunta": "2ae26c4ce8bba61a"
   },
@@ -6364,6 +6421,7 @@
     "Pessoas em situação de pobreza: −17,5 mi (2022→2024) e '8,6 mi saíram' (2023→2024) são leituras em número de pessoas do mesmo dado."
    ],
    "variante": "barras",
+   "ordem": 54,
    "id": 54,
    "pergunta": "60e55444bd3f9026"
   },
@@ -6508,6 +6566,7 @@
    "variante_de": [
     54
    ],
+   "ordem": 55,
    "id": 55,
    "pergunta": "68ee2279b2e0daea"
   },
@@ -6581,6 +6640,7 @@
    ],
    "variante": "duelo",
    "revisao": "Sem placar: a régua padrão (média 2019–22) não pode ser calculada com fonte oficial. Trocar por média do mandato se o MS publicar a série (LAI/Relatório de Gestão).",
+   "ordem": 56,
    "id": 56,
    "pergunta": "e164f63944c7fc70"
   },
@@ -6682,6 +6742,7 @@
     "https://web.archive.org/web/20260619211545/https://agenciagov.ebc.com.br/noticias/202606/programa-cisternas-transforma-a-vida-de-familias-do-semiarido-com-acesso-a-agua-de-qualidade"
    ],
    "variante": "duelo",
+   "ordem": 57,
    "id": 57,
    "pergunta": "27fd7b1eba7dd953"
   },
@@ -6861,6 +6922,7 @@
     "https://download.inep.gov.br/informacoes_estatisticas/indicadores_educacionais/2025/tx_rend_brasil_regioes_ufs_2025.zip"
    ],
    "variante": "barras",
+   "ordem": 58,
    "id": 58,
    "pergunta": "20787ef7cbfdd136"
   },
@@ -7084,6 +7146,7 @@
     "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/bancovde-AAAA.xlsx/@@download/file"
    ],
    "variante": "barras",
+   "ordem": 59,
    "id": 59,
    "pergunta": "d87fd2d09c25a90c"
   },
@@ -7251,6 +7314,7 @@
     "https://forumseguranca.org.br/wp-content/uploads/2026/07/anuario-2026.xlsx"
    ],
    "variante": "barras",
+   "ordem": 60,
    "id": 60,
    "pergunta": "7c22cec5436b8bf0"
   },
@@ -7473,6 +7537,7 @@
     "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/bancovde-AAAA.xlsx/@@download/file"
    ],
    "variante": "barras",
+   "ordem": 61,
    "id": 61,
    "pergunta": "bf36cd9b64912a4f"
   },
@@ -7702,6 +7767,7 @@
     "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/bancovde-AAAA.xlsx/@@download/file"
    ],
    "variante": "barras",
+   "ordem": 62,
    "id": 62,
    "pergunta": "bf0fd1e5f807b152"
   },
@@ -7853,6 +7919,7 @@
     "https://apisidra.ibge.gov.br/values/t/1621/n1/all/v/584/p/201801-202602/c11255/all"
    ],
    "variante": "barras",
+   "ordem": 63,
    "id": 63,
    "pergunta": "1b52176001fc2771"
   },
@@ -8004,6 +8071,7 @@
     "https://apisidra.ibge.gov.br/values/t/1621/n1/all/v/584/p/201801-202602/c11255/all"
    ],
    "variante": "barras",
+   "ordem": 64,
    "id": 64,
    "pergunta": "04c06f4cac84988c"
   },
@@ -8155,6 +8223,7 @@
     "https://apisidra.ibge.gov.br/values/t/1621/n1/all/v/584/p/201801-202602/c11255/all"
    ],
    "variante": "barras",
+   "ordem": 65,
    "id": 65,
    "pergunta": "28f9ca7b0f03bae3"
   },
@@ -8312,6 +8381,7 @@
     "https://apisidra.ibge.gov.br/values/t/1621/n1/all/v/584/p/201801-202602/c11255/all"
    ],
    "variante": "barras",
+   "ordem": 66,
    "id": 66,
    "pergunta": "ca87a16c8ab630cf"
   },
@@ -8492,6 +8562,7 @@
     "Exportações em toneladas (Comex Stat): +1,2% × +5,1% ao ano (92) — leitura de volume, mesmo vencedor."
    ],
    "variante": "barras",
+   "ordem": 67,
    "id": 67,
    "pergunta": "f58152de80bdcbd7"
   },
@@ -8654,6 +8725,7 @@
     "https://api.bcb.gov.br/dados/serie/bcdata.sgs.7384/dados?formato=json&dataInicial=01/01/2018&dataFinal=30/09/2026"
    ],
    "variante": "barras",
+   "ordem": 68,
    "id": 68,
    "pergunta": "f18cc43f8cfbb3b2"
   },
@@ -8802,6 +8874,7 @@
     "Produção de gás (92, prioridade baixa): +5,4% × +9,1% ao ano — não incluída."
    ],
    "variante": "barras",
+   "ordem": 69,
    "id": 69,
    "pergunta": "0e75f5c283f575a8"
   },
@@ -8955,6 +9028,7 @@
     "Card 19 (soma 2019–21 × 2023–25, omitindo 2022) e card 31 (2022→2025, −51%) são recortes do mesmo dado; substituídos pela média de todos os ciclos."
    ],
    "variante": "barras",
+   "ordem": 70,
    "id": 70,
    "pergunta": "30898b489600414e"
   },
@@ -9106,6 +9180,7 @@
     "https://terrabrasilis.dpi.inpe.br/app/prodes/dashboard/deforestation/files/data/prodes_cerrado.json"
    ],
    "variante": "barras",
+   "ordem": 71,
    "id": 71,
    "pergunta": "575870a7c3e5164a"
   },
@@ -9331,6 +9406,7 @@
    "variante_de": [
     7
    ],
+   "ordem": 72,
    "id": 72,
    "pergunta": "3325fcb63b181a3e"
   },
@@ -9493,6 +9569,7 @@
     8,
     27
    ],
+   "ordem": 73,
    "id": 73,
    "pergunta": "f8b882c18f5b9bd3"
   },
@@ -9643,6 +9720,7 @@
     "https://cdn.tesouro.gov.br/sistemas-internos/apex/producao/sistemas/thot/arquivos/publicacoes/54334_1699660/Boletim_CTB_2025.pdf"
    ],
    "variante": "barras",
+   "ordem": 74,
    "id": 74,
    "pergunta": "fdede0595545bb95"
   },
@@ -9726,6 +9804,7 @@
     "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14600.htm"
    ],
    "variante": "duelo",
+   "ordem": 75,
    "id": 75,
    "pergunta": "d89971cb0e541e7c"
   },
@@ -9850,6 +9929,7 @@
    "variante_de": [
     16
    ],
+   "ordem": 76,
    "id": 76,
    "pergunta": "7a94743a2d33f07c"
   },
@@ -10087,6 +10167,7 @@
     "Mortes violentas intencionais (MVI, FBSP) e taxa por 100 mil: mesma pergunta, mesmo vencedor; não contam à parte."
    ],
    "variante": "barras",
+   "ordem": 77,
    "id": 77,
    "pergunta": "fa8345ae8a4570f4"
   },
@@ -10309,6 +10390,7 @@
     "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/download/dnsp-base-de-dados/bancovde-AAAA.xlsx/@@download/file"
    ],
    "variante": "barras",
+   "ordem": 78,
    "id": 78,
    "pergunta": "c367590385cccb7d"
   },
@@ -10480,6 +10562,7 @@
     "Sarampo 1ª dose (MCV1): 81,0% × 92,0% — mesma pergunta (cobertura vacinal infantil); não conta à parte."
    ],
    "variante": "barras",
+   "ordem": 79,
    "id": 79,
    "pergunta": "fa1dc6c34b209018"
   },
@@ -10660,6 +10743,7 @@
     "https://api.bcb.gov.br/dados/serie/bcdata.sgs.3698/dados?formato=json&dataInicial=01/01/2017&dataFinal=15/10/2026"
    ],
    "variante": "barras",
+   "ordem": 80,
    "id": 80,
    "pergunta": "f707a89d3efb6049"
   },
@@ -10807,6 +10891,7 @@
     "http://www.ipeadata.gov.br/api/odata4/ValoresSerie(SERCODIGO='JPM366_EMBI366')"
    ],
    "variante": "barras",
+   "ordem": 81,
    "id": 81,
    "pergunta": "0fa2885649bf1d15"
   },
@@ -10959,8 +11044,126 @@
     "https://api.bcb.gov.br/dados/serie/bcdata.sgs.1/dados?formato=json&dataInicial=01/12/2018&dataFinal=15/10/2026"
    ],
    "variante": "barras",
+   "ordem": 82,
    "id": 82,
    "pergunta": "9d9a63e649ea099c"
+  },
+  {
+   "ref": "H03A",
+   "slug": "desemprego-media-anual",
+   "status": "ativo",
+   "origem": "matriz",
+   "titulo": "Quantos procuravam emprego e não achavam?",
+   "tema": "trabalho",
+   "tema_curto": "Desemprego",
+   "tema_matriz": "Emprego",
+   "pagina": "/",
+   "pagina_id": "comparativo",
+   "analise": "Governos",
+   "ancora": "cap-motor",
+   "ancora_card": "q-emprego",
+   "no_placar": true,
+   "bloco_placar": "Economia e renda",
+   "catalogo": true,
+   "metrica": "Taxa de desocupação anual do IBGE (PNAD Contínua, SIDRA 4562), média simples dos anos de cada governo",
+   "unidade": "% da força de trabalho",
+   "lados": {
+    "b": {
+     "nome": "Governo Bolsonaro",
+     "curto": "Bolsonaro",
+     "periodo": "2019-2022 (média anual)",
+     "valor": "12,3%"
+    },
+    "l": {
+     "nome": "Governo Lula",
+     "curto": "Lula",
+     "periodo": "2023-2025 (média anual)",
+     "valor": "6,6%"
+    }
+   },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
+   "resultado": "vitoria",
+   "vencedor": "l",
+   "criterio": "menor",
+   "criterio_texto": "menor é melhor",
+   "forca": "clara",
+   "selo": "menos desemprego",
+   "ressalva": "Sem 2020–21 (pandemia): 10,7% × 6,6%; só 2019: 11,8% × 6,6%. O resultado não muda.",
+   "nota_visual": null,
+   "impacto": "bolso",
+   "como_chega": "Mostra a chance de quem procura trabalho encontrar uma vaga.",
+   "fonte": "IBGE (PNAD Contínua, SIDRA 4562: taxa de desocupação anual)",
+   "fonte_detalhe": "public/dados/ibge/ibge_sidra_4562_taxa_desocupacao_anual.json",
+   "arquivos": [
+    {
+     "arquivo": "/dados/ibge/ibge_sidra_4562_taxa_desocupacao_anual.json",
+     "sha256": "43e884e397b806c8e0c4e3dfe46b2fa9a8265ab3cbe17432394fb2cc9b7677f2"
+    }
+   ],
+   "como_calculamos": "SIDRA 4562 (taxa de desocupação anual): 2019 11,8; 2020 13,7; 2021 14,0; 2022 9,6 → média 12,3 (12,275); 2023 7,7; 2024 6,6; 2025 5,6 → média 6,6 (6,633). Sem 2020–21: 10,7. Substitui a média dos trimestres móveis (SGS 24369), comparação nº 3.",
+   "grafico": {
+    "tipo": "duelo",
+    "valores": {
+     "b": 12.3,
+     "l": 6.6
+    },
+    "formato": {
+     "casas": 1,
+     "sufixo": "%"
+    }
+   },
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "grupos": [
+    {
+     "rotulo": "1º ano",
+     "b": {
+      "rot": "2019",
+      "v": 11.8
+     },
+     "l": {
+      "rot": "2023",
+      "v": 7.7
+     }
+    },
+    {
+     "rotulo": "2º ano",
+     "b": {
+      "rot": "2020",
+      "v": 13.7
+     },
+     "l": {
+      "rot": "2024",
+      "v": 6.6
+     }
+    },
+    {
+     "rotulo": "3º ano",
+     "b": {
+      "rot": "2021",
+      "v": 14.0
+     },
+     "l": {
+      "rot": "2025",
+      "v": 5.6
+     }
+    },
+    {
+     "rotulo": "4º ano",
+     "b": {
+      "rot": "2022",
+      "v": 9.6
+     },
+     "l": null
+    }
+   ],
+   "revisao": "Média anual oficial do IBGE (decisão do dono, 16/10/2026); substitui a comparação nº 3 (média de trimestres móveis).",
+   "ordem": 2.5,
+   "id": 83,
+   "pergunta": "96ff6c60c4124e77"
   }
  ]
 }
