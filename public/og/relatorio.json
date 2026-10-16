@@ -2,546 +2,546 @@
  "itens": {
   "1": {
    "arquivo": "public/og/c/1.jpg",
-   "kb": 98,
+   "kb": 102,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "2": {
    "arquivo": "public/og/c/2.jpg",
-   "kb": 108,
+   "kb": 112,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "4": {
    "arquivo": "public/og/c/4.jpg",
-   "kb": 123,
+   "kb": 126,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "5": {
    "arquivo": "public/og/c/5.jpg",
-   "kb": 86,
+   "kb": 90,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "6": {
    "arquivo": "public/og/c/6.jpg",
-   "kb": 126,
+   "kb": 129,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "7": {
    "arquivo": "public/og/c/7.jpg",
-   "kb": 107,
+   "kb": 110,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "8": {
    "arquivo": "public/og/c/8.jpg",
-   "kb": 101,
+   "kb": 105,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "9": {
    "arquivo": "public/og/c/9.jpg",
-   "kb": 104,
+   "kb": 107,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "10": {
    "arquivo": "public/og/c/10.jpg",
-   "kb": 99,
+   "kb": 102,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "11": {
    "arquivo": "public/og/c/11.jpg",
-   "kb": 91,
+   "kb": 94,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "13": {
    "arquivo": "public/og/c/13.jpg",
-   "kb": 95,
+   "kb": 98,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "14": {
    "arquivo": "public/og/c/14.jpg",
-   "kb": 58,
+   "kb": 62,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "15": {
    "arquivo": "public/og/c/15.jpg",
-   "kb": 58,
+   "kb": 61,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "16": {
    "arquivo": "public/og/c/16.jpg",
-   "kb": 56,
+   "kb": 60,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "17": {
    "arquivo": "public/og/c/17.jpg",
-   "kb": 83,
+   "kb": 87,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "18": {
    "arquivo": "public/og/c/18.jpg",
-   "kb": 57,
+   "kb": 60,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "19": {
    "arquivo": "public/og/c/19.jpg",
-   "kb": 57,
+   "kb": 61,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "20": {
    "arquivo": "public/og/c/20.jpg",
-   "kb": 58,
+   "kb": 62,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "21": {
    "arquivo": "public/og/c/21.jpg",
-   "kb": 53,
+   "kb": 57,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "22": {
    "arquivo": "public/og/c/22.jpg",
-   "kb": 80,
+   "kb": 84,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "23": {
    "arquivo": "public/og/c/23.jpg",
-   "kb": 56,
+   "kb": 60,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "24": {
    "arquivo": "public/og/c/24.jpg",
-   "kb": 54,
+   "kb": 57,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "25": {
    "arquivo": "public/og/c/25.jpg",
-   "kb": 50,
+   "kb": 53,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "26": {
    "arquivo": "public/og/c/26.jpg",
-   "kb": 69,
+   "kb": 73,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "27": {
    "arquivo": "public/og/c/27.jpg",
-   "kb": 53,
+   "kb": 57,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "29": {
    "arquivo": "public/og/c/29.jpg",
-   "kb": 83,
+   "kb": 87,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "30": {
    "arquivo": "public/og/c/30.jpg",
-   "kb": 84,
+   "kb": 88,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "31": {
    "arquivo": "public/og/c/31.jpg",
-   "kb": 77,
+   "kb": 80,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "32": {
    "arquivo": "public/og/c/32.jpg",
-   "kb": 73,
+   "kb": 76,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "33": {
    "arquivo": "public/og/c/33.jpg",
-   "kb": 74,
+   "kb": 78,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "34": {
    "arquivo": "public/og/c/34.jpg",
-   "kb": 72,
+   "kb": 75,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "35": {
    "arquivo": "public/og/c/35.jpg",
-   "kb": 73,
+   "kb": 76,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "36": {
    "arquivo": "public/og/c/36.jpg",
-   "kb": 106,
+   "kb": 110,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "37": {
    "arquivo": "public/og/c/37.jpg",
-   "kb": 92,
+   "kb": 96,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "38": {
    "arquivo": "public/og/c/38.jpg",
-   "kb": 89,
+   "kb": 92,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "39": {
    "arquivo": "public/og/c/39.jpg",
-   "kb": 80,
+   "kb": 84,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "40": {
    "arquivo": "public/og/c/40.jpg",
-   "kb": 83,
+   "kb": 87,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "41": {
    "arquivo": "public/og/c/41.jpg",
-   "kb": 87,
+   "kb": 92,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "42": {
    "arquivo": "public/og/c/42.jpg",
-   "kb": 90,
+   "kb": 94,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "44": {
    "arquivo": "public/og/c/44.jpg",
-   "kb": 79,
+   "kb": 83,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "45": {
    "arquivo": "public/og/c/45.jpg",
-   "kb": 89,
+   "kb": 94,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "46": {
    "arquivo": "public/og/c/46.jpg",
-   "kb": 77,
+   "kb": 80,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "47": {
    "arquivo": "public/og/c/47.jpg",
-   "kb": 61,
+   "kb": 64,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "48": {
    "arquivo": "public/og/c/48.jpg",
-   "kb": 83,
+   "kb": 87,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "49": {
    "arquivo": "public/og/c/49.jpg",
-   "kb": 80,
+   "kb": 84,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "50": {
    "arquivo": "public/og/c/50.jpg",
-   "kb": 76,
+   "kb": 80,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "51": {
    "arquivo": "public/og/c/51.jpg",
-   "kb": 80,
+   "kb": 84,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "52": {
    "arquivo": "public/og/c/52.jpg",
-   "kb": 97,
+   "kb": 101,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "53": {
    "arquivo": "public/og/c/53.jpg",
-   "kb": 92,
+   "kb": 96,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "54": {
    "arquivo": "public/og/c/54.jpg",
-   "kb": 84,
+   "kb": 88,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "55": {
    "arquivo": "public/og/c/55.jpg",
-   "kb": 85,
+   "kb": 89,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "57": {
    "arquivo": "public/og/c/57.jpg",
-   "kb": 67,
+   "kb": 71,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "58": {
    "arquivo": "public/og/c/58.jpg",
-   "kb": 84,
+   "kb": 88,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "59": {
    "arquivo": "public/og/c/59.jpg",
-   "kb": 102,
+   "kb": 106,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "60": {
    "arquivo": "public/og/c/60.jpg",
-   "kb": 93,
+   "kb": 96,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "61": {
    "arquivo": "public/og/c/61.jpg",
-   "kb": 87,
+   "kb": 91,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "62": {
    "arquivo": "public/og/c/62.jpg",
-   "kb": 97,
+   "kb": 101,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "63": {
    "arquivo": "public/og/c/63.jpg",
-   "kb": 78,
+   "kb": 82,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "64": {
    "arquivo": "public/og/c/64.jpg",
-   "kb": 76,
+   "kb": 80,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "65": {
    "arquivo": "public/og/c/65.jpg",
-   "kb": 79,
+   "kb": 83,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "66": {
    "arquivo": "public/og/c/66.jpg",
-   "kb": 80,
+   "kb": 84,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "67": {
    "arquivo": "public/og/c/67.jpg",
-   "kb": 94,
+   "kb": 98,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "68": {
    "arquivo": "public/og/c/68.jpg",
-   "kb": 96,
+   "kb": 100,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "69": {
    "arquivo": "public/og/c/69.jpg",
-   "kb": 76,
+   "kb": 80,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "70": {
    "arquivo": "public/og/c/70.jpg",
-   "kb": 91,
+   "kb": 95,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "71": {
    "arquivo": "public/og/c/71.jpg",
-   "kb": 109,
+   "kb": 113,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "72": {
    "arquivo": "public/og/c/72.jpg",
-   "kb": 76,
+   "kb": 80,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "73": {
    "arquivo": "public/og/c/73.jpg",
-   "kb": 82,
+   "kb": 86,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "74": {
    "arquivo": "public/og/c/74.jpg",
-   "kb": 91,
+   "kb": 94,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "75": {
    "arquivo": "public/og/c/75.jpg",
-   "kb": 50,
+   "kb": 54,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "76": {
    "arquivo": "public/og/c/76.jpg",
-   "kb": 76,
+   "kb": 80,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "77": {
    "arquivo": "public/og/c/77.jpg",
-   "kb": 89,
+   "kb": 93,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "78": {
    "arquivo": "public/og/c/78.jpg",
-   "kb": 82,
+   "kb": 86,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "79": {
    "arquivo": "public/og/c/79.jpg",
-   "kb": 91,
+   "kb": 94,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "80": {
    "arquivo": "public/og/c/80.jpg",
-   "kb": 97,
+   "kb": 101,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "81": {
    "arquivo": "public/og/c/81.jpg",
-   "kb": 89,
+   "kb": 93,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "82": {
    "arquivo": "public/og/c/82.jpg",
-   "kb": 94,
+   "kb": 98,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "83": {
    "arquivo": "public/og/c/83.jpg",
-   "kb": 102,
+   "kb": 106,
    "w": 1200,
    "h": 630,
    "q": 90
@@ -550,42 +550,42 @@
  "paginas": {
   "inicio": {
    "arquivo": "public/og/paginas/inicio.jpg",
-   "kb": 92,
+   "kb": 97,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "propostas": {
    "arquivo": "public/og/paginas/propostas.jpg",
-   "kb": 84,
+   "kb": 87,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "balanco": {
    "arquivo": "public/og/paginas/balanco.jpg",
-   "kb": 106,
+   "kb": 111,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "comparacoes": {
    "arquivo": "public/og/paginas/comparacoes.jpg",
-   "kb": 95,
+   "kb": 98,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "selecao": {
    "arquivo": "public/og/paginas/selecao.jpg",
-   "kb": 105,
+   "kb": 108,
    "w": 1200,
    "h": 630,
    "q": 90
   },
   "fontes": {
    "arquivo": "public/og/paginas/fontes.jpg",
-   "kb": 61,
+   "kb": 65,
    "w": 1200,
    "h": 630
   }
