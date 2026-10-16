@@ -435,22 +435,72 @@
     }
     return pre + lista + fixo;
   }
-  function imagemSelecao(itens, path, origem) {
-    if (!W.BPD || !W.BPD.cardSelecao) return;
-    var tmp = el('div', null, null, { style: 'position:absolute;left:-9999px;top:0;width:1080px' }); D.body.appendChild(tmp);
-    var svg = W.BPD.cardSelecao(tmp, {
-      formato: itens.length > 6 ? 'story' : 'feed', titulo: 'Comparações escolhidas, com dados oficiais',
+  /* ---------- imagem da SELEÇÃO: sempre o BPD.cardSelecao com os dados de cada item (nunca o cartão só-texto) ----------
+     feed 1080×1350 (WhatsApp, copiar, compartilhar) e story 1080×1920 (Stories). O PNG é gerado quando a lista muda
+     (o Safari só aceita navigator.share no mesmo toque) e fica em cache por link+formato. O share.js usa o mesmo PNG pelo
+     provedor window.__shareImgs.selecao; o cartão só-texto dele fica só para quando o cardSelecao falhar. */
+  var SELIMG = {}, SELATUAL = null;
+  function defSelecao(itens, path, fmt) {
+    return {
+      formato: fmt, titulo: 'Comparações escolhidas, com dados oficiais',
       sub: 'Em cada linha, os números dos dois lados, a régua e o lado à frente.',
       itens: itens.map(function (it) {
-        return { tema: it.tema_curto || it.titulo, criterioTexto: criterioTexto(it), valores: it.grafico ? it.grafico.valores : { b: 0, l: 0 },
-          formato: it.grafico ? it.grafico.formato : {}, vencedor: it.vencedor, apertada: it.forca === 'apertada',
+        return { tema: it.tema_curto || it.titulo, criterio: it.resultado === 'vitoria' ? it.criterio : null, criterioTexto: criterioTexto(it),
+          valores: it.grafico ? it.grafico.valores : { b: 0, l: 0 }, formato: it.grafico ? it.grafico.formato : {},
+          vencedor: it.resultado === 'vitoria' ? it.vencedor : null, apertada: it.forca === 'apertada',
           lados: { b: { curto: it.lados.b.curto }, l: { curto: it.lados.l.curto } }, periodo: it.periodo_curto.b + ' × ' + it.periodo_curto.l };
       }),
-      rodape: ['Seleção feita por quem compartilhou.'].concat(resumoSite().map(function (s) { return 'No site: ' + s + '.'; })),
+      rodape: ['Seleção feita por quem compartilhou.', 'Nesta seleção: ' + selecaoCurta(itens) + '.', 'No site: ' + placarCurto() + '.'],
       url: BASE.replace(/^https?:\/\//, '') + path, atualizado: dataBR(REG.gerado_em)
+    };
+  }
+  function nomeSelecao(path, fmt) { return 'bora-pros-dados-selecao-' + path.replace(/[^0-9a-z-]/g, '') + (fmt === 'story' ? '-stories' : '') + '.png'; }
+  function pngSelecao(itens, path, fmt) {
+    var k = path + '|' + fmt; if (SELIMG[k]) return SELIMG[k].p;
+    var reg = SELIMG[k] = { p: null, f: null };
+    if (!W.BPD || !W.BPD.cardSelecao || !W.BPD.paraPNG) { reg.p = Promise.reject(new Error('charts.js')); delete SELIMG[k]; return reg.p; }
+    reg.p = Promise.resolve(W.BPD.carregarFonte ? W.BPD.carregarFonte().then(null, function () {}) : null).then(function () {
+      var tmp = el('div', null, null, { style: 'position:absolute;left:-9999px;top:0;width:1080px', 'aria-hidden': 'true' }); D.body.appendChild(tmp);
+      var svg = W.BPD.cardSelecao(tmp, defSelecao(itens, path, fmt));
+      return W.BPD.paraPNG(svg, 1, W.BPD.urlFonte).then(function (bl) { tmp.parentNode.removeChild(tmp); return bl; },
+        function (e) { tmp.parentNode.removeChild(tmp); throw e; });
+    }).then(function (bl) {
+      bl.__completo = true;   // já traz marca, fonte, URL e data: o share.js não acrescenta rodapé
+      try { reg.f = new File([bl], nomeSelecao(path, fmt), { type: 'image/png' }); } catch (e) {}
+      return bl;
     });
-    compartilharImagem(svg, 'selecao-' + path.replace(/[^0-9a-z-]/g, ''), textoSelecao(itens, path) + CTA + BASE + path + '?o=img', origem);
-    setTimeout(function () { tmp.parentNode && tmp.parentNode.removeChild(tmp); }, 3000);
+    reg.p.then(null, function () { delete SELIMG[k]; });
+    return reg.p;
+  }
+  function preparaSelecao(itens, path) {
+    SELATUAL = { itens: itens, path: path };
+    pngSelecao(itens, path, 'feed');
+    setTimeout(function () { pngSelecao(itens, path, 'story'); }, 400);
+  }
+  (W.__shareImgs = W.__shareImgs || {}).selecao = function () {
+    return SELATUAL ? pngSelecao(SELATUAL.itens, SELATUAL.path, 'feed') : Promise.reject(new Error('sem seleção'));
+  };
+  function enviaSelecao(itens, path, fmt, origem) {
+    var reg = SELIMG[path + '|' + fmt], texto = textoSelecao(itens, path) + CTA + BASE + path + '?o=img';
+    function entrega(f, bl) {
+      var nativo = f && navigator.canShare && navigator.canShare({ files: [f] });
+      track('card_image', { origem: origem, formato: fmt, method: nativo ? 'native' : 'download' });
+      if (nativo) { navigator.share({ files: [f], text: texto }).then(null, function () {}); return; }
+      var a = el('a', null, null, { href: URL.createObjectURL(bl || f), download: nomeSelecao(path, fmt) });
+      D.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.parentNode.removeChild(a); }, 1500);
+      toast(fmt === 'story' ? 'Imagem vertical baixada: publique nos Stories e cole o link no adesivo.' : 'Imagem baixada. Anexe na conversa; o link está na imagem.');
+    }
+    if (reg && reg.f) { entrega(reg.f, null); return; }   // pronta: o compartilhamento sai no mesmo toque
+    toast('Preparando a imagem…');
+    pngSelecao(itens, path, fmt).then(function (bl) { entrega(SELIMG[path + '|' + fmt] && SELIMG[path + '|' + fmt].f, bl); },
+      function () { toast('Não deu para gerar a imagem. Use o WhatsApp ou copie o texto.'); });
+  }
+  function botoesImagem(itens, path, origem, rotulo) {
+    var bi = el('button', 'cat-btn', rotulo, { type: 'button', 'aria-label': rotulo + ' (imagem com os números de cada comparação)' });
+    bi.addEventListener('click', function () { enviaSelecao(itens, path, 'feed', origem); });
+    var bs = el('button', 'cat-btn', 'Imagem para Stories', { type: 'button', 'aria-label': 'Imagem vertical para Stories, com os números de cada comparação' });
+    bs.addEventListener('click', function () { enviaSelecao(itens, path, 'story', origem); });
+    return add(el('p', 'cat-acoes-ex'), bi, bs);
   }
   function painelLista(host) {
     host.textContent = '';
@@ -469,6 +519,7 @@
     host.appendChild(prev);
     var sh = el('div', 'share', null, { 'data-share-section': 'selecao', 'data-share-placement': 'selecao', 'data-share-path': path,
       'data-share-name': 'sua lista', 'data-share-text': textoSelecao(vai, path), 'data-share-lead': 'Quem receber vê os números dos dois lados, a fonte e o link para todas as comparações.' });
+    preparaSelecao(vai, path);   // antes do init do share.js: o WhatsApp-imagem e o Copiar usam este PNG
     host.appendChild(sh);
     sh.addEventListener('click', function (e) {    // captura: antes do stopPropagation do share.js
       var t = e.target && e.target.closest ? e.target.closest('[data-m]') : null;
@@ -477,9 +528,7 @@
       trackLista('selection_share', p);
     }, true);
     if (W.__share) W.__share.init(host);
-    var bi = el('button', 'cat-btn', 'Imagem da lista', { type: 'button', 'aria-label': 'Enviar ou baixar uma imagem com a sua lista' });
-    bi.addEventListener('click', function () { imagemSelecao(vai, path, 'lista'); });
-    host.appendChild(add(el('p', 'cat-acoes-ex'), bi));
+    host.appendChild(botoesImagem(vai, path, 'lista', 'Imagem da lista'));
   }
   function caixaLembrar() {
     var w = el('div', 'cat-lembrar-box');
@@ -721,9 +770,9 @@
         trackLista('selection_save_all', { ids: achados.map(function (it) { return it.id; }).join('-'), count: n });
         toast('Guardados na sua lista.', [{ rotulo: 'Ver lista', href: '/comparacoes/?lista=1' }]);
       });
-      var bImg = el('button', 'cat-btn', 'Imagem desta seleção', { type: 'button' });
-      bImg.addEventListener('click', function () { imagemSelecao(achados, caminhoSelecao(achados.map(function (it) { return it.id; })), 'chegada'); });
-      add(pe, bAll, bImg);
+      var pSel = caminhoSelecao(achados.map(function (it) { return it.id; }));
+      preparaSelecao(achados, pSel);
+      add(pe, bAll, botoesImagem(achados, pSel, 'chegada', 'Imagem desta seleção'));
     }
     pe.appendChild(el('a', 'cat-link', 'Ver todas as comparações ›', { href: '/comparacoes/' }));
     root.appendChild(pe);
