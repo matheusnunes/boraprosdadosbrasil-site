@@ -225,7 +225,8 @@
         return BPD.cardPNG(d2, 'feed');
       }
       /* imagem que já traz a linha "Fonte:" (resumo, gráficos do charts.js): o rodapé não repete a fonte */
-      if (prov) return Promise.resolve(prov()).then(function (bl) { return comRodape(bl, semFonte(r)); });
+      /* imagem já completa (ex.: BPD.cardSelecao, com marca, fonte, URL e data): sem rodapé extra */
+      if (prov) return Promise.resolve(prov()).then(function (bl) { return bl && bl.__completo ? bl : comRodape(bl, semFonte(r)); });
       svg = acharSvg(c);
       if (svg && BPD && BPD.paraPNG) {
         var w = +svg.getAttribute('width') || (svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width) || 390;

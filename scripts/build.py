@@ -643,6 +643,82 @@ def bloco_derivados(itens):
             f'<tbody>{linhas}</tbody></table></div></section>')
 
 
+# ------------------------------------------- prévias de link (Open Graph) das comparações /c/
+OG_PADRAO = '/og/paginas/selecao.jpg'
+DADOS_EDGE = ROOT / 'netlify' / 'dados-og' / 'selecao.json'
+
+
+def og_titulo(c):
+    """'Inflação: Governo Lula à frente (6,1% × 4,6%)' — veredito pela regra do registro, mesmo molde para os dois lados."""
+    L, tc = c['lados'], c.get('tema_curto') or c['titulo']
+    vals = f'{L["b"]["valor"]} × {L["l"]["valor"]}'
+    if c['resultado'] == 'vitoria':
+        v = L[c['vencedor']]
+        nome = re.sub(r'\s*\(plano \d{4}\)$', '', v['nome'])
+        if c.get('pagina_id') == 'propostas':
+            return f'{tc}: {v["curto"]} diz mais como fazer ({vals})'
+        if c.get('pagina_id') == 'balanco':
+            return f'{tc}: mais cumpridas no {nome} ({vals})'
+        return f'{tc}: {nome} à frente ({vals})'
+    if c['resultado'] == 'contexto':
+        return f'{tc}: {vals} (contexto, não conta ponto)'
+    return f'{tc}: {vals} (comparação sem placar)'
+
+
+def og_descricao(c):
+    L = c['lados']
+    crit = {'menor': 'menor é melhor', 'maior': 'maior é melhor'}.get(c.get('criterio'), '')
+    nb = re.sub(r'\s*\(plano \d{4}\)$', '', L['b']['nome'])
+    nl = re.sub(r'\s*\(plano \d{4}\)$', '', L['l']['nome'])
+    partes = [f'{nb} {L["b"]["valor"]} × {nl} {L["l"]["valor"]}' + (f' ({crit})' if crit and c['resultado'] == 'vitoria' else ''),
+              f'{c["periodo_curto"]["b"]} × {c["periodo_curto"]["l"]}', f'Fonte: {c["fonte"]}']
+    if c['resultado'] == 'vitoria' and c.get('forca') == 'apertada':
+        partes.append('diferença apertada')
+    return ' · '.join(partes) + '.'
+
+
+def troca_meta(t, chave, valor, attr='property'):
+    """Troca o content de <meta property|name="chave">; acrescenta a tag antes de </head> se não existir."""
+    v = html.escape(valor, quote=True)
+    rx = re.compile(r'(<meta %s="%s" content=")[^"]*(">)' % (attr, re.escape(chave)))
+    if rx.search(t):
+        return rx.sub(lambda m: m.group(1) + v + m.group(2), t, count=1)
+    return t.replace('</head>', f'<meta {attr}="{chave}" content="{v}">\n</head>', 1)
+
+
+def paginas_c(site_url, reg):
+    """/c/<id>/ e /c/<slug>/ estáticos (mesmo conteúdo da página de seleção) com prévia própria de cada comparação:
+    og:title com o veredito e os dois números, og:description com régua e fonte, og:image = /og/c/<id>.jpg."""
+    modelo = (DIST / 'c' / 'index.html').read_text(encoding='utf-8')
+    n = 0
+    dados = {'base': site_url, 'padrao': OG_PADRAO, 'itens': {}}
+    for c in reg['comparacoes']:
+        if c.get('status') != 'ativo' or not c.get('catalogo'):
+            continue
+        img = f'/og/c/{c["id"]}.jpg' if (PUB / 'og' / 'c' / f'{c["id"]}.jpg').exists() else OG_PADRAO
+        tit, desc = og_titulo(c), og_descricao(c)
+        dados['itens'][str(c['id'])] = {'t': c.get('tema_curto') or c['titulo'],
+                                         'v': f'{c["lados"]["b"]["valor"]} × {c["lados"]["l"]["valor"]}',
+                                         'img': img if img != OG_PADRAO else None}
+        t = modelo
+        t = re.sub(r'<title>[^<]*</title>', '<title>%s | Bora pros dados Brasil</title>' % html.escape(tit, quote=False), t, count=1)
+        t = troca_meta(t, 'description', desc, 'name')
+        for k, v in (('og:title', tit), ('og:description', desc), ('og:image', site_url + img), ('og:image:alt', tit + '. ' + desc),
+                     ('og:url', f'{site_url}/c/{c["id"]}/')):
+            t = troca_meta(t, k, v)
+        for k, v in (('twitter:title', tit), ('twitter:description', desc), ('twitter:image', site_url + img)):
+            t = troca_meta(t, k, v, 'name')
+        for pasta in {str(c['id']), c['slug']}:
+            d = DIST / 'c' / pasta
+            d.mkdir(parents=True, exist_ok=True)
+            (d / 'index.html').write_text(t, encoding='utf-8')
+            n += 1
+    DADOS_EDGE.parent.mkdir(parents=True, exist_ok=True)
+    DADOS_EDGE.write_text(json.dumps(dados, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8')
+    return n
+
+
+
 def main():
     env = load_env()
     warns = []
@@ -779,6 +855,9 @@ def main():
 
     # llms-full.txt (texto integral, para buscadores de IA)
     (DIST / 'llms-full.txt').write_text(total_arquivos(llms_full(site_url, texts, prop_data, bal_data, dates), n_arq), encoding='utf-8')
+    # prévias de link das comparações: /c/<id>/ e /c/<slug>/ com og:title/description/image próprios
+    if registro and (DIST / 'c' / 'index.html').exists():
+        notes.append(f'{paginas_c(site_url, registro)} páginas /c/<id|slug>/ com prévia própria')
     notes.append(f'total de arquivos nas páginas: {n_arq}')
 
     sobra = [str(p.relative_to(DIST)) for p in DIST.rglob('*') if p.is_file() and DADOS_DIST not in p.parents
