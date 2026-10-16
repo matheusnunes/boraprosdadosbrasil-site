@@ -642,6 +642,7 @@
    *       excluir:['sem_evidencia'], grupos:[{tema, linhas}] (mapa tema a tema), fonte, nota
    * ===================================================================== */
   function corCategoria(cat, lado, T, hatch) {
+    if (cat.cor) return cat.cor;   // cor de STATUS fixa, igual para os dois lados (99-principios-imagem)
     switch (cat.tipo) {
       case 'cheio': return T[lado];
       case 'claro': return T[lado + 'Claro'];
@@ -1176,7 +1177,7 @@
     y += 26;
     // rodapé (de baixo para cima)
     var pe = [];
-    (o.rodape || []).forEach(function (t, i) { quebra(t, 21, i === 0 ? 700 : 400, W - 2 * P).forEach(function (ln) { pe.push([ln, 21, i === 0 ? 700 : 400, i === 0 ? CARD.ink2 : CARD.muted]); }); });
+    (o.rodape || []).forEach(function (t, i) { quebra(t, 21, i === 0 ? 700 : 400, W - 2 * P - 60).forEach(function (ln) { pe.push([ln, 21, i === 0 ? 700 : 400, i === 0 ? CARD.ink2 : CARD.muted]); }); });
     pe.push([(o.url || SITE) + (o.atualizado ? ' · atualizado em ' + o.atualizado : ''), 22, 700, CARD.ink2]);
     var altPe = pe.reduce(function (s, l) { return s + l[1] * 1.45; }, 0);
     var yPe = H - P - F.base - altPe;
@@ -1205,10 +1206,10 @@
       cardTexto(g, xc, y0 + 43, critTxt, 20, 600, CARD.muted, 'end');
       var vals = ORDEM.map(function (k) { return it.valores[k]; });
       var lo = Math.min(0, Math.min.apply(null, vals)), hi = Math.max(0, Math.max.apply(null, vals));
-      var labW = Math.max.apply(null, vals.map(function (v) { return largura(f(v), 28, 800); })) + 16 + sw + 10;
+      var labW = Math.max.apply(null, vals.map(function (v) { return largura(f(v), 26, 800); })) + 16 + sw + 10;
       var pl = P + nomeW + (lo < 0 ? labW * 0.6 : 0), pr = W - P - (hi > 0 ? labW : 0);
       var X = function (v) { return pl + (v - lo) / ((hi - lo) || 1) * (pr - pl); };
-      var bh = Math.min(30, (rh - 70) / 2 - 8), yy = y0 + 64;
+      var bh = Math.max(14, Math.min(26, (rh - 74) / 2 - 7)), yy = y0 + 62;
       ORDEM.forEach(function (k) {
         var v = it.valores[k], xa = X(0), xb = X(v);
         if (Math.abs(xb - xa) < 3) xb = xa + (v < 0 ? -3 : 3);
@@ -1217,14 +1218,14 @@
         barra(g, Math.min(xa, xb), Math.max(xa, xb), yy, bh, T[k]);
         var tx = v < 0 ? xb - 12 : xb + 12;
         var vt = f(v);
-        cardTexto(g, tx, yy + bh / 2 + 10, vt, 28, 800, CARD.ink, v < 0 ? 'end' : 'start');
+        cardTexto(g, tx, yy + bh / 2 + 9, vt, 26, 800, CARD.ink, v < 0 ? 'end' : 'start');
         if (it.vencedor === k) {
-          var sx = v < 0 ? xa + 12 : tx + largura(vt, 28, 800) + 12;
+          var sx = v < 0 ? xa + 12 : tx + largura(vt, 26, 800) + 12;
           el('rect', { x: sx, y: yy + bh / 2 - sh / 2, width: sw, height: sh, rx: sh / 2, fill: T[k] }, g);
           cardTexto(g, sx + sw / 2, yy + bh / 2 + 7, seloTxt, 20, 700, '#ffffff', 'middle');
         }
         if (lo < 0) el('line', { x1: X(0), x2: X(0), y1: yy - 4, y2: yy + bh + 4, stroke: CARD.ink2, 'stroke-width': 2 }, g);
-        yy += bh + 12;
+        yy += bh + 14;
       });
     });
     var yFim = y + itens.length * rh;

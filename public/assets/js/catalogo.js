@@ -144,10 +144,11 @@
     return 'comparação sem placar';
   }
   var FORCA = { clara: 'Diferença clara', apertada: 'Diferença apertada', 'depende-da-regua': 'Depende da régua' };
+  function mudaria(it) { return it.resultado === 'vitoria' && it.forca === 'apertada' ? (it.o_que_mudaria || it.ressalva || '') : ''; }
   function notaImagem(it) {          // regra particular + força + "o que mudaria": impressas na imagem
-    var p = [];
-    if (it.nota_visual) p.push(it.nota_visual + '.');
-    if (it.resultado === 'vitoria' && it.forca) p.push(FORCA[it.forca] + (it.forca === 'apertada' && it.ressalva ? '. O que mudaria: ' + it.ressalva : '.'));
+    var p = [], m = mudaria(it);
+    if (it.nota_visual) p.push(it.nota_visual.replace(/\.$/, '') + '.');
+    if (it.resultado === 'vitoria' && it.forca) p.push(FORCA[it.forca] + (m ? '. O que mudaria: ' + m.replace(/\.$/, '') + '.' : '.'));
     return p.join(' ');
   }
   function fonteImagem(it) { return it.fonte + ' · ' + it.periodo_curto.b + ' × ' + it.periodo_curto.l + (it.dados_ate ? ' · dados até ' + it.dados_ate : ''); }
@@ -172,6 +173,15 @@
       else out.push('Governos: Governo Bolsonaro à frente em ' + c.b + ' · Governo Lula em ' + c.l + ctx);
     });
     return out;
+  }
+  function contagemCurta(lista) {   // "Governos: Bolsonaro 3 · Lula 8 · sem placar 13 | ..."
+    var r = contaPorAnalise(lista), out = [];
+    ['comparativo', 'propostas', 'balanco'].forEach(function (pid) {
+      var c = r[pid]; if (!c) return;
+      var L = c.it.lados;
+      out.push(ANALISE[pid] + ' (à frente): ' + L.b.curto + ' ' + c.b + ' · ' + L.l.curto + ' ' + c.l + (c.outro ? ' · sem placar ' + c.outro : ''));
+    });
+    return out.join(' | ') + (lista.some(function (it) { return it.variante_de && it.variante_de.length; }) ? ' (leituras alternativas não contam de novo)' : '');
   }
   function composicao(lista) {      // para os eventos (P1-8): agregado, sem identificar a pessoa
     var r = contaPorAnalise(lista), nb = 0, nl = 0, no = 0, k;
@@ -211,6 +221,7 @@
         base.linhas = ORDEM.map(function (k) { return { lado: k, nome: base.lados[k].nome, contagens: g.contagens[k] }; });
         return W.BPD.promessas(box, base);
       }
+      if ((it.serie && it.serie.b) || (it.grupos && it.grupos.length)) return trajetoriaDe(box, it, base);
       base.criterio = it.resultado === 'vitoria' ? it.criterio : null;
       base.criterioTexto = it.resultado === 'vitoria' ? null : criterioTexto(it);
       base.vencedorRotulo = it.selo || 'à frente';
@@ -221,6 +232,37 @@
       box.textContent = 'Não foi possível mostrar o gráfico: ' + it.lados.b.nome + ' ' + it.lados.b.valor + ' · ' + it.lados.l.nome + ' ' + it.lados.l.valor + '.';
       return null;
     }
+  }
+  function escala(vals, zero) {
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    if (zero || (lo >= 0 && lo < hi * 0.45)) lo = Math.min(0, lo);
+    var span = (hi - lo) || Math.abs(hi) || 1, passo = Math.pow(10, Math.floor(Math.log(span / 4) / Math.LN10)), e = span / 4 / passo;
+    passo *= e >= 7.5 ? 10 : e >= 3.5 ? 5 : e >= 1.5 ? 2 : 1;
+    return { min: Math.floor(lo / passo) * passo, max: Math.ceil(hi / passo) * passo, passo: passo };
+  }
+  function trajetoriaDe(box, it, base) {
+    var x, sb, sl, fmt = (it.serie && it.serie.formato_eixo) || (it.grafico && it.grafico.formato) || {};
+    if (it.serie && it.serie.b) {
+      var n = Math.max(it.serie.b.length, it.serie.l.length);
+      x = []; sb = []; sl = [];
+      for (var i = 0; i < n; i += 1) { x.push(i === 0 ? 'Posse' : String(i)); sb.push(it.serie.b[i] == null ? null : it.serie.b[i]); sl.push(it.serie.l[i] == null ? null : it.serie.l[i]); }
+      base.rotuloX = function (s, i) { return i === 0 ? 'posse' : (i % 12 === 0 ? (i / 12) + (i === 12 ? ' ano' : ' anos') : ''); };
+    } else {
+      x = it.grupos.map(function (g) { return g.rotulo; });
+      sb = it.grupos.map(function (g) { return g.b ? g.b.v : null; });
+      sl = it.grupos.map(function (g) { return g.l ? g.l.v : null; });
+    }
+    var vals = sb.concat(sl).filter(function (v) { return v != null; });
+    base.x = x; base.formato = fmt; base.y = escala(vals, !(it.serie && it.serie.b)); base.y.formato = fmt;
+    base.series = [{ lado: 'b', nome: base.lados.b.nome + (it.grupos ? ' (' + it.grupos.map(function (g) { return g.b ? g.b.rot : ''; }).filter(Boolean).join(', ') + ')' : ''), valores: sb },
+                   { lado: 'l', nome: base.lados.l.nome + (it.grupos ? ' (' + it.grupos.map(function (g) { return g.l ? g.l.rot : ''; }).filter(Boolean).join(', ') + ')' : ''), valores: sl }];
+    base.altura = 170;
+    // comparação em destaque (a régua do veredito), uma vez, na própria imagem
+    var dest = (it.periodo_curto.b + ' × ' + it.periodo_curto.l) + ': ' + it.lados.b.nome + ' ' + it.lados.b.valor + ' × ' + it.lados.l.nome + ' ' + it.lados.l.valor +
+      ' (' + criterioTexto(it).replace(/^[↓↑] /, '') + ').';
+    base.nota = 'Comparação em destaque, ' + dest + (base.nota ? ' ' + base.nota : '') +
+      (it.serie && it.serie.b ? ' Linhas: valor mês a mês desde a posse de cada governo.' : ' Pontos: cada ano de mandato (1º ano × 1º ano...).');
+    return W.BPD.trajetoria(box, base);
   }
   var io = ('IntersectionObserver' in W) ? new IntersectionObserver(function (es) {
     es.forEach(function (e) { if (e.isIntersecting) { io.unobserve(e.target); if (e.target.__desenha) e.target.__desenha(); } });
@@ -299,7 +341,9 @@
     var corpo = el('div', 'cat-mais-corpo');
     if (it.impacto && REG.impacto_niveis[it.impacto]) add(corpo, add(el('p'), el('b', null, 'Como chega em você: '), D.createTextNode(it.como_chega)));
     else if (it.como_chega) add(corpo, el('p', null, it.como_chega));
-    if (it.ressalva && !(it.resultado === 'vitoria' && it.forca === 'apertada')) add(corpo, add(el('p'), el('b', null, 'Ressalva: '), D.createTextNode(it.ressalva)));
+    if (it.ressalva && it.ressalva !== mudaria(it)) add(corpo, add(el('p'), el('b', null, 'Ressalva: '), D.createTextNode(it.ressalva)));
+    if (it.atual_2026 && it.atual_2026.valor) add(corpo, add(el('p'), el('b', null, '2026 (' + (it.atual_2026.periodo || 'parcial') + '): '), D.createTextNode(it.atual_2026.valor + (it.atual_2026.nota ? ' · ' + it.atual_2026.nota : ''))));
+    (it.variantes_agrupadas || []).forEach(function (v) { add(corpo, el('p', null, v)); });
     if (it.como_calculamos) add(corpo, add(el('p'), el('b', null, 'Como calculamos: '), D.createTextNode(it.como_calculamos)));
     var arq = el('p', 'cat-arq'); arq.appendChild(el('b', null, 'Arquivos originais: '));
     it.arquivos.forEach(function (f, i) {
@@ -307,6 +351,11 @@
       var nome = f.arquivo.split('/').pop();
       add(arq, el('a', null, nome, { href: f.arquivo, download: '', 'data-download': '1', 'data-file': nome, 'data-cat': 'comparacoes' }),
         el('span', 'cat-sha', ' SHA-256 ' + f.sha256.slice(0, 12) + '…', { title: f.sha256 }));
+      (f.fonte_original || []).forEach(function (o) {
+        if (!o || !o.url) return;
+        add(arq, D.createTextNode(' (extrato de '), el('a', null, o.arquivo_original || 'arquivo original', { href: o.url, rel: 'noopener' }),
+          el('span', 'cat-sha', ' SHA-256 ' + (o.sha256 || '').slice(0, 12) + '…', { title: o.sha256 || '' }), D.createTextNode(')'));
+      });
     });
     corpo.appendChild(arq);
     if (it.variante_de && it.variante_de.length) corpo.appendChild(el('p', null, 'Leitura alternativa da comparação nº ' + it.variante_de.join(', nº ') + ': não conta de novo nas contagens.'));
@@ -471,21 +520,37 @@
     [['', 'Todas'], ['clara', 'Clara'], ['apertada', 'Apertada'], ['depende-da-regua', 'Depende da régua']].forEach(function (o) { sF.appendChild(el('option', null, o[1], { value: o[0] })); });
     sF.value = est.forca || ''; sF.addEventListener('change', function () { est.forca = sF.value; aplicar(); track('catalog_filter', { filtro: 'forca', valor: sF.value || 'todas' }); });
     lf.appendChild(sF); corpoF.appendChild(lf);
-    var sI = null;
-    if (CFG.impacto_filtro) {   // portão: só liga depois da lista pré-registrada (decisão do dono, item 8)
-      var li = el('label', 'cat-f'); li.appendChild(el('span', null, 'Como chega em você'));
-      sI = el('select', null, null, { name: 'impacto' }); sI.appendChild(el('option', null, 'Todos', { value: '' }));
-      Object.keys(REG.impacto_niveis).forEach(function (k) { sI.appendChild(el('option', null, REG.impacto_niveis[k].rotulo, { value: k })); });
-      sI.value = est.impacto || ''; sI.addEventListener('change', function () { est.impacto = sI.value; aplicar(); track('catalog_filter', { filtro: 'impacto', valor: sI.value || 'todos' }); });
-      li.appendChild(sI); corpoF.appendChild(li);
+    var canais = null, canalCont = null;
+    if (CFG.impacto_filtro) {   // portão cumprido: lista pré-registrada no registro (decisão do dono, item 8)
+      canais = el('div', 'cat-chips cat-canais', null, { role: 'group', 'aria-label': 'Como chega em você' });
+      var nivs = Object.keys(REG.impacto_niveis).sort(function (a, b) { return REG.impacto_niveis[a].ordem - REG.impacto_niveis[b].ordem; });
+      [['', 'Todos os canais']].concat(nivs.map(function (k) { return [k, REG.impacto_niveis[k].rotulo]; })).forEach(function (o) {
+        var b = el('button', 'cat-chip', o[1], { type: 'button', 'aria-pressed': 'false', 'data-v': o[0], title: o[0] ? REG.impacto_niveis[o[0]].regra : '' });
+        b.addEventListener('click', function () { est.impacto = est.impacto === o[0] ? '' : o[0]; aplicar(); track('catalog_filter', { filtro: 'impacto', valor: est.impacto || 'todos' }); });
+        canais.appendChild(b);
+      });
+      // contagem dos dois lados em CADA canal (catálogo inteiro), em tamanho de detalhe, com o link do método
+      var cc = {};
+      todos.forEach(function (it) {
+        if (!it.impacto || (it.variante_de && it.variante_de.length)) return;
+        var c = cc[it.impacto] || (cc[it.impacto] = { b: 0, l: 0, o: 0 });
+        if (it.resultado === 'vitoria') c[it.vencedor] += 1; else c.o += 1;
+      });
+      canalCont = el('p', 'cat-note cat-canal-cont');
+      var CURTO = { bolso: 'No bolso', servicos: 'Serviços', economia: 'Contas do governo', panorama: 'Panorama' };
+      canalCont.appendChild(D.createTextNode('À frente, por canal: ' + nivs.filter(function (k) { return cc[k]; }).map(function (k) {
+        var c = cc[k]; return (CURTO[k] || REG.impacto_niveis[k].rotulo) + ' — Bolsonaro ' + c.b + ', Lula ' + c.l;
+      }).join(' · ') + '. Canal não é importância. '));
+      canalCont.appendChild(el('a', null, 'Como definimos os canais e o pré-registro ›', { href: '#metodo-canais' }));
     }
     var bModo = el('button', 'cat-chip', '', { type: 'button' });
     bModo.addEventListener('click', function () { est.modo = modoAtual() === 'lista' ? 'cartoes' : 'lista'; aplicar(); });
     corpoF.appendChild(bModo);
     add(mais, sm, corpoF);
     var limpar = el('button', 'cat-clear', 'Limpar filtros', { type: 'button' });
-    limpar.addEventListener('click', function () { est.analise = est.tema = est.forca = est.impacto = ''; est.lista = false; sF.value = ''; if (sI) sI.value = ''; aplicar(); });
-    add(cont, seg, chips, add(el('div', 'cat-filtros-l2'), mais, limpar));
+    limpar.addEventListener('click', function () { est.analise = est.tema = est.forca = est.impacto = ''; est.lista = false; sF.value = ''; aplicar(); });
+    var l2 = add(el('div', 'cat-filtros-l2'), mais, limpar);
+    add(cont, seg, chips, canais, canalCont, l2);
 
     var nota = el('p', 'cat-note cat-contagem', null, { 'aria-live': 'polite' });
     var cabLista = el('div', 'cat-cablista', null, { hidden: '' });
@@ -523,7 +588,8 @@
       toast('Lista apagada.', [{ rotulo: 'Desfazer', fn: function () { favoritos.definir(antes); aplicar(); } }], 6000);
     });
 
-    add(root, cont, nota, cabLista, lista, vazio, bar, folha);
+    l2.appendChild(nota);   // a contagem fica na mesma linha de "Mais filtros" (primeiro item mais alto na tela)
+    add(root, cont, bar, cabLista, lista, vazio, folha);   // barra antes da lista: no computador fica presa no topo (sticky)
 
     function modoAtual() { return est.modo || (CEL.matches ? 'lista' : 'cartoes'); }
     function aoMudar(on) {
@@ -552,8 +618,8 @@
       vis.forEach(function (it) { lista.appendChild(modo === 'lista' ? linha(it, { aoMudar: aoMudar }) : cartao(it, { aoMudar: aoMudar })); });
       if (W.__share) W.__share.init(lista);
       // contagem por análise, em texto pequeno (nunca um placar único somado)
-      var lc = linhasContagem(vis);
-      nota.textContent = vis.length + (vis.length === 1 ? ' comparação' : ' comparações') + (lc.length ? ' · ' + lc.join(' · ') : '') + '.';
+      var filtrado = est.analise || est.tema || est.forca || est.impacto || est.lista;
+      nota.textContent = vis.length + (vis.length === 1 ? ' comparação' : ' comparações') + (filtrado && vis.length ? ' · ' + contagemCurta(vis) : '');
       // estados vazios
       vazio.textContent = ''; vazio.hidden = vis.length > 0;
       if (!vis.length && est.lista && !fav.length) {
@@ -569,6 +635,7 @@
       // estado visual dos filtros
       Array.prototype.forEach.call(seg.children, function (b) { b.setAttribute('aria-checked', b.getAttribute('data-v') === (est.analise || '') ? 'true' : 'false'); });
       Array.prototype.forEach.call(chips.children, function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-v') === (est.tema || '') ? 'true' : 'false'); });
+      if (canais) Array.prototype.forEach.call(canais.children, function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-v') === (est.impacto || '') ? 'true' : 'false'); });
       bModo.textContent = modo === 'lista' ? 'Ver como cartões' : 'Ver como lista';
       limpar.hidden = !(est.analise || est.tema || est.forca || est.impacto || est.lista);
       atualizarBarra(); gravarEstado(est);
@@ -685,7 +752,7 @@
         if (sec) sec.parentNode.insertBefore(ml, sec.nextSibling); else bar.appendChild(ml);
       }
       ml.textContent = '★ Minha lista (' + n + ')';
-      ml.hidden = !n; if (sec) sec.hidden = !!n;
+      ml.style.display = n ? '' : 'none'; if (sec) sec.style.display = n ? 'none' : '';
     }
     upd();
     D.addEventListener('bpd:favoritos', upd);
@@ -693,6 +760,10 @@
   }
 
   /* ------------------------------------------------------------------ boot */
+  D.addEventListener('click', function (e) {   // link para o método: abre o recolhível (que começa fechado)
+    var a = e.target && e.target.closest ? e.target.closest('a[href="#metodo-canais"]') : null;
+    var d = a && D.getElementById('metodo-canais'); if (d) d.open = true;
+  });
   function boot() {
     var mapaEl = D.getElementById('bpd-ancoras');
     if (mapaEl) { try { iniciarEstrelas(JSON.parse(mapaEl.textContent)); } catch (e) {} }

@@ -301,6 +301,279 @@
    "slug": "promessas-nao-cumpridas",
    "pergunta": "33d2e91cf11e8896",
    "criado_em": "2026-10-15"
+  },
+  {
+   "id": 44,
+   "ref": "PR1",
+   "slug": "juro-credito-familias",
+   "pergunta": "008813b6a3d9ce6a",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 45,
+   "ref": "PR2",
+   "slug": "comprometimento-renda",
+   "pergunta": "fb3d72d0adfe3c8e",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 46,
+   "ref": "PR3",
+   "slug": "inadimplencia-familias",
+   "pergunta": "7ffa4aa7a79c0fca",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 47,
+   "ref": "PR4",
+   "slug": "endividamento-familias",
+   "pergunta": "809804d8b67c9bff",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 48,
+   "ref": "PR5",
+   "slug": "energia-eletrica",
+   "pergunta": "141f444386e8b112",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 49,
+   "ref": "PR6",
+   "slug": "gasolina",
+   "pergunta": "d789863ccecdf734",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 50,
+   "ref": "PR7",
+   "slug": "gas-de-botijao",
+   "pergunta": "9f1dae9745893e84",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 51,
+   "ref": "PR8",
+   "slug": "alimentacao-no-domicilio",
+   "pergunta": "05629da33d87aef1",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 52,
+   "ref": "CD08",
+   "slug": "empregos-formais",
+   "pergunta": "9a94448fb4ede5f9",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 53,
+   "ref": "CD09",
+   "slug": "renda-do-trabalho",
+   "pergunta": "2ae26c4ce8bba61a",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 54,
+   "ref": "CD13",
+   "slug": "pobreza",
+   "pergunta": "60e55444bd3f9026",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 55,
+   "ref": "S2-25b",
+   "slug": "extrema-pobreza",
+   "pergunta": "68ee2279b2e0daea",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 56,
+   "ref": "CD06",
+   "slug": "farmacia-popular",
+   "pergunta": "e164f63944c7fc70",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 57,
+   "ref": "CD21",
+   "slug": "cisternas",
+   "pergunta": "27fd7b1eba7dd953",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 58,
+   "ref": "CD20",
+   "slug": "abandono-ensino-medio",
+   "pergunta": "20787ef7cbfdd136",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 59,
+   "ref": "CD04",
+   "slug": "roubos-de-veiculos",
+   "pergunta": "d87fd2d09c25a90c",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 60,
+   "ref": "CD05",
+   "slug": "roubos-de-celular",
+   "pergunta": "7c22cec5436b8bf0",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 61,
+   "ref": "CP18",
+   "slug": "roubos-de-carga",
+   "pergunta": "bf36cd9b64912a4f",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 62,
+   "ref": "CP16",
+   "slug": "feminicidios",
+   "pergunta": "bf0fd1e5f807b152",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 63,
+   "ref": "CD15",
+   "slug": "pib-agropecuaria",
+   "pergunta": "1b52176001fc2771",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 64,
+   "ref": "CD16",
+   "slug": "pib-industria",
+   "pergunta": "04c06f4cac84988c",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 65,
+   "ref": "CP06",
+   "slug": "pib-construcao",
+   "pergunta": "28f9ca7b0f03bae3",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 66,
+   "ref": "CP05",
+   "slug": "investimento-fbcf",
+   "pergunta": "ca87a16c8ab630cf",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 67,
+   "ref": "CD17",
+   "slug": "exportacoes-volume",
+   "pergunta": "f58152de80bdcbd7",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 68,
+   "ref": "CD18",
+   "slug": "automoveis-emplacados",
+   "pergunta": "f18cc43f8cfbb3b2",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 69,
+   "ref": "S2-32p",
+   "slug": "producao-petroleo",
+   "pergunta": "0e75f5c283f575a8",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 70,
+   "ref": "CD19",
+   "slug": "desmatamento-amazonia",
+   "pergunta": "30898b489600414e",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 71,
+   "ref": "CP14",
+   "slug": "desmatamento-cerrado",
+   "pergunta": "575870a7c3e5164a",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 72,
+   "ref": "CP01",
+   "slug": "divida-liquida",
+   "pergunta": "3325fcb63b181a3e",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 73,
+   "ref": "CP04",
+   "slug": "deficit-nominal",
+   "pergunta": "f8b882c18f5b9bd3",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 74,
+   "ref": "CP07",
+   "slug": "carga-tributaria",
+   "pergunta": "fdede0595545bb95",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 75,
+   "ref": "CP09",
+   "slug": "ministerios",
+   "pergunta": "d89971cb0e541e7c",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 76,
+   "ref": "S2-26",
+   "slug": "investimento-publico-governo-geral",
+   "pergunta": "7a94743a2d33f07c",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 77,
+   "ref": "CP-HOM",
+   "slug": "homicidios",
+   "pergunta": "fa8345ae8a4570f4",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 78,
+   "ref": "CP-LAT",
+   "slug": "latrocinios",
+   "pergunta": "c367590385cccb7d",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 79,
+   "ref": "CP-VAC",
+   "slug": "vacinacao-infantil",
+   "pergunta": "fa1dc6c34b209018",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 80,
+   "ref": "CP-IDP",
+   "slug": "investimento-estrangeiro",
+   "pergunta": "f707a89d3efb6049",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 81,
+   "ref": "CP-EMBI",
+   "slug": "risco-pais",
+   "pergunta": "0fa2885649bf1d15",
+   "criado_em": "2026-10-16"
+  },
+  {
+   "id": 82,
+   "ref": "CP-IBOV",
+   "slug": "bolsa-ibovespa",
+   "pergunta": "9d9a63e649ea099c",
+   "criado_em": "2026-10-16"
   }
  ]
 }

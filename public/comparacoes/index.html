@@ -12,7 +12,7 @@
 <meta property="og:title" content="Comparações: os números dos dois lados, com fonte oficial">
 <meta property="og:description" content="Governos Bolsonaro × Lula, planos de 2026 e promessas: cada comparação com os números dos dois lados, o critério, a fonte e a data.">
 <meta property="og:url" content="__SITE_URL__/comparacoes/">
-<meta property="og:image" content="__SITE_URL__/assets/img/og-selecao.jpg">
+<meta property="og:image" content="__SITE_URL__/assets/img/og-comparacoes.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Bora pros dados Brasil: comparações com os números dos dois lados e a fonte oficial">
@@ -22,7 +22,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Comparações: os números dos dois lados, com fonte oficial">
 <meta name="twitter:description" content="Governos Bolsonaro × Lula, planos de 2026 e promessas: cada comparação com os números dos dois lados, o critério, a fonte e a data.">
-<meta name="twitter:image" content="__SITE_URL__/assets/img/og-selecao.jpg">
+<meta name="twitter:image" content="__SITE_URL__/assets/img/og-comparacoes.jpg">
 <link rel="icon" href="/assets/img/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png">
@@ -55,12 +55,18 @@
 </header>
 <main class="cat-wrap" id="topo">
   <h1>Todas as comparações</h1>
-  <p class="cat-intro">Toque ☆ para montar sua lista e mandar para alguém. Cada item mostra os números dos dois lados e a fonte oficial.</p>
+  <p class="cat-intro">Os números dos dois lados, com fonte oficial. Toque ☆ para montar sua lista e mandar.</p>
   <details class="cat-quem">
     <summary>Quem é cada lado</summary>
     <p>“Lado Bolsonaro” é o Governo Bolsonaro (2019–2022) e, nos planos de 2026, Flávio Bolsonaro; “lado Lula” é o Governo Lula (2023–) e o plano de Lula. A ordem é sempre a mesma (Bolsonaro primeiro, por ordem de tempo), e a lista segue a ordem das páginas, nunca quem ficou à frente. Sua lista fica só neste navegador. Os dados de todas as comparações estão em <a href="/dados/comparacoes.json">/dados/comparacoes.json</a>.</p>
   </details>
   <div data-catalogo="lista" id="catalogo"><!--PRERENDER-COMPARACOES--></div>
+  <details class="cat-metodo" id="metodo-canais">
+    <summary>Como definimos os canais e o pré-registro</summary>
+    <p><b>Canal (“Como chega em você”).</b> Cada comparação recebe um canal por uma regra escrita antes de olhar quem ficou à frente: <b>Direto no bolso</b> quando o dado é medido na família ou no preço que ela paga (R$ por pessoa ou família, preço ao consumidor, % de pessoas numa situação, juro ou parcela paga pela família); <b>Nos serviços e na proteção social</b> quando é o que o governo gasta ou entrega a pessoas (saúde, educação, segurança, assistência, previdência); <b>Pelas contas do governo</b> quando é um agregado da economia ou das contas públicas (PIB, gasto total, dívida, juros, câmbio); <b>Panorama</b> para os planos de 2026 e as promessas, que medem texto de plano e cumprimento. O canal mostra por onde o dado chega, não a importância: dívida e juros também chegam ao bolso, pelo juro do crediário e pelo espaço no orçamento. A lista segue a ordem das páginas, nunca quem ficou à frente, e não há filtro por vencedor.</p>
+    <p><b>Pré-registro (16/10/2026).</b> Antes de calcular, fixamos oito indicadores do bolso que faltavam no site: juro médio do crédito livre às famílias (Banco Central, SGS 20740), comprometimento de renda com dívidas (SGS 29034), inadimplência das famílias (SGS 21112), endividamento das famílias (SGS 29037, como contexto, sem vencedor) e os preços de energia elétrica residencial, gasolina, gás de botijão e alimentação no domicílio (IPCA, IBGE). Régua igual para todos: média anual 2019–22 × 2023–25, 2026 como dado atual e “sem 2020–21” como teste. Cada um entrou com o resultado que deu e nenhum saiu depois de calculado.</p>
+    <p><b>Transparência:</b> a inadimplência das famílias já tinha sido calculada por outro membro da equipe antes do pré-registro; os outros sete foram calculados depois. Leituras alternativas de uma mesma pergunta (por exemplo, a mesma conta com ou sem 2020) aparecem na lista, mas não contam duas vezes nas contagens.</p>
+  </details>
   <p class="cat-note cat-neutro">Este site compara dados oficiais com a mesma regra para os dois lados. Não indica voto. <a href="/sobre/">Sobre e método ›</a></p>
 </main>
 <footer class="sitefoot">

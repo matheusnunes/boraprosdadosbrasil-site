@@ -460,8 +460,8 @@ def validate_registry(site_url=''):
                     err.append(f'{tag}: texto "{it["lados"][k]["valor"]}" não bate com grafico.valores.{k} = {vals[k]}')
         if it['impacto'] is not None and it['impacto'] not in niveis:
             err.append(f'{tag}: impacto inválido ({it["impacto"]})')
-        if it.get('pagina_id') in ('propostas', 'balanco') and it['impacto'] is not None:
-            err.append(f'{tag}: planos e promessas não têm canal de impacto (medem texto de plano/cumprimento)')
+        if (it.get('pagina_id') in ('propostas', 'balanco')) != (it['impacto'] == 'panorama'):
+            err.append(f'{tag}: "panorama" é o canal de planos e promessas, e só deles (medem texto de plano/cumprimento)')
         if it['tema'] not in temas:
             err.append(f'{tag}: tema inválido ({it["tema"]})')
         if it['pagina'] not in paginas and it['pagina'] != '/comparacoes/':
@@ -471,6 +471,10 @@ def validate_registry(site_url=''):
         if not it['arquivos']:
             err.append(f'{tag}: sem arquivo de fonte')
         for a in it['arquivos']:
+            if a.get('externo'):   # arquivo grande (> 5 MB): fica na fonte oficial, com URL e sha256
+                if not a.get('url') or not re.match(r'^[0-9a-f]{64}$', a.get('sha256') or ''):
+                    err.append(f'{tag}: arquivo externo sem URL ou sha256: {a["arquivo"]}')
+                continue
             p = PUB / a['arquivo'].lstrip('/')
             if not p.exists():
                 err.append(f'{tag}: arquivo não existe: {a["arquivo"]}'); continue
@@ -563,6 +567,40 @@ def mapa_ancoras(reg, pagina):
         if c.get('status') == 'ativo' and c.get('catalogo') and c.get('pagina') == pagina and c.get('ancora_card') and not c.get('variante_de'):
             m.setdefault(c['ancora_card'], [c['id'], c.get('tema_curto') or c['titulo']])
     return m
+
+
+def bloco_indicadores(reg):
+    """Seção injetada em /fontes/ (no dist) com os arquivos dos indicadores que só existem na página Comparações
+    (pré-registrados, cards do dono, contrapeso): arquivo, onde é usado, SHA-256 e download (ou link oficial, se > 5 MB)."""
+    usos, ordem = {}, []
+    for c in reg['comparacoes']:
+        if c.get('status') != 'ativo' or c.get('origem') == 'matriz':
+            continue
+        for a in c.get('arquivos', []):
+            k = a['arquivo']
+            if k not in usos:
+                usos[k] = {'a': a, 'usos': []}; ordem.append(k)
+            usos[k]['usos'].append(f'nº {c["id"]} {c.get("tema_curto") or c["titulo"]}')
+    if not ordem:
+        return '', 0
+    linhas = []
+    for k in ordem:
+        a, nome = usos[k]['a'], k.split('/')[-1]
+        if a.get('externo'):
+            baixar = f'<a class="dl" href="{esc(a.get("url") or "#")}" rel="noopener" data-cat="indicadores">No site oficial ({a.get("tamanho_mb", "> 5")} MB)</a>'
+        else:
+            baixar = f'<a class="dl" href="{esc(k)}" download data-download="1" data-file="{esc(nome)}">Baixar</a>'
+        linhas.append(f'<tr><td class="fname">{esc(nome)}</td><td>{esc(" · ".join(usos[k]["usos"]))}</td>'
+                      f'<td><code style="font-size:12px;overflow-wrap:anywhere">{esc(a.get("sha256", ""))}</code></td><td>{baixar}</td></tr>')
+    html_ = ('<section class="chap" id="fonte-indicadores" data-track-section="fontes-indicadores" data-track-name="Indicadores do catálogo">'
+             '<div class="chap-hd"><div class="kicker">Página Comparações</div>'
+             '<h2>Arquivos dos indicadores que estão só na página Comparações</h2></div>'
+             '<p class="lead">Crédito e dívidas das famílias, preços, emprego, segurança, meio ambiente e contas públicas: os arquivos oficiais '
+             'por trás das comparações que entram só em <a href="/comparacoes/">Comparações</a>, com o número de cada comparação que os usa. '
+             'Arquivos maiores que 5 MB ficam no site oficial; o SHA-256 é o do arquivo baixado na data da extração.</p>'
+             '<div class="tbl-card"><table class="dados-tbl"><thead><tr><th style="width:24%">Arquivo</th><th>Usado em</th><th>SHA-256</th><th>Baixar</th></tr></thead>'
+             f'<tbody>{"".join(linhas)}</tbody></table></div></section>')
+    return html_, len(ordem)
 
 
 def bloco_derivados(itens):
@@ -688,7 +726,9 @@ def main():
         (DIST / 'dados' / 'SHA256SUMS-derivados.txt').write_text(''.join(f'{h}  {r}\n' for r, _, _, h in deriv), encoding='utf-8')
         marca = '<div class="explain">\n    <h4>Notas</h4>'
         if marca in raw['/fontes/']:
-            raw['/fontes/'] = raw['/fontes/'].replace(marca, bloco_derivados(deriv) + '\n  ' + marca, 1)
+            ind, n_ind = bloco_indicadores(registro) if registro else ('', 0)
+            raw['/fontes/'] = raw['/fontes/'].replace(marca, ind + bloco_derivados(deriv) + '\n  ' + marca, 1)
+            if n_ind: notes.append(f'{n_ind} arquivos dos indicadores do catálogo em /fontes/')
             notes.append('derivados com SHA-256 em /fontes/')
         else:
             warns.append('/fontes/: lugar da seção de derivados não encontrado')
