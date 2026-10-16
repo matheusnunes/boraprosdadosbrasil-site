@@ -685,3 +685,12 @@ html.ui-travado, html.ui-travado body { overflow: hidden; }
   .bpd-car-trilho:has(> :nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
+
+/* Chaves sob as barras (balanço/propostas): o rótulo quebra linha em telas estreitas (≤ 360 px) */
+.chv, .chv-r { min-width: 0; max-width: 100%; }
+.chv-l { white-space: normal !important; overflow-wrap: anywhere; min-width: 0; max-width: 100%; }
+/* Catálogos em cards no celular estreito: selos e células quebram linha em vez de alargar a página */
+@media (max-width: 400px) {
+  table.cat td { min-width: 0; overflow-wrap: anywhere; }
+  table.cat td .chip, table.cat td [class*="chip"] { white-space: normal; }
+}
