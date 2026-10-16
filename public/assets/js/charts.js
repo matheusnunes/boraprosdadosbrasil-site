@@ -1582,11 +1582,76 @@
     '.bpd-car-ponto:focus-visible{outline:2px solid currentColor;outline-offset:-2px;border-radius:12px}' +
     '.bpd-car-conta{font:600 13px/1 inherit;min-width:34px;text-align:center;opacity:.8}' +
     '}' +
-    '@media (prefers-reduced-motion:reduce){.bpd-car-trilho{scroll-behavior:auto}}';
+    '@media (prefers-reduced-motion:reduce){.bpd-car-trilho{scroll-behavior:auto}}' +
+    /* dica "Deslize ›" (v0.3.7): pílula decorativa sobre a borda direita (área do próximo card) */
+    '.bpd-car-dica{position:absolute;right:2px;z-index:2;display:flex;flex-direction:column;align-items:center;gap:2px;width:60px;padding:7px 0 9px;border-radius:30px;' +
+    'background:rgba(24,24,27,.92);color:#fff;font:700 12px/1 InterVar,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;' +
+    'pointer-events:none;opacity:0;transition:opacity .3s ease;box-shadow:0 2px 8px rgba(0,0,0,.18)}' +
+    '.bpd-car-dica.is-on{opacity:1}' +
+    '.bpd-car-dica-seta{display:inline-block;font-size:24px;line-height:1}' +
+    '.bpd-car-dica.is-anim .bpd-car-dica-seta{animation:bpd-car-seta 1s ease-in-out 3}' +
+    '@keyframes bpd-car-seta{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}' +
+    '@media (prefers-reduced-motion:reduce){.bpd-car-dica{transition:none}.bpd-car-dica.is-anim .bpd-car-dica-seta{animation:none}}';
   function cssCarrossel() {
     if (document.getElementById('bpd-car-css')) return;
     var st = document.createElement('style'); st.id = 'bpd-car-css'; st.textContent = CSS_CAR; document.head.appendChild(st);
   }
+
+  /* Dica de deslizar (v0.3.7): no celular, na 1ª vez que um carrossel aparece (≥ 50% visível), o trilho dá um
+   * "empurrãozinho" de ~40 px (700 ms, 1 vez) e uma pílula compacta "› deslize" com a seta animada (3 ciclos) surge sobre a
+   * borda direita e some. Some no 1º toque/arrasto/tecla/rolagem. No máximo 2 carrosséis por sessão.
+   * Com prefers-reduced-motion: sem empurrão e sem seta em loop (pílula estática por 3 s). aria-hidden, sem foco. */
+  var DICA_CHAVE = 'bpdCarDicas', DICA_MAX = 2;
+  function dicasVistas() { try { return +(root.sessionStorage.getItem(DICA_CHAVE) || 0); } catch (e) { return DICA_MAX; } }
+  function marcarDica() { try { root.sessionStorage.setItem(DICA_CHAVE, String(dicasVistas() + 1)); } catch (e) {} }
+  function dicaDeslizar(cont, trilho, itens, op) {
+    if (op.dica === false || itens.length < 2 || !root.matchMedia) return;
+    var pilula = document.createElement('div'); pilula.className = 'bpd-car-dica'; pilula.setAttribute('aria-hidden', 'true');
+    // compacta (60 px): fica sobre a fresta do próximo card e a margem do atual, sem cobrir o conteúdo
+    var sa = document.createElement('span'); sa.className = 'bpd-car-dica-seta'; sa.textContent = '›';
+    var tx = document.createElement('span'); tx.textContent = 'deslize';
+    pilula.appendChild(sa); pilula.appendChild(tx); cont.appendChild(pilula);
+    var rola = function () { return trilho.scrollWidth > trilho.clientWidth + 4; };
+    var celular = root.matchMedia('(max-width: 760px)'), calmo = root.matchMedia('(prefers-reduced-motion: reduce)');
+    var tFim = 0, anims = [], encerrada = false;
+    function posicionar() { pilula.style.top = Math.round(trilho.offsetTop + Math.min(trilho.clientHeight * 0.30, 220)) + 'px'; }
+    function esconder() {
+      clearTimeout(tFim); pilula.classList.remove('is-on', 'is-anim');
+      anims.forEach(function (a) { try { a.cancel(); } catch (e) {} }); anims = [];
+    }
+    function encerrar() {
+      if (encerrada) return; encerrada = true; esconder();
+      ['pointerdown', 'touchstart', 'wheel', 'keydown', 'scroll'].forEach(function (ev) { trilho.removeEventListener(ev, encerrar); });
+      cont.removeEventListener('click', encerrar, true);
+    }
+    function mostrar() {
+      if (encerrada || !celular.matches || !rola() || dicasVistas() >= DICA_MAX) return;
+      marcarDica(); posicionar();
+      pilula.classList.add('is-on');
+      if (!calmo.matches) {
+        pilula.classList.add('is-anim');
+        if (itens[0].animate) itens.forEach(function (sl) {   // anima os slides (dentro do trilho), não a página: sem rolagem nem reflow
+          anims.push(sl.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-40px)' }, { transform: 'translateX(0)' }], { duration: 700, easing: 'ease-in-out', delay: 150 }));
+        });
+      }
+      tFim = setTimeout(encerrar, 3200);
+    }
+    ['pointerdown', 'touchstart', 'wheel', 'keydown', 'scroll'].forEach(function (ev) { trilho.addEventListener(ev, encerrar, { passive: true }); });
+    cont.addEventListener('click', encerrar, true);   // setas e pontinhos
+    if ('IntersectionObserver' in root) {
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (en) { if (en.isIntersecting && en.intersectionRatio >= 0.5) { io.disconnect(); mostrar(); } });
+      }, { threshold: [0.5] });
+      io.observe(trilho);
+    }
+    // largura intermediária com rolagem horizontal (sem dica animada): seta estática ao passar o mouse
+    trilho.addEventListener('mouseenter', function () {
+      if (celular.matches || !rola()) return;
+      posicionar(); pilula.classList.add('is-on');
+    });
+    trilho.addEventListener('mouseleave', function () { if (!celular.matches) pilula.classList.remove('is-on'); });
+  }
+
   function carrossel(cont, op) {
     if (typeof cont === 'string') cont = document.querySelector(cont);
     op = op || {};
@@ -1648,6 +1713,7 @@
       else if (e.key === 'ArrowLeft') { e.preventDefault(); ir(atual - 1); }
     });
     conta.textContent = ''; marcar(0);
+    dicaDeslizar(cont, trilho, itens, op);
     redesenharCards(false);
     cont.__bpdCar = { ir: ir, atual: function () { return atual; } };
     return cont.__bpdCar;
@@ -1765,6 +1831,6 @@
     promessas: promessas, resumo: resumo, card: card, montarCard: montarCard, carrossel: carrossel, cardPNG: cardPNG, cardSintese: cardSintese, cardSelecao: cardSelecao,
     carregarFonte: function () { return Promise.all(['400', '600', '700', '800'].map(function (w) { return document.fonts.load(w + ' 20px InterVar'); })); },
     paraPNG: paraPNG, redesenhar: function () { redesenhar(true); redesenharCards(true); },
-    TEMAS: TEMAS, FORMATOS: FORMATOS, STATUS: STATUS, urlFonte: '/assets/fonts/inter-latin-var.woff2', versao: '0.3.6'
+    TEMAS: TEMAS, FORMATOS: FORMATOS, STATUS: STATUS, urlFonte: '/assets/fonts/inter-latin-var.woff2', versao: '0.3.7'
   };
 })(typeof window !== 'undefined' ? window : this);
