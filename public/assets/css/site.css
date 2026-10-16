@@ -669,14 +669,6 @@ html.ui-travado, html.ui-travado body { overflow: hidden; }
    ocupa a linha inteira abaixo dos cards, em vez de ficar como faixa solta ao lado */
 .vrd-grid > details, .grid2 > details { grid-column: 1 / -1; align-self: start; }
 
-/* Resumo da home no desktop: cada item do carrossel tem UM bloco, então o bloco usa a largura toda;
-   card-síntese à esquerda (ocupando as duas linhas) e os dois blocos de barras à direita, empilhados */
-.res-item .q-blocos { grid-template-columns: 1fr; }
-@media (min-width: 761px) {
-  .res-car .bpd-car-trilho { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; align-items: start; }
-  .res-car .res-item--card { grid-row: span 2; }
-}
-
 /* Seções em carrossel, no desktop/tablet: grade com número fixo de colunas e cards da mesma linha
    com a mesma altura (ações alinhadas embaixo) — evita cards soltos e desalinhados */
 @media (min-width: 761px) {
@@ -693,10 +685,3 @@ html.ui-travado, html.ui-travado body { overflow: hidden; }
   .bpd-car-trilho:has(> :nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-/* Resumo da home no celular: empilhado (sem carrossel). Os itens têm alturas muito diferentes;
-   em carrossel sobrava espaço vazio e o próximo item aparecia cortado na borda */
-@media (max-width: 760px) {
-  .res-car .bpd-car-trilho { display: block !important; overflow: visible !important; }
-  .res-car .bpd-car-trilho > * { max-width: 100% !important; width: 100%; margin: 0 0 14px; }
-  .res-car .bpd-car-nav { display: none !important; }
-}
