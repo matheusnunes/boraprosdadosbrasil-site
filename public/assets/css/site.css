@@ -668,3 +668,11 @@ html.ui-travado, html.ui-travado body { overflow: hidden; }
 /* recolhíveis começam fechados (decisão de 16/10/2026): numa grade de cards, o <details>
    ocupa a linha inteira abaixo dos cards, em vez de ficar como faixa solta ao lado */
 .vrd-grid > details, .grid2 > details { grid-column: 1 / -1; align-self: start; }
+
+/* Resumo da home no desktop: cada item do carrossel tem UM bloco, então o bloco usa a largura toda;
+   card-síntese à esquerda (ocupando as duas linhas) e os dois blocos de barras à direita, empilhados */
+.res-item .q-blocos { grid-template-columns: 1fr; }
+@media (min-width: 761px) {
+  .res-car .bpd-car-trilho { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; align-items: start; }
+  .res-car .res-item--card { grid-row: span 2; }
+}
