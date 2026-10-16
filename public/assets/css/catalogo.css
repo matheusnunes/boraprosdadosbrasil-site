@@ -168,3 +168,11 @@ html.cat-travado, html.cat-travado body { overflow: hidden; }
 @media print { .cat-bar, .cat-sheet, .cat-star, .cat-filtros, .cat-toast { display: none !important; } }
 /* espaçador dos filtros dos catálogos de /propostas/ e /balanco/ (antes um <label> vazio, sem controle: 1.3.1) */
 .filters .f-esp { font-size: 12px; display: block; margin-bottom: 3px; }
+
+/* charts.js v0.4.0: estrela no lugar próprio da linha de ações; cartão compacto do catálogo */
+.bpd-acoes-estrela .cat-star--pg, .bpd-acoes-estrela .cat-star { position: static; box-shadow: none; }
+.cat-card--v4 { padding: 10px 12px; }
+.cat-card--v4 .cat-tags { margin: 0 0 6px; }
+.cat-graf--v4 { min-height: 200px; border: 0; }
+.cat-row-c .cat-card--v4 { padding: 0; }
+.cat-row-c .cat-card--v4 > .cat-tags { display: none; }

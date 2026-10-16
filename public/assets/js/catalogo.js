@@ -336,7 +336,62 @@
   }
 
   /* ------------------------------------------------------------------ cartão: o gráfico é o cartão */
+  /* def do cartão do charts.js (mesmo molde do gerador de prévias scripts/gen_og_cards.js) */
+  function defDeItem(it) {
+    var vit = it.resultado === 'vitoria', g = it.grafico || {}, fmt = g.formato || {};
+    var L = { b: { nome: nomeLado(it, 'b'), curto: it.lados.b.curto, periodo: it.periodo_curto.b },
+              l: { nome: nomeLado(it, 'l'), curto: it.lados.l.curto, periodo: it.periodo_curto.l } };
+    var d = { id: 'cmp-' + it.id, tema: it.tema_curto || it.titulo, lados: L, criterio: vit ? it.criterio : null, valores: g.valores,
+      forca: vit ? it.forca : null, mudaria: mudaria(it) || null, detalhe: it.unidade,
+      fonte: it.fonte, periodo: it.periodo_curto.b + ' × ' + it.periodo_curto.l, dados: it.dados_ate, atualizado: dataBR(it.atualizado_em),
+      share: { texto: textoItem(it), url: BASE + '/c/' + it.id + '/' } };
+    if (vit) { var v = it.vencedor, o = v === 'b' ? 'l' : 'b';
+      d.manchete = { valor: it.lados[v].valor, texto: 'no ' + L[v].nome + ', contra ' + it.lados[o].valor + ' no ' + L[o].nome,
+        curta: 'contra ' + it.lados[o].valor + ' no ' + L[o].nome }; }
+    else { d.titulo = titulo(it); d.criterioTexto = criterioTexto(it); }
+    if (it.serie && it.serie.b) d.grafico = { tipo: 'trajetoria', titulo: 'Mês a mês desde a posse', b: it.serie.b, l: it.serie.l, formato: fmt,
+      formatoEixo: it.serie.formato_eixo || fmt, rotuloX: 'meses desde a posse' };
+    else if (it.grupos && it.grupos.length) d.grafico = { tipo: 'barras', titulo: 'Ano a ano de mandato', grupos: it.grupos, formato: fmt, formatoEixo: fmt };
+    else if (g.tipo === 'promessas') {
+      var ST = { ok: 'ok', okmid: 'ok', mid: 'mid', run: 'run', no: 'no', na: 'na' };
+      d.grafico = { tipo: 'empilhadas', categorias: g.categorias.map(function (c) { return { id: c.id, nome: c.nome, st: ST[c.id] || 'na' }; }),
+        linhas: { b: { contagens: g.contagens.b, direita: it.lados.b.valor }, l: { contagens: g.contagens.l, direita: it.lados.l.valor } } };
+    } else if (g.valores) d.grafico = { tipo: 'duelo', valores: g.valores, formato: fmt, periodos: { b: it.periodo_curto.b, l: it.periodo_curto.l } };
+    else return null;
+    var sm = [];   // o que vai na folha de detalhes: só o que não está na imagem
+    if (it.impacto && REG.impacto_niveis[it.impacto]) sm.push('Como chega em você (' + REG.impacto_niveis[it.impacto].rotulo + '): ' + it.como_chega);
+    if (it.ressalva && it.ressalva !== mudaria(it)) sm.push('Ressalva: ' + it.ressalva);
+    if (it.como_calculamos) sm.push('Como calculamos: ' + it.como_calculamos);
+    sm.push('Arquivos originais: ' + it.arquivos.map(function (f) { return f.arquivo.split('/').pop() + ' (SHA-256 ' + f.sha256.slice(0, 12) + '…)'; }).join(' · ') + ' — baixe em /fontes/.');
+    if (it.variante_de && it.variante_de.length) sm.push('Leitura alternativa da comparação nº ' + it.variante_de.join(', nº ') + ': não conta de novo nas contagens.');
+    d.saibaMais = sm;
+    return d;
+  }
+  var V4 = function () { return !!(W.BPD && typeof W.BPD.detalhes === 'function' && W.BPD.montarCard); };
+  function cartaoCompacto(it, opt) {
+    var def = defDeItem(it); if (!def) return null;
+    var a = el('article', 'cat-card cat-card--v4', null, { id: opt.semId ? null : 'cmp-' + it.id, 'data-id': it.id, 'data-res': it.resultado });
+    var tags = el('p', 'cat-tags');
+    add(tags, el('span', 'cat-tag', ANALISE[it.pagina_id] || ''),
+      it.impacto && REG.impacto_niveis[it.impacto] ? el('span', 'cat-tag cat-tag--canal', REG.impacto_niveis[it.impacto].rotulo, { title: REG.impacto_nota || '' }) : null,
+      el('span', 'cat-id', 'nº ' + it.id, { title: 'Número permanente desta comparação (usado no link de compartilhar)' }));
+    add(a, tags, el('h2', 'cat-sr', titulo(it)));
+    // .share escondido: o ⋯ do charts.js usa o share.js (Copiar imagem, Stories) com o link /c/<id>/
+    var sh = el('div', 'share', null, { hidden: '', 'data-share-section': it.slug, 'data-share-placement': 'catalogo', 'data-share-path': '/c/' + it.id + '/',
+      'data-share-name': 'a comparação nº ' + it.id, 'data-share-text': textoItem(it) });
+    var box = el('div', 'cat-graf cat-graf--v4');
+    add(a, sh, box);
+    preguicoso(box, function () {
+      try { W.BPD.montarCard(box, def, { estrela: opt.semEstrela ? null : estrela(it.id, it.tema_curto || it.titulo, opt.aoMudar), shareEl: sh }); }
+      catch (e) { box.textContent = 'Não foi possível mostrar o cartão: ' + it.lados.b.nome + ' ' + it.lados.b.valor + ' · ' + it.lados.l.nome + ' ' + it.lados.l.valor + '.'; }
+    });
+    return a;
+  }
   function cartao(it, opt) {
+    if (V4()) { var c4 = cartaoCompacto(it, opt || {}); if (c4) return c4; }
+    return cartaoV3(it, opt);
+  }
+  function cartaoV3(it, opt) {
     opt = opt || {};
     var a = el('article', 'cat-card', null, { id: opt.semId ? null : 'cmp-' + it.id, 'data-id': it.id, 'data-res': it.resultado });
     var top = el('div', 'cat-top'), tags = el('p', 'cat-tags');
@@ -807,18 +862,22 @@
       var id = mapa[k][0], rot = mapa[k][1];
       // na linha de ações do cartão ([Compartilhar imagem] [WhatsApp] ☆), à direita, como último item; o .bpd-card-acoes
       // é montado pelo charts.js (inclusive dentro de .bpd-car-slide do carrossel), então a estrela é realocada depois
-      var host = alvo.querySelector('.bpd-card-acoes') || alvo.querySelector('.vrd-acoes') || alvo.querySelector('.chap-hd') || alvo;
+      var host = alvo.querySelector('.bpd-acoes-estrela') || alvo.querySelector('.bpd-card-acoes') || alvo.querySelector('.vrd-acoes') || alvo.querySelector('.chap-hd') || alvo;
       if (host.querySelector('.cat-star')) continue;
       var b = estrela(id, rot, null);
       b.classList.add('cat-star--pg');
-      host.classList.add('cat-com-estrela');
+      if (!host.classList.contains('bpd-acoes-estrela')) host.classList.add('cat-com-estrela');
       host.appendChild(b); n += 1;
     }
     // o charts.js monta o cartão (.card-slot) depois: a estrela muda para o canto do cartão montado
     function reloca() {
       Array.prototype.forEach.call(D.querySelectorAll('.cat-star--pg'), function (st) {
-        var card = st.closest('.vrd, section'), alvo = card && card.querySelector('.bpd-card-acoes');
-        if (alvo && st.parentNode !== alvo) { alvo.classList.add('cat-com-estrela'); alvo.appendChild(st); }
+        var card = st.closest('.vrd, section'), alvo = card && (card.querySelector('.bpd-acoes-estrela') || card.querySelector('.bpd-card-acoes'));
+        if (alvo && st.parentNode !== alvo) {
+          if (!alvo.classList.contains('bpd-acoes-estrela')) alvo.classList.add('cat-com-estrela');
+          if (st.parentNode && st.parentNode.classList) st.parentNode.classList.remove('cat-com-estrela');
+          alvo.appendChild(st);
+        }
       });
     }
     [0, 600, 1500, 3000].forEach(function (t) { setTimeout(reloca, t); });
