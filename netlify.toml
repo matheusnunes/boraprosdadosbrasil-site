@@ -33,6 +33,12 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Página de demonstração dos componentes de interface (uso interno): fora do índice
+[[headers]]
+  for = "/_componentes/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
 # Arquivos para buscadores de IA: texto puro em UTF-8, fora do índice do Google
 # (para não competir com as páginas HTML), mas livres para leitura e citação.
 [[headers]]

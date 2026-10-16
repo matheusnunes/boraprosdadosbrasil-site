@@ -145,16 +145,20 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
 <script>window.SITE_CONFIG={"gaId":"__GA_ID__","siteUrl":"__SITE_URL__","pageId":"comparativo","consent":"__CONSENT__"};</script>
 <script defer src="/assets/js/analytics.js"></script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "__SITE_URL__/#org", "name": "Bora pros dados Brasil", "url": "__SITE_URL__/", "logo": {"@type": "ImageObject", "url": "__SITE_URL__/assets/img/logo-400.png", "width": 400, "height": 225}, "description": "Análises descritivas com dados públicos oficiais do Brasil, sem juízo político, com os arquivos originais para download."}, {"@type": "WebSite", "@id": "__SITE_URL__/#website", "name": "Bora pros dados Brasil", "url": "__SITE_URL__/", "inLanguage": "pt-BR", "publisher": {"@id": "__SITE_URL__/#org"}}, {"@type": "WebPage", "@id": "__SITE_URL__/#webpage", "url": "__SITE_URL__/", "name": "Governo Lula × Bolsonaro: comparação em dados oficiais | Bora pros dados Brasil", "description": "Governos Bolsonaro (2019-2022) e Lula (2023-2026) lado a lado: PIB, inflação, desemprego, renda, gasto e dívida pública, só com dados oficiais do BCB, IBGE e Tesouro.", "inLanguage": "pt-BR", "isPartOf": {"@id": "__SITE_URL__/#website"}, "primaryImageOfPage": {"@type": "ImageObject", "url": "__SITE_URL__/assets/img/og-comparativo.jpg", "width": 1200, "height": 630}, "datePublished": "__DATE_PUBLISHED__", "dateModified": "__DATE_MODIFIED__"}, {"@type": "Article", "@id": "__SITE_URL__/#article", "headline": "Governo Bolsonaro × Governo Lula: qual foi melhor para os 99%?", "description": "Governos Bolsonaro (2019-2022) e Lula (2023-2026) lado a lado: PIB, inflação, desemprego, renda, gasto e dívida pública, só com dados oficiais do BCB, IBGE e Tesouro.", "inLanguage": "pt-BR", "mainEntityOfPage": {"@id": "__SITE_URL__/#webpage"}, "image": "__SITE_URL__/assets/img/og-comparativo.jpg", "datePublished": "__DATE_PUBLISHED__", "dateModified": "__DATE_MODIFIED__", "author": {"@id": "__SITE_URL__/#org"}, "publisher": {"@id": "__SITE_URL__/#org"}, "isAccessibleForFree": true, "articleSection": "Comparativo de governos", "keywords": "governo Lula x Bolsonaro, comparação governo Lula Bolsonaro dados, economia, inflação, desemprego, salário mínimo, renda, gasto público, dívida pública, dados oficiais", "isBasedOn": ["https://www3.bcb.gov.br/sgspub/", "https://sidra.ibge.gov.br/", "https://siconfi.tesouro.gov.br/", "https://markets.newyorkfed.org/", "__SITE_URL__/fontes/"], "about": [{"@type": "Person", "name": "Jair Bolsonaro", "sameAs": "https://pt.wikipedia.org/wiki/Jair_Bolsonaro"}, {"@type": "Person", "name": "Luiz Inácio Lula da Silva", "alternateName": "Lula", "sameAs": "https://pt.wikipedia.org/wiki/Luiz_Inácio_Lula_da_Silva"}]}]}</script>
+<link rel="stylesheet" href="/assets/css/share.css">
+<script defer src="/assets/js/share.js"></script>
+<script defer src="/assets/js/charts.js"></script>
+<script defer src="/assets/js/ui.js"></script>
 </head>
 <body>
 <header class="sitebar">
   <div class="sb-in">
     <a class="sb-brand" href="/" aria-label="Bora pros dados Brasil, início"><img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil" width="200" height="113"></a>
+    <a href="/fontes/" class="sb-cta"><svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span class="t-longo">Baixar fontes →</span> <span class="t-curto">Fontes</span></a>
     <nav class="sb-nav" aria-label="Páginas do site">
-      <a href="/" class="ativo">Governo Lula × Bolsonaro</a>
+      <a href="/" class="ativo" aria-current="page"><span class="t-longo">Governo Lula × Bolsonaro</span> <span class="t-curto">Governos</span></a>
       <a href="/propostas/">Propostas 2026</a>
-      <a href="/balanco/">Promessas e Realizações Lula × Bolsonaro</a>
-      <a href="/fontes/" class="sb-cta">Baixar fontes →</a>
+      <a href="/balanco/"><span class="t-longo">Promessas e Realizações Lula × Bolsonaro</span> <span class="t-curto">Promessas</span></a>
     </nav>
   </div>
 </header>
@@ -173,6 +177,14 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   </div>
   <div class="prog" id="prog"></div>
 </nav>
+<div class="q-cred-wrap">
+  <div class="q-cred" role="note" aria-label="Sobre a confiabilidade destes dados">
+    <span class="q-cred-selo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 3.5v6c0 5-3.4 8.8-8 10.5-4.6-1.7-8-5.5-8-10.5v-6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg> Só fontes oficiais</span>
+    <span class="q-cred-fontes"><b>IBGE</b> · <b>Banco Central</b> · <b>Tesouro Nacional</b></span>
+    <span class="q-cred-data">Atualizado em <time datetime="__UPDATED_ISO__">__UPDATED__</time></span>
+    <span class="q-cred-links"><a href="#apendice">Como calculamos</a><a href="/fontes/">Baixar os dados</a><a href="#quem-fez">Quem fez</a></span>
+  </div>
+</div>
 <div class="wrap" id="topo">
   <div class="hdr">
     <div>
@@ -797,7 +809,7 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
       <img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil">
       <p>Análises descritivas com dados públicos oficiais do Brasil, sem juízo político. Tudo com fonte aberta e os arquivos originais disponíveis para download.</p>
     </div>
-    <div class="sf-col"><h4>Quem sou</h4>
+    <div class="sf-col" id="quem-fez"><h4>Quem sou</h4>
       <p>Profissional da área de tecnologia há 16 anos e atuo como Gerente de Desenvolvimento de Software. Lidero o time responsável pela plataformização e disponibilização de dados por diferentes meios em uma Big Tech brasileira, referência no mercado, atuando em um ambiente de altíssima volumetria e escala.</p>
     </div>
     <div class="sf-col-group">
@@ -806,13 +818,15 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
       <a href="/propostas/">Propostas 2026</a>
       <a href="/balanco/">Promessas e Realizações Lula × Bolsonaro</a>
     </div>
-    <div class="sf-col"><h4>Dados</h4>
-      <a href="/fontes/">Todas as fontes (32 arquivos)</a>
+    <div class="sf-col"><h4>Método e dados</h4>
+      <a href="/sobre/">Sobre e método</a>
+      <a href="#apendice">Como calculamos</a>
+      <a href="/fontes/">Dados abertos (32 arquivos)</a>
       <a href="/dados/SHA256SUMS.txt">Checksums (SHA-256)</a>
     </div>
     </div>
 </div>
-  <div class="sf-base">© 2026 Bora pros dados Brasil · dados públicos oficiais · <a href="/dados/SHA256SUMS.txt">integridade dos arquivos (SHA-256)</a></div>
+  <div class="sf-base">© 2026 Bora pros dados Brasil · dados públicos oficiais · atualizado em <time datetime="__UPDATED_ISO__">__UPDATED__</time> · <a href="/dados/SHA256SUMS.txt">integridade dos arquivos (SHA-256)</a></div>
 </footer>
 </div>
 <script>

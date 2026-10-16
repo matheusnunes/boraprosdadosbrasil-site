@@ -195,16 +195,20 @@ body.modal-open{overflow:hidden}
 <script>window.SITE_CONFIG={"gaId":"__GA_ID__","siteUrl":"__SITE_URL__","pageId":"propostas","consent":"__CONSENT__"};</script>
 <script defer src="/assets/js/analytics.js"></script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "__SITE_URL__/#org", "name": "Bora pros dados Brasil", "url": "__SITE_URL__/", "logo": {"@type": "ImageObject", "url": "__SITE_URL__/assets/img/logo-400.png", "width": 400, "height": 225}, "description": "Análises descritivas com dados públicos oficiais do Brasil, sem juízo político, com os arquivos originais para download."}, {"@type": "WebSite", "@id": "__SITE_URL__/#website", "name": "Bora pros dados Brasil", "url": "__SITE_URL__/", "inLanguage": "pt-BR", "publisher": {"@id": "__SITE_URL__/#org"}}, {"@type": "BreadcrumbList", "@id": "__SITE_URL__/propostas/#breadcrumb", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Início", "item": "__SITE_URL__/"}, {"@type": "ListItem", "position": 2, "name": "Propostas 2026: Lula × Flávio Bolsonaro", "item": "__SITE_URL__/propostas/"}]}, {"@type": "WebPage", "@id": "__SITE_URL__/propostas/#webpage", "url": "__SITE_URL__/propostas/", "name": "Propostas Lula × Flávio Bolsonaro: planos de governo 2026 (2º turno)", "description": "O que os planos de governo de Lula (PT) e Flávio Bolsonaro (PL) registrados no TSE prometem para o 2º turno de 2026, tema a tema, e se cada proposta diz como será feita.", "inLanguage": "pt-BR", "isPartOf": {"@id": "__SITE_URL__/#website"}, "primaryImageOfPage": {"@type": "ImageObject", "url": "__SITE_URL__/assets/img/og-propostas.jpg", "width": 1200, "height": 630}, "datePublished": "__DATE_PUBLISHED__", "dateModified": "__DATE_MODIFIED__", "breadcrumb": {"@id": "__SITE_URL__/propostas/#breadcrumb"}}, {"@type": "Article", "@id": "__SITE_URL__/propostas/#article", "headline": "Lula × Flávio no 2º turno: o que cada plano promete, e se diz como", "description": "O que os planos de governo de Lula (PT) e Flávio Bolsonaro (PL) registrados no TSE prometem para o 2º turno de 2026, tema a tema, e se cada proposta diz como será feita.", "inLanguage": "pt-BR", "mainEntityOfPage": {"@id": "__SITE_URL__/propostas/#webpage"}, "image": "__SITE_URL__/assets/img/og-propostas.jpg", "datePublished": "__DATE_PUBLISHED__", "dateModified": "__DATE_MODIFIED__", "author": {"@id": "__SITE_URL__/#org"}, "publisher": {"@id": "__SITE_URL__/#org"}, "isAccessibleForFree": true, "articleSection": "Eleições 2026", "keywords": "Lula x Flávio Bolsonaro propostas, plano de governo 2026, segundo turno 2026, propostas Lula 2026, propostas Flávio Bolsonaro, eleições 2026, TSE", "isBasedOn": ["https://dadosabertos.tse.jus.br/dataset/candidatos-2026", "__SITE_URL__/dados/tse/2026BR280002542548_01.pdf", "__SITE_URL__/dados/tse/2026BR280002551544_01.pdf"], "about": [{"@type": "Person", "name": "Luiz Inácio Lula da Silva", "alternateName": "Lula", "sameAs": "https://pt.wikipedia.org/wiki/Luiz_Inácio_Lula_da_Silva"}, {"@type": "Person", "name": "Flávio Bolsonaro", "sameAs": "https://pt.wikipedia.org/wiki/Flávio_Bolsonaro"}, {"@type": "Thing", "name": "Eleição presidencial no Brasil em 2026", "sameAs": "https://pt.wikipedia.org/wiki/Eleição_presidencial_no_Brasil_em_2026"}]}]}</script>
+<link rel="stylesheet" href="/assets/css/share.css">
+<script defer src="/assets/js/share.js"></script>
+<script defer src="/assets/js/charts.js"></script>
+<script defer src="/assets/js/ui.js"></script>
 </head>
 <body>
 <header class="sitebar">
   <div class="sb-in">
     <a class="sb-brand" href="/" aria-label="Bora pros dados Brasil, início"><img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil" width="200" height="113"></a>
+    <a href="/fontes/" class="sb-cta"><svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span class="t-longo">Baixar fontes →</span> <span class="t-curto">Fontes</span></a>
     <nav class="sb-nav" aria-label="Páginas do site">
-      <a href="/">Governo Lula × Bolsonaro</a>
-      <a href="/propostas/" class="ativo">Propostas 2026</a>
-      <a href="/balanco/">Promessas e Realizações Lula × Bolsonaro</a>
-      <a href="/fontes/" class="sb-cta">Baixar fontes →</a>
+      <a href="/"><span class="t-longo">Governo Lula × Bolsonaro</span> <span class="t-curto">Governos</span></a>
+      <a href="/propostas/" class="ativo" aria-current="page">Propostas 2026</a>
+      <a href="/balanco/"><span class="t-longo">Promessas e Realizações Lula × Bolsonaro</span> <span class="t-curto">Promessas</span></a>
     </nav>
   </div>
 </header>
@@ -224,6 +228,14 @@ body.modal-open{overflow:hidden}
   </div>
   <div class="prog" id="prog"></div>
 </nav>
+<div class="q-cred-wrap">
+  <div class="q-cred" role="note" aria-label="Sobre a confiabilidade destes dados">
+    <span class="q-cred-selo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 3.5v6c0 5-3.4 8.8-8 10.5-4.6-1.7-8-5.5-8-10.5v-6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg> Só fontes oficiais</span>
+    <span class="q-cred-fontes">Planos de governo registrados no <b>TSE</b>, com a página de cada trecho</span>
+    <span class="q-cred-data">Atualizado em <time datetime="__UPDATED_ISO__">__UPDATED__</time></span>
+    <span class="q-cred-links"><a href="#metodo">Como classificamos</a><a href="/fontes/#fonte-tse">Baixar os planos</a><a href="#quem-fez">Quem fez</a></span>
+  </div>
+</div>
 <div class="wrap" id="topo">
   <p class="eyebrow">Bora pros dados Brasil · Eleições 2026 · 2º turno · comparativo das propostas registradas no TSE</p>
   <h1><span class="gb">Flávio Bolsonaro</span> × <span class="gl">Lula</span>: o que cada plano promete, e se diz como</h1>
@@ -667,7 +679,7 @@ body.modal-open{overflow:hidden}
       <img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil">
       <p>Análises descritivas com dados públicos oficiais do Brasil, sem juízo político. Tudo com fonte aberta e os arquivos originais disponíveis para download.</p>
     </div>
-    <div class="sf-col"><h4>Quem sou</h4>
+    <div class="sf-col" id="quem-fez"><h4>Quem sou</h4>
       <p>Profissional da área de tecnologia há 16 anos e atuo como Gerente de Desenvolvimento de Software. Lidero o time responsável pela plataformização e disponibilização de dados por diferentes meios em uma Big Tech brasileira, referência no mercado, atuando em um ambiente de altíssima volumetria e escala.</p>
     </div>
     <div class="sf-col-group">
@@ -676,13 +688,15 @@ body.modal-open{overflow:hidden}
       <a href="/propostas/">Propostas 2026</a>
       <a href="/balanco/">Promessas e Realizações Lula × Bolsonaro</a>
     </div>
-    <div class="sf-col"><h4>Dados</h4>
-      <a href="/fontes/">Todas as fontes (32 arquivos)</a>
+    <div class="sf-col"><h4>Método e dados</h4>
+      <a href="/sobre/">Sobre e método</a>
+      <a href="#metodo">Como calculamos</a>
+      <a href="/fontes/">Dados abertos (32 arquivos)</a>
       <a href="/dados/SHA256SUMS.txt">Checksums (SHA-256)</a>
     </div>
     </div>
 </div>
-  <div class="sf-base">© 2026 Bora pros dados Brasil · dados públicos oficiais · <a href="/dados/SHA256SUMS.txt">integridade dos arquivos (SHA-256)</a></div>
+  <div class="sf-base">© 2026 Bora pros dados Brasil · dados públicos oficiais · atualizado em <time datetime="__UPDATED_ISO__">__UPDATED__</time> · <a href="/dados/SHA256SUMS.txt">integridade dos arquivos (SHA-256)</a></div>
 </footer>
 </div>
 

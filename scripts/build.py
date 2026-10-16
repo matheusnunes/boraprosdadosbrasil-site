@@ -2,7 +2,8 @@
 """Build do site "Bora pros dados Brasil".
 Lê o .env (variáveis de ambiente têm prioridade), gera dist/ a partir de public/
 com os tokens substituídos (__SITE_URL__, __GA_ID__, __CONSENT__ e as datas
-__DATE_PUBLISHED__/__DATE_MODIFIED__ de cada página, tiradas do git), e ainda:
+__DATE_PUBLISHED__/__DATE_MODIFIED__ de cada página, tiradas do git; e
+__UPDATED__/__UPDATED_ISO__ = data do último commit, para o "atualizado em"), e ainda:
   - gera sitemap.xml (lastmod real, do git) e dados/SHA256SUMS.txt;
   - SEO/IA: pré-renderiza no HTML os catálogos que hoje só aparecem via JS
     (/propostas/ e /balanco/), externaliza a biblioteca ECharts da home para um
@@ -17,7 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PUB, DIST = ROOT / 'public', ROOT / 'dist'
-TOKENS = ('__SITE_URL__', '__GA_ID__', '__CONSENT__', '__DATE_PUBLISHED__', '__DATE_MODIFIED__')
+TOKENS = ('__SITE_URL__', '__GA_ID__', '__CONSENT__', '__DATE_PUBLISHED__', '__DATE_MODIFIED__', '__UPDATED__')
 ENV_KEYS = ('SITE_URL', 'GA_MEASUREMENT_ID', 'CONSENT_MODE', 'GOOGLE_SITE_VERIFICATION',
             'BING_SITE_VERIFICATION', 'INDEXNOW_KEY', 'PRERENDER')
 
@@ -341,12 +342,17 @@ def main():
     dates = {u: page_dates(PUB / f) for u, f, _ in PAGES}
     dist_pages = {DIST / f: u for u, f, _ in PAGES}
 
+    # "Atualizado em" (faixa de credibilidade e rodapé): data do último commit do site
+    upd_iso = _git('log', '-1', '--format=%cI')[:10] or datetime.date.today().isoformat()
+    upd_br = '%s/%s/%s' % (upd_iso[8:10], upd_iso[5:7], upd_iso[:4])
+
     n_tok = 0
     for p in DIST.rglob('*'):
         if p.is_file() and p.suffix.lower() in ('.html', '.xml', '.txt', '.json', '.css', '.js', '.svg'):
             s = p.read_text(encoding='utf-8')
             o = s
             s = s.replace('__SITE_URL__', site_url).replace('__GA_ID__', ga).replace('__CONSENT__', consent)
+            s = s.replace('__UPDATED_ISO__', upd_iso).replace('__UPDATED__', upd_br)
             if p in dist_pages:
                 pub, mod = dates[dist_pages[p]]
                 s = s.replace('__DATE_PUBLISHED__', pub).replace('__DATE_MODIFIED__', mod)
