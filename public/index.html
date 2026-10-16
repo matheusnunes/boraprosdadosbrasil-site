@@ -1560,6 +1560,8 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
     document.body.removeChild(tmp);
     return out;
   }
+  /* "Copiar imagem" do share.js usa a mesma imagem do resumo (o share.js acrescenta o rodapé com o link da seção) */
+  (window.__shareImgs = window.__shareImgs || {}).resumo = function(){ return BPD.paraPNG(imagemResumo(), 3); };
   function baixar(){
     var bt = document.getElementById('resumo-baixar');
     if (!bt) return;
