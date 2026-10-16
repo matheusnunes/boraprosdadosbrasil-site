@@ -1,0 +1,27 @@
+# Deploy no Netlify (alternativa ao S3 + CloudFront de infra/terraform).
+# Build: gera dist/ substituindo __SITE_URL__ / __GA_ID__ / __CONSENT__.
+# Configure no painel (Site configuration → Environment variables):
+#   SITE_URL (opcional — sem ela usa a URL principal do Netlify), GA_MEASUREMENT_ID, CONSENT_MODE
+[build]
+  command = "python3 scripts/build.py"
+  publish = "dist"
+
+# Cabeçalhos de segurança equivalentes à response headers policy do CloudFront
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+
+# Cache longo para fontes e imagens; HTML e dados sempre revalidados
+[[headers]]
+  for = "/assets/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+[[headers]]
+  for = "/assets/img/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"

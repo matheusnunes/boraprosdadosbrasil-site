@@ -3,7 +3,7 @@
 Lê o .env, gera dist/ a partir de public/ com os tokens substituídos
 (__SITE_URL__, __GA_ID__, __CONSENT__), gera sitemap.xml, (re)gera
 dados/SHA256SUMS.txt e valida os links internos. Sem dependências externas."""
-import hashlib, re, shutil, sys
+import hashlib, os, re, shutil, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -19,6 +19,13 @@ def load_env():
             if line and not line.startswith('#') and '=' in line:
                 k, v = line.split('=', 1)
                 env[k.strip()] = v.strip()
+    # variáveis de ambiente têm prioridade sobre o .env (ex.: build no Netlify/CI)
+    for k in ('SITE_URL', 'GA_MEASUREMENT_ID', 'CONSENT_MODE'):
+        if os.environ.get(k):
+            env[k] = os.environ[k]
+    # no Netlify, URL é definida automaticamente com o endereço principal do site
+    if not env.get('SITE_URL') and os.environ.get('URL'):
+        env['SITE_URL'] = os.environ['URL']
     return env
 
 def sha256(p):
