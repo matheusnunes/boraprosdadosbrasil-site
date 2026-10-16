@@ -1566,7 +1566,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
     if (sh && alvo.classList.contains('tem-card') && window.__share && window.__share.copiar) {
       var bCp = document.createElement('button'); bCp.type = 'button'; bCp.className = 'bpd-btn bpd-btn--copiar';
       bCp.textContent = window.__share.copiaImagem ? 'Copiar imagem' : 'Copiar';
-      bCp.setAttribute('aria-label', window.__share.copiaImagem ? 'Copiar a imagem, com a fonte e o link do site' : 'Copiar mensagem com o link');
+      bCp.setAttribute('aria-label', window.__share.copiaImagem ? 'Copiar a imagem, com a fonte e o link do site' : 'Copiar o texto com o link e baixar a imagem');
       bCp.addEventListener('click', function(){ window.__share.copiar(sh); });
       box.appendChild(bCp);
     }
