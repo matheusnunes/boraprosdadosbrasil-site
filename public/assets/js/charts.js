@@ -970,7 +970,7 @@
     var axW = Math.max.apply(null, ticks.map(function (t) { return c.w(fy(t), 12.5); })) + c.z(6);
     var fimTxt = function (lado) { return [c.L[lado].curto.toUpperCase(), gr.rotuloFim === 'nome' ? null : f(gr[lado][gr[lado].length - 1]), gr.fim ? gr.fim[lado] : null]; };
     var endW = Math.max.apply(null, ORDEM.map(function (l) { var a = fimTxt(l); return Math.max(c.w(a[0], 12, 800), a[1] ? c.w(a[1], 17, 800) : 0, a[2] ? c.w(a[2], 12.5) : 0); })) + c.z(14);
-    var pl = x + axW, pr = x + w - endW, top = y + c.z(8), bot = y + h - c.z(gr.rotuloX ? 34 : 20);
+    var pl = x + axW, pr = x + w - endW, top = y + c.z(gr.marcaTexto ? (gr.marcaValor ? 40 : 24) : 8), bot = y + h - c.z(gr.rotuloX ? 34 : 20);
     var X = function (i) { return pl + i / n * (pr - pl); }, Y = function (v) { return bot - (v - lo) / (hi - lo) * (bot - top); };
     ticks.forEach(function (t) {
       el('line', { x1: pl, x2: pr, y1: Y(t), y2: Y(t), stroke: t === 0 ? C.axis : C.grid, 'stroke-width': c.z(t === 0 ? 1.4 : 1) }, c.g);
@@ -987,11 +987,14 @@
     el('path', { d: d + 'Z', fill: C.area }, c.g);
     if (gr.marcaMes != null) {
       el('line', { x1: X(gr.marcaMes), x2: X(gr.marcaMes), y1: top, y2: bot, stroke: C.axis, 'stroke-width': c.z(1), 'stroke-dasharray': c.z(4) + ' ' + c.z(3) }, c.g);
-      var mtTopo = gr.marcaValor && !gr.marcaValor.acima;
       if (gr.marcaTexto) {
-        var mty = mtTopo ? top + c.z(10) : bot - c.z(5), mtw = c.w(gr.marcaTexto, 12.5, 600);
-        el('rect', { x: X(gr.marcaMes) - c.z(6) - mtw, y: mty - c.z(12), width: mtw + c.z(4), height: c.z(16), rx: c.z(3), fill: C.fundo, opacity: 0.85 }, c.g);
-        c.t(X(gr.marcaMes) - c.z(4), mty, gr.marcaTexto, 12.5, 600, C.ink2, 'end');
+        // v0.3.8: rótulo da marca (e o valor no mesmo mês) numa faixa própria ACIMA da área do gráfico: nunca cruza linhas
+        var xm = X(gr.marcaMes), lnsM = [gr.marcaTexto];
+        if (gr.marcaValor) lnsM.push(c.L[gr.marcaValor.lado].curto + ': ' + f(gr[gr.marcaValor.lado][gr.marcaMes]));
+        var mtw = Math.max.apply(null, lnsM.map(function (t2, i2) { return c.w(t2, 12.5, i2 ? 800 : 600); }));
+        var anc = xm - mtw - c.z(4) < x ? 'start' : 'end', hRow = c.z(16 * lnsM.length);
+        el('line', { x1: xm, x2: xm, y1: top - hRow - c.z(2), y2: top, stroke: C.axis, 'stroke-width': c.z(1), 'stroke-dasharray': c.z(4) + ' ' + c.z(3) }, c.g);
+        lnsM.forEach(function (t2, i2) { c.t(anc === 'end' ? xm - c.z(4) : xm + c.z(4), top - hRow + c.z(11 + 16 * i2), t2, 12.5, i2 ? 800 : 600, i2 ? C.ink : C.ink2, anc); });
       }
     }
     ORDEM.forEach(function (lado) {
@@ -1000,12 +1003,9 @@
       el('path', { d: dd, fill: 'none', stroke: c.corLado(lado), 'stroke-width': c.z(2.6), 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, c.g);
     });
     // valor no "mesmo mês" (quando o outro lado ainda não terminou)
-    if (gr.marcaValor) {
-      var lv = gr.marcaValor.lado, iv = gr.marcaMes, vv = gr[lv][iv];
-      c.marca(lv, X(iv), Y(vv), 7);
-      var lab = f(vv), lw = c.w(lab, 13, 800);
-      el('rect', { x: X(iv) - lw - c.z(12), y: Y(vv) - c.z(gr.marcaValor.acima ? 22 : -6), width: lw + c.z(6), height: c.z(16), rx: c.z(3), fill: C.fundo, opacity: 0.9 }, c.g);
-      c.t(X(iv) - c.z(9), Y(vv) - c.z(gr.marcaValor.acima ? 9 : -18), lab, 13, 800, C.ink, 'end');
+    if (gr.marcaValor) {   // o ponto no "mesmo mês"; o valor vai escrito na faixa acima do gráfico
+      var lv = gr.marcaValor.lado, iv = gr.marcaMes;
+      c.marca(lv, X(iv), Y(gr[lv][iv]), 7);
     }
     var fins = ORDEM.map(function (lado) { var v = gr[lado], j = v.length - 1; c.marca(lado, X(j), Y(v[j]), 8); return { lado: lado, x: X(j), y: Y(v[j]) }; });
     fins.sort(function (a, b) { return a.y - b.y; });
@@ -1831,6 +1831,6 @@
     promessas: promessas, resumo: resumo, card: card, montarCard: montarCard, carrossel: carrossel, cardPNG: cardPNG, cardSintese: cardSintese, cardSelecao: cardSelecao,
     carregarFonte: function () { return Promise.all(['400', '600', '700', '800'].map(function (w) { return document.fonts.load(w + ' 20px InterVar'); })); },
     paraPNG: paraPNG, redesenhar: function () { redesenhar(true); redesenharCards(true); },
-    TEMAS: TEMAS, FORMATOS: FORMATOS, STATUS: STATUS, urlFonte: '/assets/fonts/inter-latin-var.woff2', versao: '0.3.7'
+    TEMAS: TEMAS, FORMATOS: FORMATOS, STATUS: STATUS, urlFonte: '/assets/fonts/inter-latin-var.woff2', versao: '0.3.8'
   };
 })(typeof window !== 'undefined' ? window : this);

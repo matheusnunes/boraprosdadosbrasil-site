@@ -54,7 +54,7 @@ var SERIES = {"origem": "Cálculos sobre public/dados (BCB SGS 433, 13762, 24369
         grupos: [ { rotulo: '1º ano', b: { rot: '2019', v: 2.46 }, l: { rot: '2023', v: 2.91 } }, { rotulo: '2º ano', b: { rot: '2020', v: 3.06 }, l: { rot: '2024', v: 2.97 } },
                   { rotulo: '3º ano', b: { rot: '2021', v: 2.47 }, l: { rot: '2025', v: 3.18 } }, { rotulo: '4º ano', b: { rot: '2022', v: 2.68 }, l: { rot: '2026', v: null, vazio: 'em curso' } } ] },
       mudaria: 'em % do PIB, 25,0% × 24,5% (inverte)',
-      nota: 'Estimativa: empenhado da União menos juros e amortização. Precatórios: ver o card ao lado.',
+      nota: 'Estimativa: empenhado da União menos juros e amortização. Precatórios: R$ 92,4 bi pagos em dez/2023 (60,2 atrasados + 32,3 antecipados); sem eles, +5,0% em 2023.',
       fonte: 'Tesouro/SICONFI (RREO), corrigido pelo IPCA', periodo: 'R$ de dez/2025', dados: '2025' }),
 
     card({ id: 'q-precatorios', titulo: 'Precatórios: o que muda na conta do gasto', criterio: null, criterioTexto: 'nuance do gasto, sem placar',
