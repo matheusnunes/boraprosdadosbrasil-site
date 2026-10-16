@@ -269,7 +269,18 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
 .ver-todas span{font-size:14px;color:var(--ink2)}
 .ver-todas a span{font-size:inherit;color:inherit}
 .card-slot{margin:0 0 6px}
-@media(max-width:480px){.bpd-card-acoes{flex-wrap:nowrap;gap:6px}.bpd-card-acoes .bpd-btn{flex:1 1 auto;padding:0 10px;font-size:14px}}
+.deck-cta{margin:4px 0 10px}
+.btn-deck{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:999px;border:0;background:var(--marca);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(2,82,43,.25)}
+.btn-deck:hover{background:var(--marca-2)}
+.btn-deck:focus-visible{outline:3px solid #1479B0;outline-offset:2px}
+#resumo .q-acoes .btn-deck{flex:1 1 100%}
+.card-det{display:none}
+#resumo .cat-ver-todas{display:none}
+.bpd-folha-corpo .det-extra{color:#18181b;--ink:#18181b;--ink2:#3f3f46;--ink3:#52525b;--linha:#e4e4e7;--superf:#fff}
+.bpd-folha-corpo .det-extra a{color:#02522b;font-weight:600}
+.bpd-folha-corpo .det-extra ul{margin:0 0 10px;padding-left:18px}
+.bpd-folha-corpo .det-extra .det-t{font-size:15px;margin:14px 0 8px}
+.bpd-folha-corpo .det-extra .sc{font-size:13px}
 #resumo .md{padding:6px 0}
 @media(max-width:760px){
   #resumo .q-acoes{gap:8px}
@@ -325,9 +336,6 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
 @media(max-width:760px){.bpd-car-trilho > .vrd{min-width:0}}
 .bpd-card{background:var(--superf);border:1px solid var(--linha);border-radius:14px;overflow:hidden}
 .bpd-card-img svg{display:block;width:100%;height:auto}
-.bpd-card-acoes{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px 12px;align-items:center}
-.bpd-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:22px;border:1px solid #d4d4d8;background:#fff;color:#18181b;font:inherit;font-size:14.5px;font-weight:600;text-decoration:none;cursor:pointer}
-.bpd-btn--wa{background:var(--marca);color:#fff;border-color:var(--marca)}
 .bpd-card-status{font-size:13px;color:var(--ink3)}
 .bpd-card-mais{border-top:1px solid var(--linha);padding:4px 14px 10px;font-size:14px;line-height:1.5}
 .bpd-card-mais summary{min-height:44px;display:flex;align-items:center;font-weight:600;cursor:pointer}
@@ -340,15 +348,11 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
 .tem-card > div[id="chartF2"],.tem-card .vrd-acoes > .card-img,.tem-card .vrd-acoes > .share{display:none}
 .sec-porque{margin:4px 0 8px;font-size:15px;line-height:1.5;color:var(--ink2);max-width:62ch}
 .saiba-mais > summary{color:var(--marca)}
-.card-img{order:-1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d4d4d8;background:#fff;color:#18181b;font:inherit;font-size:14.5px;font-weight:600;white-space:nowrap;cursor:pointer}
-.card-img:hover{border-color:#a1a1aa}
-.vrd-acoes > .card-img{flex:0 0 auto}
 .vrd-acoes{flex-wrap:wrap}
 .vrd-acoes > .vrd-det{flex:1 1 100%;order:2}
 .vrd-acoes > .share{order:1}
 #q-precatorios .nu-viz{border:0;padding:4px 0 0;margin:0 0 6px}
 /* bloco fiscal: nuances do gasto */
-#q-gasto-nuances{scroll-margin-top:64px}
 .nu-sub{margin:4px 0 12px;font-size:15px;color:var(--ink)}
 .nu-grid{display:grid;grid-template-columns:1fr;gap:12px;margin:0 0 14px}
 @media(min-width:760px){.nu-grid{grid-template-columns:1fr 1fr}}
@@ -475,6 +479,7 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
       <p class="eyebrow">Comparação com dados oficiais · 2º turno 2026</p>
       <h1><span class="gb">Governo Bolsonaro</span> × <span class="gl">Governo Lula</span>: quem foi melhor em cada tema?</h1>
       <p class="sub-resp">Economia e renda: Governo Lula à frente. Contas públicas: Governo Bolsonaro à frente. Médias por ano, só dados oficiais.</p>
+      <p class="deck-cta"><button type="button" class="btn-deck" data-deck="topo" aria-haspopup="dialog">Ver em 1 minuto <span aria-hidden="true">▶</span></button></p>
       <p class="legenda-lados"><span><i class="mk mk--b" aria-hidden="true"></i>Governo Bolsonaro (2019–2022)</span><span><i class="mk mk--l" aria-hidden="true"></i>Governo Lula (2023–2025)</span></p>
       <div class="q-cred" role="note" aria-label="Sobre a confiabilidade destes dados">
     <span class="q-cred-selo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 3.5v6c0 5-3.4 8.8-8 10.5-4.6-1.7-8-5.5-8-10.5v-6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg> Só fontes oficiais</span>
@@ -561,6 +566,7 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
     <p class="q-fecho"><b>Nenhum governo ficou à frente em tudo.</b> 7 quesitos: Governo Lula 4, Governo Bolsonaro 3.</p>
     <p class="q-resumo-pe">Fonte: IBGE, BC e Tesouro · 2019–22 × 2023–25 · atualizado em __UPDATED__ · <a href="#apendice">Como calculamos ›</a></p>
     <div class="q-acoes">
+      <button type="button" class="btn-deck" data-deck="resumo" aria-haspopup="dialog">Ver em 1 minuto <span aria-hidden="true">▶</span></button>
       <div class="share" data-share-section="placar" data-share-placement="placar" data-share-anchor="resumo" data-share-name="o resumo"
            data-share-lead="Mande este dado com a fonte: quem receber pode conferir."
            data-share-text="📊 Governos Bolsonaro × Lula (IBGE, BC, Tesouro). Economia e renda: Lula à frente (crescimento, inflação, emprego, proteção social). Contas públicas: Bolsonaro à frente (gasto, dívida, juros)."></div>
@@ -582,6 +588,13 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
       <div class="vrd-topo"><p class="vrd-tema">Crescimento</p><span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado." aria-label="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></div>
       <h3 class="vrd-q">Crescimento: <i class="mk mk--l" aria-hidden="true"></i>Governo Lula à frente</h3>
       <div class="viz" id="chartE"></div>
+      <div class="card-det" hidden>
+<p class="vrd-calc"><a href="#m-calculos">Como calculamos ›</a></p>
+            <p class="vrd-why">Quanto o país produziu a mais a cada ano, já sem a inflação. <b>Por que importa:</b> economia crescendo gera vagas e dinheiro para os serviços públicos.</p>
+            
+            <p>No total do período: +5,7% (2019-22) × +9,2% (2023-25). Média composta (como juros sobre juros).</p>
+            <p><b>PIB real</b> é o tamanho da economia, já descontando a inflação. "Cresceu 3% ao ano" = o país produziu 3% a mais de bens e serviços que no ano anterior, em volume (não em preço).</p>
+      </div>
       <div class="vrd-acoes">
       <div class="share share--mini" data-share-variant="mini" data-share-section="crescimento" data-share-placement="card" data-share-anchor="q-crescimento" data-share-name="o dado de crescimento"
              data-share-text="📊 Crescimento do PIB, média ao ano: 1,4% no Governo Bolsonaro (2019-22) × 3,0% no Governo Lula (2023-25). Maior: Governo Lula. Fonte: IBGE, via Banco Central."></div>
@@ -592,6 +605,13 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
       <div class="vrd-topo"><p class="vrd-tema">Inflação</p><span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado." aria-label="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span></div>
       <h3 class="vrd-q">Inflação: <i class="mk mk--l" aria-hidden="true"></i>Governo Lula à frente</h3>
       <div class="viz" id="g-inflacao"></div>
+      <div class="card-det" hidden>
+<p class="vrd-calc"><a href="#m-calculos">Como calculamos ›</a></p>
+            <p class="vrd-why">Quanto os preços subiram, em média, a cada ano de cada governo. <b>Por que importa:</b> inflação alta come o salário antes do fim do mês.</p>
+            
+            <p>Média geométrica (considera o efeito acumulado). Em 2026: 3,1% acumulados até agosto, 4,2% em 12 meses; a projeção do mercado (pesquisa Focus, do Banco Central, 02/10) aponta ~5,0% para o ano, acima do centro da meta oficial de inflação (3%).</p>
+            <p><b>IPCA</b> é o termômetro oficial dos preços, medido pelo IBGE. "Inflação média de X%" = na média dos anos, os preços subiram X% em 12 meses.</p>
+      </div>
       <div class="vrd-acoes">
       <div class="share share--mini" data-share-variant="mini" data-share-section="inflacao" data-share-placement="card" data-share-anchor="q-inflacao" data-share-name="o dado de inflação"
              data-share-text="📊 Inflação (IPCA), média ao ano: 6,1% no Governo Bolsonaro (2019-22) × 4,6% no Governo Lula (2023-25). Menor: Governo Lula; apertada (sem 2020-21: 5,0% × 4,6%). Fonte: IBGE, via BC."></div>
@@ -602,6 +622,13 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
       <div class="vrd-topo"><p class="vrd-tema">Desemprego</p><span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado." aria-label="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></div>
       <h3 class="vrd-q">Desemprego: <i class="mk mk--l" aria-hidden="true"></i>Governo Lula à frente</h3>
       <div class="viz" id="g-emprego"></div>
+      <div class="card-det" hidden>
+<p class="vrd-calc"><a href="#m-calculos">Como calculamos ›</a></p>
+            <p class="vrd-why">De cada 100 pessoas que querem trabalhar, quantas estavam sem emprego. <b>Por que importa:</b> emprego é a principal fonte de renda da maioria das famílias.</p>
+            
+            <p>Taxa de desocupação, média anual oficial do IBGE (PNAD Contínua, <a href="/dados/ibge/ibge_sidra_4562_taxa_desocupacao_anual.json">SIDRA 4562</a>). Pela média dos trimestres móveis (Banco Central, SGS 24369), a régua anterior desta página: 12,1% × 7,0%; o resultado não muda.</p>
+            <p><b>Desemprego</b> é o percentual de pessoas de 14 anos ou mais que procuram trabalho e não encontram (Pesquisa PNAD Contínua, do IBGE). "12%" = cerca de 12 em cada 100 pessoas que querem trabalhar estão sem emprego.</p>
+      </div>
       <div class="vrd-acoes">
       <div class="share share--mini" data-share-variant="mini" data-share-section="desemprego" data-share-placement="card" data-share-anchor="q-emprego" data-share-name="o dado de desemprego"
              data-share-text="📊 Desemprego, média anual: 12,3% no Governo Bolsonaro (2019-22) × 6,6% no Governo Lula (2023-25). Menor: Governo Lula. Fonte: IBGE, PNAD Contínua (média anual)."></div>
@@ -612,6 +639,12 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
       <div class="vrd-topo"><p class="vrd-tema">Proteção social</p><span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado." aria-label="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span></div>
       <h3 class="vrd-q">Proteção social: <i class="mk mk--l" aria-hidden="true"></i>Governo Lula à frente</h3>
       <div class="viz" id="g-protecao"></div>
+      <div class="card-det" hidden>
+<p class="vrd-calc"><a href="#m-calculos">Como calculamos ›</a></p>
+            <p class="vrd-why">O gasto federal com Bolsa Família, BPC e benefícios, sem o ano do Auxílio Emergencial. <b>Por que importa:</b> é a transferência que chega direto a quem tem menos renda.</p>
+            
+            <p>Em 2020, o Auxílio Emergencial levou a Assistência a R$ 564 bi (R$ de dez/2025); por isso a regra do placar tira 2020. Diferença entre as médias: +56,1% sem 2020; +4,1% com 2020.</p>
+      </div>
       <div class="vrd-acoes">
       <div class="share share--mini" data-share-variant="mini" data-share-section="protecao" data-share-placement="card" data-share-anchor="q-protecao-social" data-share-name="o dado de proteção social"
              data-share-text="📊 Proteção social (Assistência), média ao ano sem 2020: R$ 188,1 bi no Gov. Bolsonaro × R$ 293,5 bi no Gov. Lula. Maior: Gov. Lula; apertada (com 2020: R$ 282,1 × 293,5 bi). Fonte: Tesouro."></div>
@@ -621,29 +654,6 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   <details class="q-mais saiba-mais">
     <summary data-track="detalhes_abertos" data-track-label="cap-motor-saiba-mais"><span class="ao-abrir">Saiba mais sobre esta seção ›</span><span class="ao-fechar">Fechar</span></summary>
     <div class="q-mais-corpo">
-<h3 class="mais-t">Crescimento</h3>
-<p class="vrd-calc"><a href="#m-calculos">Como calculamos ›</a></p>
-            <p class="vrd-why">Quanto o país produziu a mais a cada ano, já sem a inflação. <b>Por que importa:</b> economia crescendo gera vagas e dinheiro para os serviços públicos.</p>
-            
-            <p>No total do período: +5,7% (2019-22) × +9,2% (2023-25). Média composta (como juros sobre juros).</p>
-            <p><b>PIB real</b> é o tamanho da economia, já descontando a inflação. "Cresceu 3% ao ano" = o país produziu 3% a mais de bens e serviços que no ano anterior, em volume (não em preço).</p>
-<h3 class="mais-t">Inflação</h3>
-<p class="vrd-calc"><a href="#m-calculos">Como calculamos ›</a></p>
-            <p class="vrd-why">Quanto os preços subiram, em média, a cada ano de cada governo. <b>Por que importa:</b> inflação alta come o salário antes do fim do mês.</p>
-            
-            <p>Média geométrica (considera o efeito acumulado). Em 2026: 3,1% acumulados até agosto, 4,2% em 12 meses; a projeção do mercado (pesquisa Focus, do Banco Central, 02/10) aponta ~5,0% para o ano, acima do centro da meta oficial de inflação (3%).</p>
-            <p><b>IPCA</b> é o termômetro oficial dos preços, medido pelo IBGE. "Inflação média de X%" = na média dos anos, os preços subiram X% em 12 meses.</p>
-<h3 class="mais-t">Desemprego</h3>
-<p class="vrd-calc"><a href="#m-calculos">Como calculamos ›</a></p>
-            <p class="vrd-why">De cada 100 pessoas que querem trabalhar, quantas estavam sem emprego. <b>Por que importa:</b> emprego é a principal fonte de renda da maioria das famílias.</p>
-            
-            <p>Taxa de desocupação, média anual oficial do IBGE (PNAD Contínua, <a href="/dados/ibge/ibge_sidra_4562_taxa_desocupacao_anual.json">SIDRA 4562</a>). Pela média dos trimestres móveis (Banco Central, SGS 24369), a régua anterior desta página: 12,1% × 7,0%; o resultado não muda.</p>
-            <p><b>Desemprego</b> é o percentual de pessoas de 14 anos ou mais que procuram trabalho e não encontram (Pesquisa PNAD Contínua, do IBGE). "12%" = cerca de 12 em cada 100 pessoas que querem trabalhar estão sem emprego.</p>
-<h3 class="mais-t">Proteção social</h3>
-<p class="vrd-calc"><a href="#m-calculos">Como calculamos ›</a></p>
-            <p class="vrd-why">O gasto federal com Bolsa Família, BPC e benefícios, sem o ano do Auxílio Emergencial. <b>Por que importa:</b> é a transferência que chega direto a quem tem menos renda.</p>
-            
-            <p>Em 2020, o Auxílio Emergencial levou a Assistência a R$ 564 bi (R$ de dez/2025); por isso a regra do placar tira 2020. Diferença entre as médias: +56,1% sem 2020; +4,1% com 2020.</p>
 <h3 class="mais-t">Sobre a seção</h3>
 <p><b>O que isto mostra:</b> se a economia cresceu, se os preços subiram menos e se ficou mais fácil achar emprego. <b>Por que importa para você:</b> emprego e preço das compras do mês são o que mais pesa na maioria das casas.</p>
 <h3 class="mais-t">Entenda os dados desta seção</h3>
@@ -661,41 +671,19 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   <div class="chap-hd">
     <div class="kicker">Placar · Contas públicas</div>
     <h2>Contas públicas: gasto e conta de juros</h2>
-    <p class="sec-porque">Juro pago não vira saúde, escola ou benefício. <a href="#q-gasto-nuances">Precatórios ›</a></p>
+    <p class="sec-porque">Juro pago não vira saúde, escola ou benefício.</p>
   </div>
   <div class="vrd-grid">
     <article class="vrd vrd--grafico" id="q-gasto" data-card="q-gasto" data-win="b">
       <div class="vrd-topo"><p class="vrd-tema">Controle do gasto</p><span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado." aria-label="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span></div>
       <h3 class="vrd-q">Controle do gasto: <i class="mk mk--b" aria-hidden="true"></i>Governo Bolsonaro à frente</h3>
-      <p class="vrd-link"><a href="#q-gasto-nuances">O que está por trás destes números ›</a></p>
       <div class="viz" id="chartF1"></div>
-      <div class="vrd-acoes">
-      <div class="share share--mini" data-share-variant="mini" data-share-section="gasto" data-share-placement="card" data-share-anchor="q-gasto" data-share-name="o dado do gasto"
-             data-share-text="📊 Gasto sem juros, média ao ano (R$ de dez/2025): R$ 2,67 tri no Gov. Bolsonaro × R$ 3,02 tri no Gov. Lula. Menor: Gov. Bolsonaro; apertada (em % do PIB inverte: 25,0% × 24,5%). Fonte: Tesouro."></div>
-      </div>
-    </article>
-
-    <article class="vrd vrd--grafico" id="q-juros" data-card="q-juros" data-win="b">
-      <div class="vrd-topo"><p class="vrd-tema">Conta de juros</p><span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado." aria-label="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></div>
-      <h3 class="vrd-q">Conta de juros: <i class="mk mk--b" aria-hidden="true"></i>Governo Bolsonaro à frente</h3>
-      <div class="viz" id="chartF3"></div>
-      <div class="vrd-acoes">
-      <div class="share share--mini" data-share-variant="mini" data-share-section="juros" data-share-placement="card" data-share-anchor="q-juros" data-share-name="o dado da conta de juros"
-             data-share-text="📊 Conta de juros da dívida, média ao ano: 5,0% do PIB no Governo Bolsonaro (2019-22) × 7,5% no Governo Lula (2023-25). Menor: Governo Bolsonaro. Fonte: Banco Central (NFSP)."></div>
-      </div>
-    </article>
-  </div>
-  <details class="q-mais saiba-mais">
-    <summary data-track="detalhes_abertos" data-track-label="cap-conta-saiba-mais"><span class="ao-abrir">Saiba mais sobre esta seção ›</span><span class="ao-fechar">Fechar</span></summary>
-    <div class="q-mais-corpo">
-<h3 class="mais-t">Controle do gasto</h3>
+      <div class="card-det" hidden>
 <p class="vrd-calc"><a href="#m-calculos">Como calculamos ›</a></p>
             <p class="vrd-why">O gasto do governo federal sem juros e dívida, na média de cada ano. <b>Por que importa:</b> mostra se o gasto cresceu mais rápido que a inflação.</p>
             
             <p>Gasto primário no PIB, do início ao fim de cada governo: 24,0% → 23,2% × 24,3% → 25,0%. Sem 2020, a média do Governo Bolsonaro em % do PIB cai para 23,3%. Base: estimativa a partir do RREO (União); o número oficial do Tesouro (RTN) está <b>sem dado nas bases desta análise</b>.</p>
-<details class="q-mais" id="q-gasto-nuances">
-        <summary data-track="detalhes_abertos" data-track-label="q-gasto-nuances"><span class="ao-abrir">Saiba mais: decisões, citações e documentos</span><span class="ao-fechar">Fechar</span></summary>
-        <div class="q-mais-corpo">
+<div class="det-nuances"><h4 class="det-t">Precatórios e regras fiscais: decisões, citações e documentos</h4>
           <p class="nu-sub">Regras e decisões que mudaram o gasto nos dois governos, no mesmo formato para os dois lados.</p>
           <div class="nu-grid">
             <div class="nu-col" data-lado="b">
@@ -765,14 +753,33 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
               </ul>
             </div>
           </details>
-          <p class="nu-volta"><a href="#q-gasto">↑ Voltar ao quesito</a></p>
-        </div>
-      </details>
-<h3 class="mais-t">Conta de juros</h3>
+</div>
+      </div>
+      <div class="vrd-acoes">
+      <div class="share share--mini" data-share-variant="mini" data-share-section="gasto" data-share-placement="card" data-share-anchor="q-gasto" data-share-name="o dado do gasto"
+             data-share-text="📊 Gasto sem juros, média ao ano (R$ de dez/2025): R$ 2,67 tri no Gov. Bolsonaro × R$ 3,02 tri no Gov. Lula. Menor: Gov. Bolsonaro; apertada (em % do PIB inverte: 25,0% × 24,5%). Fonte: Tesouro."></div>
+      </div>
+    </article>
+
+    <article class="vrd vrd--grafico" id="q-juros" data-card="q-juros" data-win="b">
+      <div class="vrd-topo"><p class="vrd-tema">Conta de juros</p><span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado." aria-label="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></div>
+      <h3 class="vrd-q">Conta de juros: <i class="mk mk--b" aria-hidden="true"></i>Governo Bolsonaro à frente</h3>
+      <div class="viz" id="chartF3"></div>
+      <div class="card-det" hidden>
 <p class="vrd-calc"><a href="#m-calculos">Como calculamos ›</a></p>
             <p class="vrd-why">Quanto se pagou de juros por ano, comparado ao tamanho da economia. <b>Por que importa:</b> é dinheiro do orçamento que vai para credores, não para serviços.</p>
             
             <p>Juros nominais incluem a inflação. Dívida maior e Selic mais alta pesam no Governo Lula. Aqui a conta é a de <b>todo o setor público</b> (NFSP/BCB, juros contados quando se acumulam); o RREO federal (União, grupo 2) é só a fatia federal: no mesmo período (jan-ago), o empenhado de juros foi de R$ 325,9 bi (2025) para R$ 476,9 bi (2026), +46%.</p>
+      </div>
+      <div class="vrd-acoes">
+      <div class="share share--mini" data-share-variant="mini" data-share-section="juros" data-share-placement="card" data-share-anchor="q-juros" data-share-name="o dado da conta de juros"
+             data-share-text="📊 Conta de juros da dívida, média ao ano: 5,0% do PIB no Governo Bolsonaro (2019-22) × 7,5% no Governo Lula (2023-25). Menor: Governo Bolsonaro. Fonte: Banco Central (NFSP)."></div>
+      </div>
+    </article>
+  </div>
+  <details class="q-mais saiba-mais">
+    <summary data-track="detalhes_abertos" data-track-label="cap-conta-saiba-mais"><span class="ao-abrir">Saiba mais sobre esta seção ›</span><span class="ao-fechar">Fechar</span></summary>
+    <div class="q-mais-corpo">
 <h3 class="mais-t">Sobre a seção</h3>
 <p><b>O que isto mostra:</b> quanto o governo gastou sem contar juros, quanto deve e quanto paga de juros. <b>Por que importa para você:</b> juro pago é dinheiro que não vira posto de saúde, escola ou benefício.</p>
 <h3 class="mais-t">Indicadores complementares, números em detalhe e definições</h3>
@@ -825,6 +832,12 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
       <div class="vrd-topo"><p class="vrd-tema">Dívida pública</p><span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado." aria-label="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></div>
       <h3 class="vrd-q">Dívida pública: <i class="mk mk--b" aria-hidden="true"></i>Governo Bolsonaro à frente</h3>
       <div id="chartF2"><div class="viz viz--card" id="chartD"></div></div>
+      <div class="card-det" hidden>
+<p class="vrd-calc"><a href="#m-calculos">Como calculamos ›</a></p>
+            <p class="vrd-why">Quanto a dívida bruta mudou em relação ao tamanho da economia. <b>Por que importa:</b> dívida maior significa mais juros a pagar nos anos seguintes.</p>
+            
+            <p>Por que a dívida sobe ou cai: ver <a href="#cap-divida">a regra da dívida ›</a></p>
+      </div>
       <div class="vrd-acoes">
       <div class="share share--mini" data-share-variant="mini" data-share-section="divida" data-share-placement="card" data-share-anchor="q-divida" data-share-name="o dado da dívida"
              data-share-text="📊 Dívida pública (% do PIB): caiu de 75,3% para 71,7% no Governo Bolsonaro (dez/18 a dez/22) × subiu de 71,7% para 82,9% no Governo Lula (parcial, até ago/26). Fonte: Banco Central."></div>
@@ -841,6 +854,13 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
 </div>
       <p class="vrd-sub">Inflação alta de 2021–22 deixou o juro real negativo. Crescimento: 1,4% × 3,0% ao ano.</p>
       <p class="vrd-src">Fonte: Banco Central (NFSP e dívida bruta) e IBGE (PIB) · médias 2019–22 × 2023–25 · <a href="#m-calculos">Como calculamos ›</a></p>
+      <div class="card-det" hidden>
+<ul class="vrd-lista">
+            <li><b>Juro real da dívida nos 12 meses até ago/26:</b> +5,0%.</li>
+            <li><b>r × g da dívida:</b> −2,9 × +1,8 pontos · Bolsonaro: juro abaixo do crescimento · Lula: juro acima.</li>
+            <li><b>Falta para a dívida parar de crescer:</b> ~R$ 365 bi/ano; a economia necessária por ano (p*) é 2,1% do PIB (12 meses) e o resultado primário atual é −0,6%, falta ≈ 2,7 pontos. 1 ponto de juro real ≈ 0,8 ponto do PIB ≈ R$ 105 bi.</li>
+          </ul>
+      </div>
       <div class="vrd-acoes">
         <div class="share share--mini" data-share-variant="mini" data-share-section="juro-real" data-share-placement="card" data-share-anchor="q-juro-real" data-share-name="este card" data-share-text="📊 Juro real da dívida, média ao ano: −1,5% no Governo Bolsonaro (2019-22) × +4,8% no Governo Lula (2023-25). Contexto: explica o quesito Dívida. Fonte: Banco Central e IBGE."></div>
       </div>
@@ -849,17 +869,6 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   <details class="q-mais saiba-mais">
     <summary data-track="detalhes_abertos" data-track-label="cap-divida-saiba-mais"><span class="ao-abrir">Saiba mais sobre esta seção ›</span><span class="ao-fechar">Fechar</span></summary>
     <div class="q-mais-corpo">
-<h3 class="mais-t">Dívida pública</h3>
-<p class="vrd-calc"><a href="#m-calculos">Como calculamos ›</a></p>
-            <p class="vrd-why">Quanto a dívida bruta mudou em relação ao tamanho da economia. <b>Por que importa:</b> dívida maior significa mais juros a pagar nos anos seguintes.</p>
-            
-            <p>Por que a dívida sobe ou cai: ver <a href="#cap-divida">a regra da dívida ›</a></p>
-<h3 class="mais-t">Juro real da dívida</h3>
-<ul class="vrd-lista">
-            <li><b>Juro real da dívida nos 12 meses até ago/26:</b> +5,0%.</li>
-            <li><b>r × g da dívida:</b> −2,9 × +1,8 pontos · Bolsonaro: juro abaixo do crescimento · Lula: juro acima.</li>
-            <li><b>Falta para a dívida parar de crescer:</b> ~R$ 365 bi/ano; a economia necessária por ano (p*) é 2,1% do PIB (12 meses) e o resultado primário atual é −0,6%, falta ≈ 2,7 pontos. 1 ponto de juro real ≈ 0,8 ponto do PIB ≈ R$ 105 bi.</li>
-          </ul>
 <h3 class="mais-t">Sobre a seção</h3>
 <p><b>O que isto mostra:</b> por que a dívida sobe ou cai: a corrida entre o juro real e o crescimento. <b>Por que importa para você:</b> dívida que cresce exige mais dinheiro para juros e deixa menos para o resto.</p>
 <h3 class="mais-t">A regra da dívida (r × g), os dois governos, a decomposição e a sensibilidade</h3>
@@ -966,6 +975,11 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
         <h3 class="vrd-q">Salário mínimo real: médias dos dois governos</h3>
         <div class="viz viz--card" id="chartA1"></div>
         <p class="vrd-src"><a href="#m-calculos">Como calculamos ›</a></p>
+      <div class="card-det" hidden>
+<p class="vrd-why">O mínimo em poder de compra de hoje, no fim de cada ano. <b>Por que importa:</b> o mínimo define muitas aposentadorias e benefícios.</p>
+            
+            <p>Pelo INPC (a inflação das famílias de renda mais baixa), as médias ficam em R$ 1.362 × R$ 1.474 (+8,2%). Em 2026, o mínimo nominal é R$ 1.621 (o valor do contracheque).</p>
+      </div>
       <div class="vrd-acoes">
         <div class="share share--mini" data-share-variant="mini" data-share-section="salario-minimo" data-share-placement="card" data-share-anchor="q-salario-minimo" data-share-name="este card" data-share-text="📊 Salário mínimo real, média de cada governo (R$ de dez/2025): R$ 1.374 no Governo Bolsonaro × R$ 1.478 no Governo Lula. Não conta ponto. Fonte: Banco Central (SGS 1619) + IPCA."></div>
       </div>
@@ -981,6 +995,11 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   <div class="md-row md-row--l"><span class="md-nome"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><span class="md-trk"><i style="--v:1"></i><b>R$ 2.127</b></span></div>
 </div>
         <p class="vrd-src">Fonte: IBGE, PNAD Contínua (SIDRA 7531) · médias 2019–22 × 2023–25 · <a href="#m-calculos">Como calculamos ›</a></p>
+      <div class="card-det" hidden>
+<p class="vrd-why">A renda de cada morador da casa, somando tudo, descontada a inflação. <b>Por que importa:</b> mostra se a casa passou a ter mais dinheiro de verdade.</p>
+            
+            <p>IBGE, tabela SIDRA 7531 (renda domiciliar por pessoa), com a inflação descontada pelo IPCA.</p>
+      </div>
       <div class="vrd-acoes">
         <div class="share share--mini" data-share-variant="mini" data-share-section="renda" data-share-placement="card" data-share-anchor="q-renda" data-share-name="este card" data-share-text="📊 Renda por pessoa, média de cada governo (R$ de dez/2025): R$ 1.781 no Governo Bolsonaro × R$ 2.127 no Governo Lula. Não conta ponto. Fonte: IBGE, PNAD Contínua."></div>
       </div>
@@ -996,6 +1015,11 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   <div class="md-row md-row--l"><span class="md-nome"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><span class="md-trk"><i style="--v:0.962"></i><b>0,511</b></span></div>
 </div>
         <p class="vrd-src">Fonte: IBGE (SIDRA 7435) · médias 2019–22 × 2023–25 · <a href="#m-calculos">Como calculamos ›</a></p>
+      <div class="card-det" hidden>
+<p class="vrd-why">Um índice de 0 a 1: quanto menor, mais igual é a renda. <b>Por que importa:</b> mostra se a renda cresceu mais embaixo ou em cima.</p>
+            
+            <p>O menor valor anual da série foi 0,504, em 2024. O Gini é calculado pelo IBGE com a PNAD Contínua; quanto menor, mais igualitária é a distribuição.</p>
+      </div>
       <div class="vrd-acoes">
         <div class="share share--mini" data-share-variant="mini" data-share-section="desigualdade" data-share-placement="card" data-share-anchor="q-desigualdade" data-share-name="este card" data-share-text="📊 Desigualdade (Gini), média de cada governo: 0,531 no Governo Bolsonaro × 0,511 no Governo Lula (menor = menos desigual). Não conta ponto. Fonte: IBGE."></div>
       </div>
@@ -1010,6 +1034,15 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   <div class="md-row md-row--l"><span class="md-nome"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><span class="md-trk"><i style="--v:1"></i><b>R$ 743</b></span></div>
 </div>
       <p class="vrd-src">Fonte: IBGE (SIDRA 7531) · médias 2019–22 × 2023–25 · <a href="#m-calculos">Como calculamos ›</a></p>
+      <div class="card-det" hidden>
+<p class="vrd-why">A média da metade da população com menor renda. <b>Por que importa:</b> é onde o aumento de preços pesa primeiro.</p>
+            
+            <ul class="vrd-lista">
+              
+              <li><b>10% mais ricos</b> (contexto): R$ 7.455 × R$ 8.557, +14,8%. Razão topo/pobres: 12,9× → 11,5×</li>
+              <li><b>1% mais rico</b> (fora da lente, contexto): R$ 20.886 × R$ 23.299, +11,6%</li>
+            </ul>
+      </div>
       <div class="vrd-acoes">
         <div class="share share--mini" data-share-variant="mini" data-share-section="renda-pobres" data-share-placement="card" data-share-anchor="q-renda-pobres" data-share-name="este card" data-share-text="📊 Renda dos 50% mais pobres, média por pessoa (R$ de dez/2025): R$ 576 no Governo Bolsonaro × R$ 743 no Governo Lula. Não conta ponto. Fonte: IBGE, PNAD Contínua."></div>
       </div>
@@ -1018,6 +1051,9 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
       <div class="vrd-topo"><p class="vrd-tema">Faixas de renda</p><span class="q-forca q-forca--ctx">sem placar</span></div>
       <h3 class="vrd-q">Em que faixa de renda o ganho, sem a inflação, foi maior?</h3>
       <div class="viz viz--card" id="chartP"></div>
+      <div class="card-det" hidden>
+<p>Imagine a população em fila, da menor para a maior renda por pessoa. P10 = limite de renda de quem está na posição dos 10% mais pobres; P50 = o meio da fila (a "mediana"); P99 = o topo da lente. Cada barra mostra quanto esse limite subiu do Governo Bolsonaro (2019–2022, índice 100) para o Governo Lula (2023–2025), sem a inflação; embaixo, o valor em reais de cada um. <b>Por que importa:</b> mostra se a melhora chegou a quem ganha menos ou ficou no topo.</p>
+      </div>
       <div class="vrd-acoes">
         <div class="share share--mini" data-share-variant="mini" data-share-section="renda-faixas" data-share-placement="card" data-share-anchor="q-renda-faixas" data-share-name="este card" data-share-text="📊 Ganho de renda por faixa, sem a inflação (IBGE, SIDRA 7438): P10 +37,7%, P50 +26,8%, P99 +10,3%, do Governo Bolsonaro para o Governo Lula. Não conta ponto."></div>
       </div>
@@ -1027,28 +1063,6 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   <details class="q-mais saiba-mais">
     <summary data-track="detalhes_abertos" data-track-label="cap-bolso-saiba-mais"><span class="ao-abrir">Saiba mais sobre esta seção ›</span><span class="ao-fechar">Fechar</span></summary>
     <div class="q-mais-corpo">
-<h3 class="mais-t">Salário mínimo</h3>
-<p class="vrd-why">O mínimo em poder de compra de hoje, no fim de cada ano. <b>Por que importa:</b> o mínimo define muitas aposentadorias e benefícios.</p>
-            
-            <p>Pelo INPC (a inflação das famílias de renda mais baixa), as médias ficam em R$ 1.362 × R$ 1.474 (+8,2%). Em 2026, o mínimo nominal é R$ 1.621 (o valor do contracheque).</p>
-<h3 class="mais-t">Renda por pessoa</h3>
-<p class="vrd-why">A renda de cada morador da casa, somando tudo, descontada a inflação. <b>Por que importa:</b> mostra se a casa passou a ter mais dinheiro de verdade.</p>
-            
-            <p>IBGE, tabela SIDRA 7531 (renda domiciliar por pessoa), com a inflação descontada pelo IPCA.</p>
-<h3 class="mais-t">Desigualdade</h3>
-<p class="vrd-why">Um índice de 0 a 1: quanto menor, mais igual é a renda. <b>Por que importa:</b> mostra se a renda cresceu mais embaixo ou em cima.</p>
-            
-            <p>O menor valor anual da série foi 0,504, em 2024. O Gini é calculado pelo IBGE com a PNAD Contínua; quanto menor, mais igualitária é a distribuição.</p>
-<h3 class="mais-t">50% mais pobres</h3>
-<p class="vrd-why">A média da metade da população com menor renda. <b>Por que importa:</b> é onde o aumento de preços pesa primeiro.</p>
-            
-            <ul class="vrd-lista">
-              
-              <li><b>10% mais ricos</b> (contexto): R$ 7.455 × R$ 8.557, +14,8%. Razão topo/pobres: 12,9× → 11,5×</li>
-              <li><b>1% mais rico</b> (fora da lente, contexto): R$ 20.886 × R$ 23.299, +11,6%</li>
-            </ul>
-<h3 class="mais-t">Faixas de renda</h3>
-<p>Imagine a população em fila, da menor para a maior renda por pessoa. P10 = limite de renda de quem está na posição dos 10% mais pobres; P50 = o meio da fila (a "mediana"); P99 = o topo da lente. Cada barra mostra quanto esse limite subiu do Governo Bolsonaro (2019–2022, índice 100) para o Governo Lula (2023–2025), sem a inflação; embaixo, o valor em reais de cada um. <b>Por que importa:</b> mostra se a melhora chegou a quem ganha menos ou ficou no topo.</p>
 <h3 class="mais-t">Sobre a seção</h3>
 <p><b>O que isto mostra:</b> se o dinheiro das famílias passou a comprar mais, já descontada a inflação. <b>Por que importa para você:</b> renda e salário mínimo decidem o que cabe no carrinho do mês.</p>
 <h3 class="mais-t">Números em detalhe, o que pesou contra e definições</h3>
@@ -1104,20 +1118,12 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
       <h3 class="vrd-q">Gasto por área: para onde foi o dinheiro</h3>
       <p class="vrd-sub">Aqui não há vencedor: gastar mais ou menos numa área não é, sozinho, melhor ou pior — mostramos para onde foi o dinheiro.</p>
       <div class="viz viz--card" id="chartG1"></div>
-      <div class="vrd-acoes">
-        <div class="share share--mini" data-share-variant="mini" data-share-section="areas" data-share-placement="card" data-share-anchor="q-areas" data-share-name="este card" data-share-text="📊 Gasto federal por área, média por ano (R$ de dez/2025), Governo Bolsonaro × Governo Lula: Previdência, Pessoal, Assistência, Saúde e Educação, Investimentos. Sem vencedor: mostra para onde foi o dinheiro. Fonte: Tesouro."></div>
-      </div>
-    </article>
-  </div>
-  <details class="q-mais saiba-mais">
-    <summary data-track="detalhes_abertos" data-track-label="cap-gasto-saiba-mais"><span class="ao-abrir">Saiba mais sobre esta seção ›</span><span class="ao-fechar">Fechar</span></summary>
-    <div class="q-mais-corpo">
-<h3 class="mais-t">Gasto por área</h3>
+      <div class="card-det" hidden>
 <p class="vrd-why"><b>Por que não há placar:</b> o envelhecimento da população eleva a Previdência em qualquer governo; menos gasto com pessoal pode ser eficiência ou corte; e, para julgar saúde e educação, seria preciso medir resultado, não verba. A página <a href="/comparacoes/">Comparações</a> traz indicadores de resultado, como vacinação e abandono escolar.</p>
             <p><b>Notas de leitura:</b> Previdência é gasto obrigatório (benefícios definidos em lei); a Assistência aqui usa a janela inteira, com 2020 (o quesito Proteção social usa a regra sem 2020); Investimentos são cerca de 2% do gasto nos dois governos.</p>
             <p>As áreas vêm de dois jeitos diferentes de dividir o orçamento (pelo tipo de gasto e pela área de governo) e não somam 100% do gasto; algumas se sobrepõem (ex.: parte do pessoal trabalha na saúde).</p>
             
-            <details class="q-mais q-mais--plano"><summary><span class="ao-abrir">Ver os números em tabela</span><span class="ao-fechar">Fechar</span></summary><div id="chartG2" style="overflow-x:auto">
+            <details class="q-mais q-mais--plano"><summary><span class="ao-abrir">Ver os números em tabela</span><span class="ao-fechar">Fechar</span></summary><div style="overflow-x:auto">
             <table class="sc" style="min-width:940px">
               <thead><tr><th>Área</th><th class="gb">Média do Governo Bolsonaro (2019-2022)</th><th class="gl">Média do Governo Lula (2023-2025)</th><th>Variação real</th><th>Peso na despesa primária</th><th>Leitura rápida</th></tr></thead>
               <tbody>
@@ -1131,6 +1137,15 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
             </table>
             </div></details>
             <p class="ress">Valores em R$ bilhões por ano, a preços de dez/2025 (empenhado = valor reservado no orçamento da União). "Peso na despesa primária" = média da área ÷ média da despesa primária (estimada) da mesma janela.</p>
+      </div>
+      <div class="vrd-acoes">
+        <div class="share share--mini" data-share-variant="mini" data-share-section="areas" data-share-placement="card" data-share-anchor="q-areas" data-share-name="este card" data-share-text="📊 Gasto federal por área, média por ano (R$ de dez/2025), Governo Bolsonaro × Governo Lula: Previdência, Pessoal, Assistência, Saúde e Educação, Investimentos. Sem vencedor: mostra para onde foi o dinheiro. Fonte: Tesouro."></div>
+      </div>
+    </article>
+  </div>
+  <details class="q-mais saiba-mais">
+    <summary data-track="detalhes_abertos" data-track-label="cap-gasto-saiba-mais"><span class="ao-abrir">Saiba mais sobre esta seção ›</span><span class="ao-fechar">Fechar</span></summary>
+    <div class="q-mais-corpo">
 <h3 class="mais-t">Sobre a seção</h3>
 <p><b>O que isto mostra:</b> quanto o governo federal gastou por ano em cada área, já sem a inflação. <b>Por que importa para você:</b> é esse dinheiro que paga hospital, escola, aposentadoria, benefício e obra.</p>
 <h3 class="mais-t">Entenda os dados desta seção</h3>
@@ -1162,6 +1177,12 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   <div class="md-row md-row--l"><span class="md-nome"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><span class="md-trk"><i style="--v:1"></i><b>12,9%</b></span></div>
 </div>
       <p class="vrd-src">Fonte: Banco Central, SGS 432 · 2019–22 × 2023–25 · <a href="#m-calculos">Como calculamos ›</a></p>
+      <div class="card-det" hidden>
+<p>Decidida pelo Banco Central para controlar a inflação: é ferramenta, não resultado. Não conta ponto para nenhum dos dois.</p>
+<p>A Selic é decidida pelo Banco Central (autônomo desde 2021) para controlar a inflação. É ferramenta, não resultado, por isso não conta ponto para nenhum dos dois governos. Juro baixo barateia o crédito; juro alto segura os preços e encarece a dívida.</p>
+            
+            <p><b>Selic</b> é o juro básico do país, definido pelo Banco Central. Pense nele como o "preço do dinheiro": quanto maior, mais caro pegar crédito, se financiar e rolar a dívida pública. É o remédio clássico para segurar a inflação.</p>
+      </div>
       <div class="vrd-acoes">
         <div class="share share--mini" data-share-variant="mini" data-share-section="selic" data-share-placement="card" data-share-anchor="q-selic" data-share-name="este card" data-share-text="📊 Selic (juro básico), média: 6,5% no Governo Bolsonaro × 12,9% no Governo Lula. Contexto: decidida pelo Banco Central, não conta ponto. Fonte: Banco Central."></div>
       </div>
@@ -1171,7 +1192,15 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
     <h3 class="vrd-q">O mundo: juro básico no Brasil e nos EUA</h3>
     <div class="viz viz--card" id="chartW1"></div>
         <p class="vrd-sub">Média do juro dos EUA: 1,1% × 4,8% ao ano. Fator externo: não conta ponto.</p>
-    <div class="vrd-acoes">
+    <div class="card-det" hidden>
+<p>O cenário mundial pesou nos dois governos. Governo Bolsonaro: juro quase zero na pandemia, depois inflação global e guerra; o Brasil subiu a Selic antes de outros países. Governo Lula: juro americano alto por mais tempo e dólar forte.</p>
+          <ul class="vrd-lista">
+            <li><b>Fed, juro dos EUA:</b> de quase zero (2020-21) a 5,3% (2023); voltou a subir em set/2026.</li>
+            <li><b>Dólar:</b> os picos foram na pandemia e no fim de 2024 (ver o gráfico).</li>
+            <li><b>Selic:</b> pico de 15% de jun/2025 a mar/2026, em queda desde então.</li>
+          </ul>
+      </div>
+      <div class="vrd-acoes">
         <div class="share share--mini" data-share-variant="mini" data-share-section="mundo" data-share-placement="card" data-share-anchor="q-mundo" data-share-name="este card" data-share-text="📊 Juro básico, Brasil (Selic) × EUA (Fed), mês a mês. Juro médio dos EUA: 1,1% no Governo Bolsonaro × 4,8% no Governo Lula. Contexto externo, não conta ponto. Fonte: Banco Central e Federal Reserve."></div>
       </div>
   </article>
@@ -1180,6 +1209,12 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
     <h3 class="vrd-q">O mundo: o dólar em reais</h3>
     <div class="viz viz--card" id="chartW2"></div>
     <p class="vrd-sub">Média do dólar: R$ 4,92 × R$ 5,32. Fator externo: não conta ponto.</p>
+      <div class="card-det" hidden>
+<div class="duasfotos-grid">
+          <div class="foto"><b class="gb">Governo Bolsonaro (2019–2022):</b> pandemia e recessão em 2020; inflação no mundo e guerra na Ucrânia em 2021–22; juro dos EUA de quase 0% a 4,1% em 2022.</div>
+          <div class="foto"><b class="gl">Governo Lula (2023–2025):</b> juro dos EUA em até 5,3% em 2023–24; dólar a R$ 6,10 no fim de 2024; Selic até 15% em 2025.</div>
+        </div>
+      </div>
       <div class="vrd-acoes">
         <div class="share share--mini" data-share-variant="mini" data-share-section="dolar" data-share-placement="card" data-share-anchor="q-dolar" data-share-name="este card" data-share-text="📊 Dólar em reais, mês a mês. Média: R$ 4,92 no Governo Bolsonaro × R$ 5,32 no Governo Lula. Contexto externo, não conta ponto. Fonte: Banco Central."></div>
       </div>
@@ -1188,26 +1223,6 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   <details class="q-mais saiba-mais">
     <summary data-track="detalhes_abertos" data-track-label="cap-mundo-saiba-mais"><span class="ao-abrir">Saiba mais sobre esta seção ›</span><span class="ao-fechar">Fechar</span></summary>
     <div class="q-mais-corpo">
-<h3 class="mais-t">Selic</h3>
-<p>Decidida pelo Banco Central para controlar a inflação: é ferramenta, não resultado. Não conta ponto para nenhum dos dois.</p>
-<h3 class="mais-t">O contexto de cada governo</h3>
-<div class="duasfotos-grid">
-          <div class="foto"><b class="gb">Governo Bolsonaro (2019–2022):</b> pandemia e recessão em 2020; inflação no mundo e guerra na Ucrânia em 2021–22; juro dos EUA de quase 0% a 4,1% em 2022.</div>
-          <div class="foto"><b class="gl">Governo Lula (2023–2025):</b> juro dos EUA em até 5,3% em 2023–24; dólar a R$ 6,10 no fim de 2024; Selic até 15% em 2025.</div>
-        </div>
-      
-    
-<h3 class="mais-t">Selic (juro básico)</h3>
-<p>A Selic é decidida pelo Banco Central (autônomo desde 2021) para controlar a inflação. É ferramenta, não resultado, por isso não conta ponto para nenhum dos dois governos. Juro baixo barateia o crédito; juro alto segura os preços e encarece a dívida.</p>
-            
-            <p><b>Selic</b> é o juro básico do país, definido pelo Banco Central. Pense nele como o "preço do dinheiro": quanto maior, mais caro pegar crédito, se financiar e rolar a dívida pública. É o remédio clássico para segurar a inflação.</p>
-<h3 class="mais-t">O mundo</h3>
-<p>O cenário mundial pesou nos dois governos. Governo Bolsonaro: juro quase zero na pandemia, depois inflação global e guerra; o Brasil subiu a Selic antes de outros países. Governo Lula: juro americano alto por mais tempo e dólar forte.</p>
-          <ul class="vrd-lista">
-            <li><b>Fed, juro dos EUA:</b> de quase zero (2020-21) a 5,3% (2023); voltou a subir em set/2026.</li>
-            <li><b>Dólar:</b> os picos foram na pandemia e no fim de 2024 (ver o gráfico).</li>
-            <li><b>Selic:</b> pico de 15% de jun/2025 a mar/2026, em queda desde então.</li>
-          </ul>
 <h3 class="mais-t">Sobre a seção</h3>
 <p><b>O que isto mostra:</b> juros dos EUA e dólar, que o Brasil não controla, em cada governo. <b>Por que importa para você:</b> dólar caro encarece combustível e comida; juro alto lá fora puxa o juro daqui.</p>
 <h3 class="mais-t">Definições e linha do tempo, ano a ano</h3>
@@ -1559,6 +1574,7 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
     gr.manterOrdem = true;
     gr.grupos = (gr.grupos || []).slice().sort(function(a, b){ return (a.vencedor === 'l' ? 0 : 1) - (b.vencedor === 'l' ? 0 : 1); });
     r.grafico = gr; r.url = (location.host || 'boraprosdadosbrasil.netlify.app') + location.pathname + '#resumo';
+    r.criterioCurto = '7 quesitos · média por ano de cada governo'; r.fonteCurta = 'IBGE, Banco Central e Tesouro';
     return r;
   }
   function pngResumo(){ var d = defResumo(); return d && window.BPD && BPD.cardPNG ? BPD.cardPNG(d, 'feed') : Promise.reject(new Error('sem card')); }
@@ -1581,57 +1597,22 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   }
 
 
-  /* "Imagem" em cada card: o PNG é o SVG do próprio card (card do sistema, senão o gráfico do card) */
-  function svgDoCard(art){ return art.querySelector('.card-slot svg') || art.querySelector('.viz svg'); }
-  function textoDoCard(art){ var s = art.querySelector('.share[data-share-text]'); return (s ? s.getAttribute('data-share-text') + ' ' : '') + location.origin + location.pathname + '#' + art.id; }
-  function botoesImagem(){
-    Array.prototype.forEach.call(document.querySelectorAll('.card-img[data-card-img]'), function(bt){
-      var art = document.getElementById(bt.getAttribute('data-card-img'));
-      if (!art || !svgDoCard(art)) { bt.hidden = true; return; }
-      bt.hidden = false;
-      if (bt.__ok) return; bt.__ok = 1;
-      bt.addEventListener('click', function(){
-        var svg = svgDoCard(art); if (!svg || !window.BPD) return;
-        var w = +svg.getAttribute('width') || 360, esc = w >= 1000 ? 1 : 3;
-        BPD.paraPNG(svg, esc).then(function(blob){
-          var nome = 'bora-pros-dados-' + art.id.replace(/^q-/, '') + '.png';
-          var arq = null; try { arq = new File([blob], nome, {type:'image/png'}); } catch (e) {}
-          if (arq && navigator.canShare && navigator.canShare({files:[arq]})) {
-            navigator.share({files:[arq], text:textoDoCard(art)}).catch(function(){});
-            return;
-          }
-          var u = URL.createObjectURL(blob), a = document.createElement('a');
-          a.href = u; a.download = nome; document.body.appendChild(a); a.click();
-          setTimeout(function(){ URL.revokeObjectURL(u); document.body.removeChild(a); }, 1500);
-        });
-      });
-    });
-  }
-
   /* cards do sistema (charts.js v0.3): se as definições da home estiverem carregadas, o card inteiro substitui o visual provisório */
 
   /* card "Gasto por área" (sem vencedor), no mesmo sistema dos outros cards */
   function defAreas(){
-    var A = json('area-data'), ordem = [1, 2, 3, 4, 5], nota = {1:'gasto obrigatório', 2:'servidores federais', 3:'janela inteira, com 2020', 4:'verba, não resultado', 5:'≈2% do gasto'};
+    var A = json('area-data'), ordem = [1, 2, 3, 4, 5];
     var pct = function(v){ return (v > 0 ? '+' : '−') + Math.abs(v).toLocaleString('pt-BR', {minimumFractionDigits:1}) + '%'; };
-    return {id:'q-areas', titulo:'Gasto por área: para onde foi o dinheiro', criterio:null,
+    return {id:'q-areas', titulo:'Gasto por área', criterio:null,
+      nota:'Leitura: Previdência é gasto obrigatório; Pessoal = servidores federais; Assistência usa a janela inteira, com 2020; Saúde e Educação: verba, não resultado; Investimentos ≈ 2% do gasto. Juros pagos pela União no orçamento: ver o card Conta de juros, que mede todo o setor público.',
       criterioTexto:'Aqui não há vencedor: gastar mais ou menos numa área não é, sozinho, melhor ou pior — mostramos para onde foi o dinheiro.',
-      grafico:{tipo:'pares', titulo:'Média por ano, R$ bilhões de dez/2025', sub:'empenhado da União · escala própria em cada área · variação real ao lado', escalaPropria:true, formato:{casas:1},
-        grupos:ordem.map(function(i){ return {rotulo:A['short'][i], sub:pct(A['var'][i]) + ' · ' + nota[i], b:A.A[i], l:A.B[i]}; })},
+      grafico:{tipo:'pares', titulo:'Média por ano, R$ bi de dez/2025', sub:'empenhado da União · escala própria em cada área · variação real ao lado', escalaPropria:true, formato:{casas:1},
+        grupos:ordem.map(function(i){ return {rotulo:A['short'][i], sub:pct(A['var'][i]), b:A.A[i], l:A.B[i]}; })},
       fonte:'Tesouro Nacional (SICONFI, RREO Anexos 01 e 02) + IPCA', periodo:'médias 2019–2022 × 2023–2025', dados:'2025', atualizado:ATU,
       share:{texto:'📊 Gasto federal por área, média por ano (R$ de dez/2025), Governo Bolsonaro × Governo Lula: Previdência, Pessoal, Assistência, Saúde e Educação, Investimentos. Sem vencedor: mostra para onde foi o dinheiro. Fonte: Tesouro.'}};
   }
 
 
-  function acoesCurtas(){
-    if (!window.matchMedia || !window.matchMedia('(max-width: 480px)').matches) return;
-    Array.prototype.forEach.call(document.querySelectorAll('.bpd-card-acoes .bpd-btn--img, .bpd-card-acoes .bpd-btn--copiar'), function(b){
-      if (b.__curto) return; b.__curto = 1;
-      var cheio = b.textContent;
-      if (!b.getAttribute('aria-label')) b.setAttribute('aria-label', cheio + ' deste card');
-      b.textContent = /^Compartilhar/.test(cheio) ? 'Compartilhar' : (/^Copiar/.test(cheio) ? 'Copiar' : cheio);
-    });
-  }
   function carrosseis(){
     if (!window.BPD || !BPD.carrossel) return;
     Array.prototype.forEach.call(document.querySelectorAll('section.chap .vrd-grid'), function(g){
@@ -1641,21 +1622,11 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
     });
   }
 
-  /* "Copiar imagem" (share.js) ao lado de [Compartilhar imagem] [WhatsApp] de cada card: usa o .share (escondido) da seção */
-  function botaoCopiar(box, el){
-    var sh = (el.closest('article') || el).querySelector('.share[data-share-text]');
-    if (!sh || !box || !window.__share || !window.__share.copiar) return;
-    var b = document.createElement('button'); b.type = 'button'; b.className = 'bpd-btn bpd-btn--copiar';
-    b.textContent = window.__share.copiaImagem ? 'Copiar imagem' : 'Copiar';
-    b.setAttribute('aria-label', window.__share.copiaImagem ? 'Copiar imagem, com a fonte e o link do site' : 'Copiar o texto com o link e baixar a imagem');
-    b.addEventListener('click', function(){ window.__share.copiar(sh); });
-    box.insertBefore(b, box.querySelector('.bpd-btn--wa') || box.querySelector('.bpd-card-status'));
-  }
   /* cards de contexto e de faixas de renda, no mesmo sistema dos outros (definições da página) */
   function defsContexto(){
     var MU = json('mundo-data'), nB = MU.months.indexOf('2022-12'), nL = MU.months.length - 1;
     var faixas = [{lado:'b', de:0, ate:nB}, {lado:'l', de:nB + 1, ate:nL}];
-    var vals = [37.7, 26.8, 20.6, 17.3, 10.3], rA = [304, 1094, 3553, 5501, 13017], rB = [418, 1387, 4284, 6455, 14361], rot = ['P10 (base)', 'P50 (meio)', 'P90', 'P95', 'P99 (topo)'];
+    var vals = [37.7, 26.8, 20.6, 17.3, 10.3], rA = [304, 1094, 3553, 5501, 13017], rB = [418, 1387, 4284, 6455, 14361], rot = ['P10', 'P50', 'P90', 'P95', 'P99'];
     var pct = function(v){ return '+' + v.toLocaleString('pt-BR', {minimumFractionDigits:1}) + '%'; };
     return {
       'q-mundo': {id:'q-mundo', titulo:'Juro básico: Brasil × EUA (contexto)', criterio:null, criterioTexto:'contexto externo · não conta ponto',
@@ -1676,15 +1647,27 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
         nota:'Inflação alta de 2021–22 deixou o juro real negativo. Crescimento: 1,4% × 3,0% ao ano.',
         fonte:'Banco Central (NFSP e dívida bruta) e IBGE (PIB)', periodo:'médias 2019–2022 × 2023–2025', dados:'2025', atualizado:ATU,
         share:{texto:'📊 Juro real da dívida, média ao ano: −1,5% no Governo Bolsonaro (2019-22) × +4,8% no Governo Lula (2023-25). Contexto: explica o quesito Dívida. Fonte: Banco Central e IBGE.'}},
-      'q-renda-faixas': {id:'q-renda-faixas', titulo:'Ganho de renda por faixa, sem a inflação', criterio:null, criterioTexto:'não conta ponto · limite de renda de cada faixa',
-        grafico:{tipo:'pares', titulo:'Limite de renda de cada faixa, por pessoa e por mês', sub:'R$ de dez/2025 · escala própria em cada faixa · ganho real ao lado', escalaPropria:true, formato:{prefixo:'R$ ', casas:0},
+      'q-renda-faixas': {id:'q-renda-faixas', titulo:'Ganho real por faixa de renda', criterio:null, criterioTexto:'não conta ponto · limite de renda de cada faixa',
+        grafico:{tipo:'pares', titulo:'Limite de renda por pessoa, por mês', sub:'R$ de dez/2025 · escala própria em cada faixa · ganho real ao lado', escalaPropria:true, formato:{prefixo:'R$ ', casas:0},
           grupos:rot.map(function(r, i){ return {rotulo:r, sub:pct(vals[i]), b:rA[i], l:rB[i]}; })},
-        nota:'P10 = limite de renda de quem está na posição dos 10% mais pobres.',
+        nota:'P10 = limite de renda de quem está na posição dos 10% mais pobres (base); P50 = o meio da fila; P99 = o topo da lente dos 99%.',
         fonte:'IBGE, PNAD Contínua (SIDRA 7438, limites das classes de percentil), corrigido pelo IPCA de dezembro', periodo:'médias 2019–2022 × 2023–2025', dados:'2025', atualizado:ATU,
         share:{texto:'📊 Ganho de renda por faixa, sem a inflação (IBGE, SIDRA 7438): P10 +37,7%, P50 +26,8%, P99 +10,3%, do Governo Bolsonaro para o Governo Lula. Não conta ponto.'}}
     };
   }
-  var NEUTROS = {'q-salario':'Salário mínimo real: média de cada governo', 'q-renda':'Renda por pessoa: média de cada governo', 'q-gini':'Desigualdade (Gini): média de cada governo', 'q-renda-pobres':'Renda dos 50% mais pobres e dos 10% mais ricos'};
+  var DEFS = {}, ART = {}, ativo = null;
+  var CURTOS = {'q-areas':'sem vencedor · não conta ponto', 'q-renda-faixas':'não conta ponto', 'q-juro-real':'contexto · explica a dívida', 'q-selic':'contexto · não conta ponto'};
+  var NEUTROS = {'q-salario':'Salário mínimo real: médias', 'q-renda':'Renda por pessoa: médias', 'q-gini':'Desigualdade (Gini): médias', 'q-renda-pobres':'Renda: 50% mais pobres × 10% mais ricos'};
+  /* card compacto: a linha ao lado do número grande ("contra …") escrita à mão, com o número inteiro (o recorte automático cortava na vírgula decimal) */
+  var CURTA = {'q-crescimento':'contra 1,4% (Bolsonaro)', 'q-inflacao':'contra 6,1% (Bolsonaro)', 'q-desemprego':'contra 12,3% (Bolsonaro)',
+    'q-protecao':'contra R$ 188,1 bi (Bolsonaro)', 'q-gasto':'contra R$ 3,02 tri (Lula)', 'q-divida':'pontos do PIB, contra +11,2 (Lula)',
+    'q-juros':'do PIB, contra 7,5% (Lula)', 'q-selic':'Governo Bolsonaro × Governo Lula', 'q-salario':'contra R$ 1.374 (Bolsonaro)',
+    'q-renda':'contra R$ 1.781 (Bolsonaro)', 'q-gini':'contra 0,531 (Bolsonaro)', 'q-renda-pobres':'ricos ÷ pobres (Lula), contra 12,9× (Bolsonaro)',
+    'q-mundo':'juro médio dos EUA: Bolsonaro × Lula', 'q-dolar':'dólar médio: Bolsonaro × Lula'};
+  /* título do gráfico mais curto no card (o título completo segue na descrição acessível e nos detalhes) */
+  var GTIT = {'q-crescimento':'Ano a ano', 'q-desemprego':'Ano a ano', 'q-protecao':'Ano a ano', 'q-gasto':'Ano a ano', 'q-inflacao':'IPCA acumulado desde a posse',
+    'q-juros':'Juros em 12 meses, % do PIB', 'q-divida':'Dívida desde a posse', 'q-selic':'Selic desde a posse'};
+  var TITULO = {'q-selic':'Selic, o juro básico', 'q-mundo':'Juro básico: Brasil × EUA', 'q-dolar':'Dólar em reais', 'q-juro-real':'Juro real da dívida'};
   function montaCardsHome(){
     var L = window.CARDS_HOME;
     if (!L || !window.BPD || !BPD.montarCard) return;
@@ -1697,15 +1680,79 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
       var d = {}, k; for (k in def) d[k] = def[k];
       if (d.id === 'resumo' && d.grafico) { var gr = {}; for (k in d.grafico) gr[k] = d.grafico[k]; gr.manterOrdem = true;
         gr.grupos = (gr.grupos || []).slice().sort(function(a, b){ return (a.vencedor === 'l' ? 0 : 1) - (b.vencedor === 'l' ? 0 : 1); }); d.grafico = gr; }
-      if (NEUTROS[d.id]) { d.criterioTexto = (d.criterio === 'maior' ? '↑ maior é melhor' : '↓ menor é melhor') + ' · não conta ponto'; d.criterio = null; d.vencedor = null; d.forca = null; d.mudaria = null; d.titulo = NEUTROS[d.id]; }
-      if (d.id === 'q-areas') d.nota = 'Juros pagos pela União no orçamento: ver o card Conta de juros, que mede todo o setor público.';
-      if (el.querySelector('.vrd-det') || el.closest('.vrd--grupo')) delete d.saibaMais;   /* o "Saiba mais" da página já tem o texto completo */
+      if (NEUTROS[d.id]) { d.criterioTexto = d.criterioCurto = (d.criterio === 'maior' ? '↑ maior é melhor' : '↓ menor é melhor') + ' · não conta ponto'; d.criterio = null; d.vencedor = null; d.forca = null; d.mudaria = null; d.titulo = NEUTROS[d.id]; }
+      if (d.manchete && CURTA[d.id]) { var m = {}; for (k in d.manchete) m[k] = d.manchete[k]; m.curta = CURTA[d.id]; d.manchete = m; }
+      if (TITULO[d.id]) d.titulo = TITULO[d.id];
+      if (GTIT[d.id] && d.grafico) { var g2 = {}; for (k in d.grafico) g2[k] = d.grafico[k]; if (!d.grafico.sub) g2.sub = d.grafico.titulo; g2.titulo = GTIT[d.id]; d.grafico = g2; }
+      if (!d.criterio && !d.criterioCurto) d.criterioCurto = CURTOS[d.id] || 'contexto · não conta ponto';
+      if (el.querySelector('.card-det')) delete d.saibaMais;   /* o texto completo vem do .card-det do card (com links) */
       var share = (el.closest('article') || el).querySelector('.share[data-share-text]');
       if (share && !d.share) d.share = {texto: share.getAttribute('data-share-text'), url: location.origin + location.pathname + '#' + (el.id || def.id)};
-      BPD.montarCard(slot, d, {tabela:false});
+      BPD.montarCard(slot, d, {tabela:false, shareEl:share || null});
+      DEFS[d.id] = d; ART[d.id] = el;
       if (share) (window.__shareDefs = window.__shareDefs || {})[share.getAttribute('data-share-anchor') || el.id || d.id] = d;
-      botaoCopiar(slot.querySelector('.bpd-card-acoes'), el);
       el.classList.add('tem-card');
+    });
+  }
+
+  /* folha de detalhes: acrescenta o texto completo do card (.card-det, com links e citações) */
+  function ligaFolhas(){
+    document.addEventListener('click', function(e){
+      var c = e.target.closest && e.target.closest('.bpd-card4');
+      if (c) ativo = c.closest('article');
+      var a = e.target.closest && e.target.closest('.bpd-folha-raiz a[href^="#"]');
+      if (!a) return;
+      e.preventDefault();
+      var h = a.getAttribute('href');
+      Array.prototype.forEach.call(document.querySelectorAll('.bpd-folha-fechar'), function(b){ b.click(); });
+      var fd = document.querySelector('.bpd-deck-raiz .bpd-deck-btn[aria-label="Fechar"]'); if (fd) fd.click();
+      setTimeout(function(){ if (location.hash === h) { var alvo = document.querySelector(h); if (alvo) alvo.scrollIntoView(); } else location.hash = h; }, 260);
+    }, true);
+    if (!window.MutationObserver) return;
+    new MutationObserver(function(ms){
+      ms.forEach(function(m){ Array.prototype.forEach.call(m.addedNodes, function(n){
+        if (!n.classList || !n.classList.contains('bpd-folha-raiz')) return;
+        var corpo = n.querySelector('.bpd-folha-corpo');
+        if (!corpo || corpo.querySelector('.bpd-folha-opcoes, .det-extra') || !ativo) return;
+        var src = ativo.querySelector('.card-det'); if (!src) return;
+        var box = document.createElement('div'); box.className = 'det-extra';
+        var h3 = document.createElement('h3'); h3.textContent = 'Saiba mais'; box.appendChild(h3);
+        Array.prototype.forEach.call(src.childNodes, function(k){ box.appendChild(k.cloneNode(true)); });
+        Array.prototype.forEach.call(box.querySelectorAll('[id]'), function(x){ x.removeAttribute('id'); });
+        var ref = null;
+        Array.prototype.forEach.call(corpo.querySelectorAll(':scope > h3'), function(x){ if (!ref && /^(Os números|Fonte)$/.test(x.textContent)) ref = x; });
+        corpo.insertBefore(box, ref);
+      }); });
+    }).observe(document.body, {childList:true});
+  }
+
+  /* "Ver em 1 minuto": os 7 quesitos na ordem do placar + Selic + card-síntese + os 4 de "Além do placar" (sem selo) */
+  var ORDEM_DECK = ['q-crescimento', 'q-inflacao', 'q-desemprego', 'q-protecao', 'q-gasto', 'q-divida', 'q-juros', 'q-selic', 'resumo', 'q-salario', 'q-renda', 'q-gini', 'q-renda-pobres'];
+  function track(n, p){ try { if (window.__track) window.__track(n, p); } catch (e) {} }
+  function abrirDeck(origem){
+    if (!window.BPD || !BPD.deck || document.querySelector('.bpd-deck-raiz')) return;
+    var defs = ORDEM_DECK.map(function(id){ return id === 'resumo' ? defResumo() : DEFS[id]; }).filter(Boolean);
+    if (!defs.length) return;
+    var atual = null, tr0 = window.__track;
+    track('deck_open', {placement:origem, total:defs.length});
+    window.__track = function(n, p){
+      if (n === 'deck_view' && p) { atual = p; ativo = ART[p.section] || null; if (tr0) tr0('deck_card', {section:p.section, index:p.index, total:p.total}); }
+      if (tr0) tr0(n, p);
+    };
+    BPD.deck(defs, {titulo:'Ver em 1 minuto', aoFechar:function(i){ window.__track = tr0; track('deck_close', {index:i + 1, total:defs.length}); }});
+    var bs = document.querySelector('.bpd-deck-raiz .bpd-deck-btn--claro');
+    if (bs) bs.addEventListener('click', function(){ if (atual) (tr0 || track)('deck_share', {section:atual.section, index:atual.index, total:atual.total}); });
+  }
+  function ligaDeck(){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-deck]'), function(b){
+      b.addEventListener('click', function(){ abrirDeck(b.getAttribute('data-deck')); });
+    });
+  }
+  /* ★ do catálogo: vai para o lugar dela na linha de ações do card (.bpd-acoes-estrela) */
+  function estrelas(){
+    Array.prototype.forEach.call(document.querySelectorAll('article .cat-star--pg'), function(st){
+      var alvo = st.closest('article').querySelector('.bpd-acoes-estrela');
+      if (alvo && st.parentNode !== alvo) alvo.appendChild(st);
     });
   }
   function desenha(){
@@ -1737,13 +1784,14 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
 
 
 
-    botoesImagem();
-    acoesCurtas();
     carrosseis();
+    [0, 700, 1600, 3200, 6000].forEach(function(ms){ setTimeout(estrelas, ms); });
     document.body.setAttribute('data-pronto', '1');
   }
   document.addEventListener('DOMContentLoaded', function(){
     baixar();
+    ligaFolhas();
+    ligaDeck();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(desenha); else desenha();
     setTimeout(atualiza, 60);
   });
