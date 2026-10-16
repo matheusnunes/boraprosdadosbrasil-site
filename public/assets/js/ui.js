@@ -3,7 +3,7 @@
    1. abas do cabeçalho e menu de seções: esmaecer a borda que ainda rola + levar o item ativo para a vista
    2. <details> (.q-mais, .vrd-det e qualquer outro): ao abrir, redimensiona os gráficos de dentro
       (ECharts: echarts.getInstanceByDom(el).resize(); charts.js: evento resize); âncora (#id) dentro de
-      <details> fechado abre o <details>; details[data-abrir-desktop] já abre aberto em telas ≥ 900 px
+      <details> fechado abre o <details>; details[data-abrir-desktop] não tem mais efeito (tudo começa fechado)
    3. barra inferior fixa (≤ 760 px, páginas com .topnav): Resumo · Compartilhar · Seções, com folhas inferiores
    Eventos (via data-track, lidos pelo analytics.js): bbar_click (label resumo|compartilhar|secoes).
    Compartilhar usa o componente .share (share.js): share_click / share_success / share_cancel. */
@@ -111,10 +111,9 @@
   }, true);
   win.addEventListener('hashchange', vaiParaHash);
 
-  function abreNoDesktop() {
-    if (!win.matchMedia || !win.matchMedia('(min-width: 900px)').matches) return;
-    $$('details[data-abrir-desktop]').forEach(function (d) { d.open = true; });
-  }
+  /* decisão do dono (16/10/2026): todo recolhível começa FECHADO, em qualquer tela.
+     data-abrir-desktop fica sem efeito; só um link para #id interno abre o recolhível. */
+  function abreNoDesktop() {}
 
   /* ------------------------------------------------ 3. barra inferior + folhas */
   var TEXTO_PADRAO = {

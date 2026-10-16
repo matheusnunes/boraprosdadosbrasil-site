@@ -664,3 +664,7 @@ html.ui-travado, html.ui-travado body { overflow: hidden; }
 /* ---- 8. Rodapé e impressão --------------------------------------- */
 .sf-base time { white-space: nowrap; }
 @media print { .bbar, .ui-sheet, .q-cred-wrap { display: none !important; } }
+
+/* recolhíveis começam fechados (decisão de 16/10/2026): numa grade de cards, o <details>
+   ocupa a linha inteira abaixo dos cards, em vez de ficar como faixa solta ao lado */
+.vrd-grid > details, .grid2 > details { grid-column: 1 / -1; align-self: start; }

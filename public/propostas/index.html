@@ -198,7 +198,7 @@ a{color:#02522b}
 .selo-lado{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;padding:4px 11px;border-radius:999px}
 .selo-lado.w1{background:var(--gb-tint);color:var(--gb-txt)}
 .selo-lado.w2{background:var(--gl-tint);color:var(--gl-txt)}
-.selo-n{display:inline-flex;align-items:center;font-size:13.5px;font-weight:700;color:#18181b;padding:4px 11px;border-radius:999px;border:1px solid #d4d4d8;background:#fff}
+.selo-n{display:inline-block;align-items:center;font-size:13.5px;font-weight:700;color:#18181b;padding:4px 11px;border-radius:999px;border:1px solid #d4d4d8;background:#fff}
 .answer{gap:6px 8px;font-size:13.5px}
 .h2-sub{margin:-2px 0 8px;font-size:14.5px;color:#3f3f46;font-variant-numeric:tabular-nums}
 .chap .lead b{color:#18181b}
@@ -453,6 +453,71 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
 }
 .q-cred-neutro{color:#3f3f46}
 
+
+/* ---- v6: chaves sobre a barra, rótulo de categoria sob cada barra ---- */
+.chv{margin:4px 0 2px}
+.chv-r{position:relative;margin:0 0 3px}
+.chv-b{display:block;height:7px;border:2px solid #3f3f46;border-top:0;border-radius:0 0 4px 4px;box-sizing:border-box}
+.chv-l{display:block;font-size:13.5px;line-height:1.35;color:#27272a;white-space:nowrap}
+.chv-l b{font-size:15px;color:#18181b}
+.bar-rot{margin:3px 0 6px;font-size:13px;line-height:1.35;color:#3f3f46}
+.sc .pt-r{grid-template-columns:70px minmax(0,1fr)!important;margin:4px 0 0}
+.sc .bar-rot{margin-left:78px}
+.sc-k .gb,.sc-k .gl,.sc-t .gb,.sc-t .gl{font-weight:800}
+.pl-n b{font-size:34px}
+
+/* categorias com a MESMA cor nos dois planos (o partido fica no nome e no marcador) */
+.pg-prop{--st-ok:#2f7d55;--st-mid:#e2a63c;--st-na:#e4e4e7}
+.pg-prop .sbar--cat .seg--cheio{background:var(--st-ok);color:#fff}
+.pg-prop .sbar--cat .seg--claro{background:var(--st-mid);color:#18181b}
+.pg-prop .sbar--cat .seg--vazio{background:var(--st-na);color:#18181b;outline:1px dashed #71717a;outline-offset:-1px}
+.pg-prop .sw--cheio{background:var(--st-ok)} .pg-prop .sw--claro{background:var(--st-mid)} .pg-prop .sw--vazio{background:var(--st-na)}
+.pg-prop .chip-ok{background:var(--st-ok);color:#fff}
+.pg-prop .chip-partial{background:var(--st-mid);color:#18181b}
+.pg-prop .chip-warn{background:var(--st-na);border:1.5px dashed #71717a}
+.sbar--cat{height:28px}
+.pl-card .sbar--cat{margin:2px 0 0}
+.tr-cab{margin:10px 0 2px;font-size:13.5px;color:#3f3f46}
+.tr-p{grid-column:1;display:grid;gap:2px;margin:2px 0 2px;font-size:13.5px;line-height:1.35;color:#27272a}
+.tr-pl{display:flex;gap:6px;align-items:baseline}
+.tr-pl .mk{flex:0 0 auto;transform:translateY(1px)}
+.tr-pl b{font-weight:700;white-space:nowrap}
+/* placar visual: dois cards de mesmo peso, número grande, barra 100% rotulada, contagem por categoria */
+.pl2{display:grid;grid-template-columns:1fr;gap:12px;margin:8px 0 6px}
+@media(min-width:760px){.pl2{grid-template-columns:1fr 1fr}}
+.pl-card{border:1px solid #e4e4e7;border-top:4px solid var(--gb);border-radius:14px;padding:12px 14px 10px;background:#fff;min-width:0}
+.pl-card--l{border-top-color:var(--gl)}
+.pl-hd{display:flex;flex-wrap:wrap;align-items:center;gap:2px 7px;margin:0 0 4px;font-size:16px;line-height:1.3;color:var(--gb-txt)}
+.pl-card--l .pl-hd{color:var(--gl-txt)}
+.pl-hd span{font-size:13px;font-weight:500;color:#52525b}
+.pl-n{margin:0 0 8px;font-size:15px;color:#27272a;line-height:1.3}
+.pl-n b{font-size:32px;font-weight:800;letter-spacing:-.02em;color:#18181b;margin-right:4px;font-variant-numeric:tabular-nums}
+.pl-n span{white-space:nowrap}
+.stb{display:flex;gap:2px;height:30px;border-radius:7px;overflow:hidden}
+.stb i{display:flex;align-items:center;justify-content:center;min-width:0;font-style:normal;font-size:13px;font-weight:800;overflow:hidden;white-space:nowrap}
+.stb i span{line-height:16px}
+.stb--s{height:20px;border-radius:5px}
+.stb--s i{font-size:12px}
+.pl-cats{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:1fr;gap:1px}
+.pl-cats li{display:grid;grid-template-columns:16px minmax(0,1fr) auto 52px;align-items:center;gap:7px;font-size:14px;padding:3px 0;border-bottom:1px dashed #ececef}
+.pl-cats li:last-child{border-bottom:0}
+.pl-cats b{font-variant-numeric:tabular-nums;font-size:15px}
+.pl-cats small{font-size:12.5px;color:#52525b;text-align:right;font-variant-numeric:tabular-nums}
+.sw{display:inline-block;width:14px;height:14px;border-radius:3px}
+.pl-nota{margin:6px 0 0;font-size:12.5px;color:#52525b}
+.pl-leg{display:flex;flex-wrap:wrap;gap:4px 14px;margin:2px 0 4px;font-size:12.5px;color:#3f3f46}
+.pl-leg span{display:inline-flex;align-items:center;gap:5px}
+/* ---- v5: seção = card ---- */
+.sc{padding:12px 14px 10px;margin:8px 0 6px}
+.sc-t{margin:0 0 4px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.sc-k{margin:0 0 4px;font-size:13px;color:#52525b}
+.sc .pt-r{display:grid;grid-template-columns:70px minmax(0,1fr) 62px;align-items:center;gap:8px;margin:4px 0}
+.sc .pt-n{display:flex;align-items:center;gap:6px;font-size:13.5px;color:#3f3f46}
+.sc .pt-c{font-size:13px;color:#52525b;text-align:right}
+.sc .pt-nota{margin:4px 0 0;font-size:13px;color:#3f3f46}
+.sc-leg{margin:6px 0 2px}
+.sc-src{margin:6px 0 0;padding-top:6px;border-top:1px solid #e4e4e7;font-size:12.5px;color:#52525b;line-height:1.45}
+.sc-mais{margin:6px 0 0}
 body .q-forca--regua::before{background:transparent;border:1.5px dashed currentColor}
 .mb{display:block;height:6px;border-radius:3px;background:#e4e4e7;margin-top:4px;overflow:hidden}
 .mb i{display:block;height:100%;width:calc(var(--v,0)*100%);border-radius:3px}
@@ -535,42 +600,22 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
     <p class="q-resumo-kicker">Resumo em 1 minuto</p>
     <h2 class="q-resumo-t" id="resumo-t">Qual plano mais diz COMO vai fazer</h2>
     <p class="q-resumo-sub">19 temas em cada plano · conta o que o plano escreve, não se a ideia é boa</p>
-    <div class="r3 r3--linhas">
-      <div class="r3-cab" aria-hidden="true"><span>Em quantos temas</span><span><i class="mk mk--b"></i>Flávio</span><span><i class="mk mk--l"></i>Lula</span></div>
-      <div class="r3-c">
-        <div class="r3-hd"><p class="r3-q">● Nomeia a ferramenta<small>lei, programa, verba, parceria</small></p></div>
-        <dl class="q-vals">
-          <div class="q-v q-v--b"><dt><i class="mk mk--b" aria-hidden="true"></i>Flávio</dt><dd>1 de 19<span class="mb" aria-hidden="true"><i style="--v:0.053"></i></span></dd></div>
-          <div class="q-v q-v--l"><dt><i class="mk mk--l" aria-hidden="true"></i>Lula</dt><dd>11 de 19<span class="mb" aria-hidden="true"><i style="--v:0.579"></i></span></dd></div>
-        </dl>
-      </div>
-      <div class="r3-c">
-        <div class="r3-hd"><p class="r3-q">◐ Algum caminho<small>ferramenta para tudo ou parte</small></p></div>
-        <dl class="q-vals">
-          <div class="q-v q-v--b"><dt><i class="mk mk--b" aria-hidden="true"></i>Flávio</dt><dd>13 de 19<span class="mb" aria-hidden="true"><i style="--v:0.684"></i></span></dd></div>
-          <div class="q-v q-v--l"><dt><i class="mk mk--l" aria-hidden="true"></i>Lula</dt><dd>17 de 19<span class="mb" aria-hidden="true"><i style="--v:0.895"></i></span></dd></div>
-        </dl>
-      </div>
-      <div class="r3-c">
-        <div class="r3-hd"><p class="r3-q">○ Só intenção<small>“vamos”, “propomos”</small></p></div>
-        <dl class="q-vals">
-          <div class="q-v q-v--b"><dt><i class="mk mk--b" aria-hidden="true"></i>Flávio</dt><dd>6 de 19<span class="mb" aria-hidden="true"><i style="--v:0.316"></i></span></dd></div>
-          <div class="q-v q-v--l"><dt><i class="mk mk--l" aria-hidden="true"></i>Lula</dt><dd>2 de 19<span class="mb" aria-hidden="true"><i style="--v:0.105"></i></span></dd></div>
-        </dl>
-      </div>
+    <div class="pl2">
+      <article class="pl-card pl-card--b" id="pl-flavio">
+        <h3 class="pl-hd"><i class="mk mk--b" aria-hidden="true"></i>Flávio Bolsonaro <span>PL · plano de 2026</span></h3>
+        <p class="pl-n"><b>1 de 19</b> temas com a ferramenta nomeada</p>
+        <div class="sbar sbar--cat" role="img" aria-label="Flávio Bolsonaro: ferramenta nomeada 1, parcial 12, só intenção 6 (de 19 temas)"><i class="seg seg--cheio" title="ferramenta nomeada: 1 de 19" style="flex:1 1 0"><span>1</span></i><i class="seg seg--claro" title="parcial: 12 de 19" style="flex:12 1 0"><span>12</span></i><i class="seg seg--vazio" title="só intenção: 6 de 19" style="flex:6 1 0"><span>6</span></i></div>
+        <div class="chv"><div class="chv-r"><span class="chv-b" style="margin-left:0.0%;width:68.4%"></span><span class="chv-l" style="padding-left:0.0%">Algum caminho (nomeada ou parcial): <b>13 de 19</b></span></div><div class="chv-r"><span class="chv-b" style="margin-left:68.4%;width:31.6%"></span><span class="chv-l" style="padding-left:55.0%">Só intenção: <b>6 de 19</b></span></div></div>
+      </article>
+      <article class="pl-card pl-card--l" id="pl-lula">
+        <h3 class="pl-hd"><i class="mk mk--l" aria-hidden="true"></i>Lula <span>PT · plano de 2026</span></h3>
+        <p class="pl-n"><b>11 de 19</b> temas com a ferramenta nomeada</p>
+        <div class="sbar sbar--cat" role="img" aria-label="Lula: ferramenta nomeada 11, parcial 6, só intenção 2 (de 19 temas)"><i class="seg seg--cheio" title="ferramenta nomeada: 11 de 19" style="flex:11 1 0"><span>11</span></i><i class="seg seg--claro" title="parcial: 6 de 19" style="flex:6 1 0"><span>6</span></i><i class="seg seg--vazio" title="só intenção: 2 de 19" style="flex:2 1 0"><span>2</span></i></div>
+        <div class="chv"><div class="chv-r"><span class="chv-b" style="margin-left:0.0%;width:89.5%"></span><span class="chv-l" style="padding-left:0.0%">Algum caminho (nomeada ou parcial): <b>17 de 19</b></span></div><div class="chv-r"><span class="chv-b" style="margin-left:89.5%;width:10.5%"></span><span class="chv-l" style="padding-left:55.0%">Só intenção: <b>2 de 19</b></span></div></div>
+      </article>
     </div>
+    <p class="seg-leg" aria-hidden="true"><span><i class="sw sw--cheio"></i>ferramenta nomeada (lei, programa, verba, parceria)</span><span><i class="sw sw--claro"></i>parcial</span><span><i class="sw sw--vazio"></i>só intenção (“vamos”, “propomos”)</span></p>
     <p class="r-ress"><b>Ressalva:</b> programas já em execução contam como caminho, o que favorece quem governa. A contagem mede se o plano diz como fazer, não se a proposta é boa nem se vai acontecer.</p>
-    <table class="r-sec">
-      <caption>Por seção · Flávio × Lula</caption>
-      <thead><tr><th scope="col">Seção</th><th scope="col">Ferramenta nomeada</th><th scope="col">Algum caminho</th><th scope="col">Só intenção</th></tr></thead>
-      <tbody>
-        <tr><th scope="row"><a href="#cap-bolso">Bolso</a><small>5 temas</small><span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></th><td>0 × 2</td><td>2 × 5</td><td>3 × 0</td></tr>
-        <tr><th scope="row"><a href="#cap-seguranca">Segurança</a><small>3 temas</small><span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span><span class="mud">Contando parciais: empate, 3 × 3.</span></th><td>0 × 2</td><td>3 × 3</td><td>0 × 0</td></tr>
-        <tr><th scope="row"><a href="#cap-servicos">Serviços</a><small>5 temas</small><span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></th><td>0 × 4</td><td>2 × 5</td><td>3 × 0</td></tr>
-        <tr><th scope="row"><a href="#cap-economia">Economia</a><small>4 temas</small><span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span><span class="mud">Contando parciais: Flávio à frente, 4 × 3.</span></th><td>1 × 2</td><td>4 × 3</td><td>0 × 1</td></tr>
-        <tr><th scope="row"><a href="#cap-ambiente">Ambiente e instituições</a><small>2 temas</small><span class="q-forca q-forca--regua" title="O resultado muda conforme a régua (contando ou não as parciais).">depende da régua</span><span class="mud">Contando parciais: Flávio à frente, 2 × 1.</span></th><td>0 × 1</td><td>2 × 1</td><td>0 × 1</td></tr>
-      </tbody>
-    </table>
     <p class="q-resumo-pe">Fonte: planos de governo registrados no TSE (Flávio Bolsonaro, 76 págs.; Lula, 84 págs.), página citada em cada trecho · 19 temas por plano · atualizado em __UPDATED__ · <a href="#metodo">Como classificamos ›</a></p>
     <p class="q-resumo-url">boraprosdadosbrasil.netlify.app/propostas/</p>
     <div class="r-acoes">
@@ -585,7 +630,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
       <div class="kicker">A régua</div>
       <h2>Três rótulos para o “como”, iguais para os dois planos</h2>
     </div>
-    <p class="lead"><b>O que isto mostra:</b> como cada proposta foi classificada: ferramenta nomeada, parcial ou só intenção. <b>Por que importa para você:</b> saber o caminho ajuda a cobrar depois quem for eleito.</p>
+    <p class="lead">Três rótulos para dizer se o plano explica como fazer. Saber o caminho ajuda a cobrar depois.</p>
   <p class="leg-chips" aria-label="Os três rótulos"><span class="chip chip-ok">ferramenta nomeada</span><span class="chip chip-partial">parcial</span><span class="chip chip-warn">só intenção</span></p>
   <details class="q-mais">
     <summary data-track="detalhes_abertos" data-track-label="regua-ver-mais"><span class="ao-abrir">O que cada rótulo quer dizer, glossário e os planos em uma frase</span><span class="ao-fechar">Fechar</span></summary>
@@ -620,42 +665,39 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </div>
     </div>
   </details>
-      <p class="r-ress"><b>Nota de leitura:</b> programas e obras que já existem contam como caminho, o que favorece quem governa. A régua mede o que o plano diz, não a chance de a promessa ser cumprida.</p>
   </section>
 
   <section class="chap" id="placar" data-track-section="placar" data-track-name="Placar do como">
     <div class="chap-hd">
       <div class="kicker">O placar do “como”</div>
-      <h2>Ferramenta nomeada: Flávio 1 × Lula 11 de 19 temas · algum caminho: 13 × 17</h2>
-      <div class="answer"><span class="selo-n">Mais ferramentas nomeadas: Lula</span> <span class="note">mede o que o plano escreve; não é “vencer”</span></div>
+      <h2>O que conta como caminho</h2>
     </div>
-    <p class="lead"><b>O que isto mostra:</b> as três contagens para os 19 temas, com a barra de cada plano. <b>Por que importa para você:</b> mostra o quanto cada plano já diz como fazer.</p>
-    <figure class="card cv">
-      <h3 class="figt" style="margin-top:0">Em quantos dos 19 temas o plano diz como fazer?</h3>
-      <div class="capviz" data-scope="all"></div>
-      <figcaption>Programas já em execução contam como caminho, o que favorece quem governa. Fonte: planos registrados no TSE · 19 temas por plano.</figcaption>
-    </figure>
-    <details class="q-mais">
-    <summary data-track="detalhes_abertos" data-track-label="placar-balanco-como"><span class="ao-abrir">Ver mais: balanço do “como”</span><span class="ao-fechar">Fechar</span></summary>
-    <div class="q-mais-corpo callout soft">
-    <p>Com a régua única (ver Método): <b>Flávio</b>, 1 com ferramenta nomeada (Infraestrutura: PPPs, concessões e fundo de securitização), 12 parciais, 6 só intenção. <b>Lula</b>, 11 com ferramenta nomeada, 6 parciais, 2 só intenção.</p>
-    <p>“Parcial” reúne os cartões em que parte das medidas tem ferramenta nomeada (leis, programas, parcerias, PPPs, fundos) e parte fica em “vamos”. Nos dois planos há continuidade: um segue leis e programas aprovados no próprio mandato; o outro retoma programas anteriores (Casa Verde e Amarela, Programa Nacional de Desestatização).</p>
-    <p class="note">O rótulo mede o que o PLANO nomeia como caminho, não se a medida é boa ou ruim; e promessa não é entrega. Lembre: quem governa hoje pode citar programas que já existem, o que aumenta a contagem de “ferramenta nomeada” (ver a nota de leitura acima).</p>
+    <div class="card sc">
+      <p style="margin:0;font-size:15px">“Parcial” reúne os cartões em que parte das medidas tem ferramenta nomeada (leis, programas, parcerias, PPPs, fundos) e parte fica em “vamos”. Nos dois planos há continuidade: um segue leis e programas aprovados no próprio mandato; o outro retoma programas anteriores (Casa Verde e Amarela, Programa Nacional de Desestatização).</p>
     </div>
-  </details>
   </section>
 
   <section class="chap" id="cap-bolso" data-track-section="cap-bolso" data-track-name="Bolso">
     <div class="chap-hd">
       <div class="kicker">O que os planos prometem para o meu bolso?</div>
-      <h2>Impostos, trabalho, renda e casa: ferramenta nomeada 0 × 2 de 5 · só intenção 3 × 0</h2>
-      <div class="answer"><span class="selo-n">Ferramenta nomeada: Flávio 0 × Lula 2 de 5</span> <span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></div>
+      <h2>Impostos, trabalho, renda e casa</h2>
     </div>
-    <p class="lead"><b>O que isto mostra:</b> o que cada plano promete para o orçamento da casa e se diz como. <b>Por que importa para você:</b> são as propostas que mexem direto no seu bolso.</p>
-    <figure class="card cv"><div class="capviz" data-scope="cap-bolso"></div></figure>
+    <p class="lead">As propostas que mexem direto no seu bolso.</p>
+    <figure class="card sc" id="q-sec-bolso">
+      <p class="sc-t"><span class="selo-n">Ferramenta nomeada: <span class="gb">Flávio 0</span> × <span class="gl">Lula 2</span> de 5</span> <span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></p>
+      <p class="sc-k">O plano diz como vai fazer? 5 temas em cada plano</p>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--b" aria-hidden="true"></i>Flávio</span><div class="sbar sbar--cat" role="img" aria-label="Flávio: parcial 2, só intenção 3 (de 5 temas)"><i class="seg seg--claro" title="parcial: 2 de 5" style="flex:2 1 0"><span>2</span></i><i class="seg seg--vazio" title="só intenção: 3 de 5" style="flex:3 1 0"><span>3</span></i></div></div>
+      <p class="bar-rot">2 parciais · 3 só intenção</p>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><div class="sbar sbar--cat" role="img" aria-label="Lula: ferramenta nomeada 2, parcial 3 (de 5 temas)"><i class="seg seg--cheio" title="ferramenta nomeada: 2 de 5" style="flex:2 1 0"><span>2</span></i><i class="seg seg--claro" title="parcial: 3 de 5" style="flex:3 1 0"><span>3</span></i></div></div>
+      <p class="bar-rot">2 ferramenta nomeada · 3 parciais</p>
+      <figcaption class="sc-src">Fonte: planos de governo registrados no TSE (2026), página citada em cada trecho · programas em execução contam como caminho, o que favorece quem governa</figcaption>
+    </figure>
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-bolso" data-share-placement="card" data-share-anchor="cap-bolso" data-share-name="o dado de impostos, trabalho, renda e casa"
+         data-share-text="📊 Planos 2026 (TSE), impostos, trabalho, renda e casa (5 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 2; algum caminho 2 × 5; só intenção 3 × 0. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
+    <p class="tr-cab">O que cada plano promete, tema a tema (toque para ler o trecho e a página):</p>
   <!-- IMPOSTOS -->
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Impostos e custo de vida</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Impostos e custo de vida</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Corrigir a reforma tributária e reduzir o IVA (diz que hoje ficaria…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Cesta básica isenta e cashback de imposto para os mais pobres…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -671,7 +713,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </details>
   <!-- TRABALHO -->
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Trabalho</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Trabalho</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Baratear o custo de contratar (sem tirar direitos); contratos mais…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Continuar a política de valorização do salário mínimo; fim da escala…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -686,7 +728,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </div>
   </details>
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Melhorias para o trabalhador <span class="theme-note">além do card “Trabalho”</span></h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Melhorias para o trabalhador <span class="theme-note">além do card “Trabalho”</span></h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Para quem trabalha: reduzir o custo da contratação “sem retirar…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Além de mínimo e 6x1: reconstruir o Sistema Público de Emprego e…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -704,7 +746,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </details>
   <!-- SOCIAL -->
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Renda e área social</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Renda e área social</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Manter os programas sociais, “Quem depende hoje da ajuda do Estado…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Manter e ampliar o Bolsa Família e a rede do SUAS; Política Nacional…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -720,7 +762,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </details>
   <!-- CASA -->
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Casa própria</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Casa própria</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Retomar o Casa Verde e Amarela (meta de 2,5 milhões); recuperar…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Seguir o Minha Casa Minha Vida (meta corrente: 3 milhões de…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -734,22 +776,30 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
     <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="45–46" data-tema="Casa própria">Ver o texto exato na proposta</button></div></article>
   </div>
   </details>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Flávio Bolsonaro</b></span>, ferramenta nomeada em 0, parcial em 2 (renda e área social, casa própria), só intenção em 3 (impostos, trabalho, melhorias para o trabalhador) (de 5). <span class="gl"><b>Lula</b></span>, ferramenta nomeada em 2 (impostos e casa própria), parcial em 3 (trabalho, melhorias para o trabalhador, renda e área social), só intenção em 0 (de 5).</div>
-    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-bolso" data-share-placement="card" data-share-anchor="cap-bolso" data-share-name="o dado de impostos, trabalho, renda e casa"
-         data-share-text="📊 Planos 2026 (TSE), impostos, trabalho, renda e casa (5 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 2; algum caminho 2 × 5; só intenção 3 × 0. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
   </section>
 
   <section class="chap" id="cap-seguranca" data-track-section="cap-seguranca" data-track-name="Segurança">
     <div class="chap-hd">
       <div class="kicker">E a segurança?</div>
-      <h2>Segurança e crime organizado: ferramenta nomeada 0 × 2 de 3 · algum caminho 3 × 3</h2>
-      <div class="answer"><span class="selo-n">Ferramenta nomeada: Flávio 0 × Lula 2 de 3</span> <span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span> <span class="note">Contando parciais: empate, 3 × 3.</span></div>
+      <h2>Segurança e crime organizado</h2>
     </div>
-    <p class="lead"><b>O que isto mostra:</b> as propostas contra crime, facções e lavagem de dinheiro, e se o plano diz como. <b>Por que importa para você:</b> segurança é o tema nº 1 dos dois planos.</p>
-    <figure class="card cv"><div class="capviz" data-scope="cap-seguranca"></div></figure>
+    <p class="lead">Segurança é o tema nº 1 dos dois planos.</p>
+    <figure class="card sc" id="q-sec-seguranca">
+      <p class="sc-t"><span class="selo-n">Ferramenta nomeada: <span class="gb">Flávio 0</span> × <span class="gl">Lula 2</span> de 3</span> <span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span></p>
+      <p class="sc-k">O plano diz como vai fazer? 3 temas em cada plano</p>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--b" aria-hidden="true"></i>Flávio</span><div class="sbar sbar--cat" role="img" aria-label="Flávio: parcial 3 (de 3 temas)"><i class="seg seg--claro" title="parcial: 3 de 3" style="flex:3 1 0"><span>3</span></i></div></div>
+      <p class="bar-rot">3 parciais</p>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><div class="sbar sbar--cat" role="img" aria-label="Lula: ferramenta nomeada 2, parcial 1 (de 3 temas)"><i class="seg seg--cheio" title="ferramenta nomeada: 2 de 3" style="flex:2 1 0"><span>2</span></i><i class="seg seg--claro" title="parcial: 1 de 3" style="flex:1 1 0"><span>1</span></i></div></div>
+      <p class="bar-rot">2 ferramenta nomeada · 1 parcial</p>
+      <p class="pt-nota"><b>O que mudaria:</b> Contando parciais: empate, 3 × 3.</p>
+      <figcaption class="sc-src">Fonte: planos de governo registrados no TSE (2026), página citada em cada trecho · programas em execução contam como caminho, o que favorece quem governa</figcaption>
+    </figure>
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-seguranca" data-share-placement="card" data-share-anchor="cap-seguranca" data-share-name="o dado de segurança"
+         data-share-text="📊 Planos 2026 (TSE), segurança e crime organizado (3 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 2; algum caminho 3 × 3; só intenção 0 × 0. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
+    <p class="tr-cab">O que cada plano promete, tema a tema (toque para ler o trecho e a página):</p>
   <!-- SEGURANÇA -->
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Segurança pública <span class="theme-note">o tema nº 1 dos dois planos</span></h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Segurança pública <span class="theme-note">o tema nº 1 dos dois planos</span></h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Tratar PCC, CV e milícias como “organizações narcoterroristas”…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Criar o Ministério da Segurança Pública; manter a Lei Antifacção…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -764,7 +814,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </div>
   </details>
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Facções e crime organizado <span class="theme-note">aprofundamento do tema de segurança</span></h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Facções e crime organizado <span class="theme-note">aprofundamento do tema de segurança</span></h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Declarar PCC, CV e milícias “organizações narcoterroristas”; “seguir…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Lei Antifacção (sancionada em 2026) + “asfixia financeira”: R$ 35,8…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -781,7 +831,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </div>
   </details>
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Bets e lavagem de dinheiro <span class="theme-note">menções ao tema: Flávio, 3; Lula, 2; nenhum dos dois planos tem capítulo próprio sobre ele</span></h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Bets e lavagem de dinheiro <span class="theme-note">menções ao tema: Flávio, 3; Lula, 2; nenhum dos dois planos tem capítulo próprio sobre ele</span></h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Medidas sobre o tema: (1) proibir o uso de recursos dos programas…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Trata apostas como proteção, em 2 pontos: (1) no bloco de saúde…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -797,22 +847,29 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
     </article>
   </div>
   </details>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Flávio Bolsonaro</b></span>, ferramenta nomeada em 0, parcial em 3 (parcerias e convênios com estados e municípios nomeados; o restante, narcoterrorismo, fronteiras, TREVA, Muralha, fica em “vamos”), só intenção em 0 (de 3). <span class="gl"><b>Lula</b></span>, ferramenta nomeada em 2 (segurança pública: PEC já enviada; facções: leis sancionadas e programas em execução), parcial em 1 (bets), só intenção em 0 (de 3).</div>
-    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-seguranca" data-share-placement="card" data-share-anchor="cap-seguranca" data-share-name="o dado de segurança"
-         data-share-text="📊 Planos 2026 (TSE), segurança e crime organizado (3 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 2; algum caminho 3 × 3; só intenção 0 × 0. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
   </section>
 
   <section class="chap" id="cap-servicos" data-track-section="cap-servicos" data-track-name="Serviços públicos">
     <div class="chap-hd">
       <div class="kicker">E os serviços públicos?</div>
-      <h2>Saúde, educação, universidades, mulheres e cultura: ferramenta nomeada 0 × 4 de 5 · só intenção 3 × 0</h2>
-      <div class="answer"><span class="selo-n">Ferramenta nomeada: Flávio 0 × Lula 4 de 5</span> <span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></div>
+      <h2>Saúde, educação, universidades, mulheres e cultura</h2>
     </div>
-    <p class="lead"><b>O que isto mostra:</b> o que cada plano promete para os serviços públicos e se diz como. <b>Por que importa para você:</b> são os serviços que você e sua família usam todo dia.</p>
-    <figure class="card cv"><div class="capviz" data-scope="cap-servicos"></div></figure>
+    <p class="lead">Os serviços que você e sua família usam todo dia.</p>
+    <figure class="card sc" id="q-sec-servicos">
+      <p class="sc-t"><span class="selo-n">Ferramenta nomeada: <span class="gb">Flávio 0</span> × <span class="gl">Lula 4</span> de 5</span> <span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></p>
+      <p class="sc-k">O plano diz como vai fazer? 5 temas em cada plano</p>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--b" aria-hidden="true"></i>Flávio</span><div class="sbar sbar--cat" role="img" aria-label="Flávio: parcial 2, só intenção 3 (de 5 temas)"><i class="seg seg--claro" title="parcial: 2 de 5" style="flex:2 1 0"><span>2</span></i><i class="seg seg--vazio" title="só intenção: 3 de 5" style="flex:3 1 0"><span>3</span></i></div></div>
+      <p class="bar-rot">2 parciais · 3 só intenção</p>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><div class="sbar sbar--cat" role="img" aria-label="Lula: ferramenta nomeada 4, parcial 1 (de 5 temas)"><i class="seg seg--cheio" title="ferramenta nomeada: 4 de 5" style="flex:4 1 0"><span>4</span></i><i class="seg seg--claro" title="parcial: 1 de 5" style="flex:1 1 0"><span>1</span></i></div></div>
+      <p class="bar-rot">4 ferramenta nomeada · 1 parcial</p>
+      <figcaption class="sc-src">Fonte: planos de governo registrados no TSE (2026), página citada em cada trecho · programas em execução contam como caminho, o que favorece quem governa</figcaption>
+    </figure>
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-servicos" data-share-placement="card" data-share-anchor="cap-servicos" data-share-name="o dado de serviços públicos"
+         data-share-text="📊 Planos 2026 (TSE), saúde, educação, universidades, mulheres e cultura (5 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 4; algum caminho 2 × 5; só intenção 3 × 0. Programas em execução contam como caminho."></div></div>
+    <p class="tr-cab">O que cada plano promete, tema a tema (toque para ler o trecho e a página):</p>
   <!-- SAÚDE -->
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Saúde</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Saúde</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Prontuário eletrônico único no CPF; SUS digital e telessaúde…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Reduzir filas (programa “Agora tem Especialistas”, mutirões e…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -828,7 +885,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </details>
   <!-- EDUCAÇÃO -->
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Educação e crianças</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Educação e crianças</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Alfabetização pelo método fônico; ampliar escolas cívico-militares…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Cumprir o novo plano nacional de educação (2026–2036); meta de 80%…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -843,7 +900,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </div>
   </details>
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Universidades: ensino público × privado</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Universidades: ensino público × privado</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Mudar o comando: unificar ciência e ensino superior sob o Ministério…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Público: expandir a rede federal, 10 novos campi + 367 obras em…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -861,7 +918,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </details>
   <!-- MULHERES -->
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Mulheres</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Mulheres</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> “Brasil por Elas” (12 medidas): Central da Mulher com aplicativo e…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Concluir 30 Casas da Mulher Brasileira e 15 Centros de Referência…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -876,7 +933,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </div>
   </details>
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Cultura como motor: economia e transformação social</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Cultura como motor: economia e transformação social</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> “Menos concentração, mais Brasil na cultura”: aperfeiçoar as leis de…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Cultura como “fonte de riqueza simbólica, social e econômica” que…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -892,22 +949,30 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
     </article>
   </div>
   </details>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Flávio Bolsonaro</b></span>, ferramenta nomeada em 0, parcial em 2 (saúde, mulheres), só intenção em 3 (educação, universidades, cultura) (de 5). <span class="gl"><b>Lula</b></span>, ferramenta nomeada em 4 (saúde, educação, universidades, mulheres), parcial em 1 (cultura), só intenção em 0 (de 5).</div>
-    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-servicos" data-share-placement="card" data-share-anchor="cap-servicos" data-share-name="o dado de serviços públicos"
-         data-share-text="📊 Planos 2026 (TSE), saúde, educação, universidades, mulheres e cultura (5 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 4; algum caminho 2 × 5; só intenção 3 × 0. Programas em execução contam como caminho."></div></div>
   </section>
 
   <section class="chap" id="cap-economia" data-track-section="cap-economia" data-track-name="Economia">
     <div class="chap-hd">
       <div class="kicker">E a economia e o crescimento?</div>
-      <h2>Economia e crescimento: ferramenta nomeada 1 × 2 de 4 · algum caminho 4 × 3</h2>
-      <div class="answer"><span class="selo-n">Ferramenta nomeada: Flávio 1 × Lula 2 de 4</span> <span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span> <span class="note">Contando parciais: Flávio à frente, 4 × 3.</span></div>
+      <h2>Economia e crescimento</h2>
     </div>
-    <p class="lead"><b>O que isto mostra:</b> contas do governo, obras, pequenos negócios e minérios: o que cada plano promete e como. <b>Por que importa para você:</b> essas escolhas afetam emprego, juros e preços nos próximos anos.</p>
-    <figure class="card cv"><div class="capviz" data-scope="cap-economia"></div></figure>
+    <p class="lead">Escolhas que afetam emprego, juros e preços nos próximos anos.</p>
+    <figure class="card sc" id="q-sec-economia">
+      <p class="sc-t"><span class="selo-n">Ferramenta nomeada: <span class="gb">Flávio 1</span> × <span class="gl">Lula 2</span> de 4</span> <span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span></p>
+      <p class="sc-k">O plano diz como vai fazer? 4 temas em cada plano</p>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--b" aria-hidden="true"></i>Flávio</span><div class="sbar sbar--cat" role="img" aria-label="Flávio: ferramenta nomeada 1, parcial 3 (de 4 temas)"><i class="seg seg--cheio" title="ferramenta nomeada: 1 de 4" style="flex:1 1 0"><span>1</span></i><i class="seg seg--claro" title="parcial: 3 de 4" style="flex:3 1 0"><span>3</span></i></div></div>
+      <p class="bar-rot">1 ferramenta nomeada · 3 parciais</p>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><div class="sbar sbar--cat" role="img" aria-label="Lula: ferramenta nomeada 2, parcial 1, só intenção 1 (de 4 temas)"><i class="seg seg--cheio" title="ferramenta nomeada: 2 de 4" style="flex:2 1 0"><span>2</span></i><i class="seg seg--claro" title="parcial: 1 de 4" style="flex:1 1 0"><span>1</span></i><i class="seg seg--vazio" title="só intenção: 1 de 4" style="flex:1 1 0"><span>1</span></i></div></div>
+      <p class="bar-rot">2 ferramenta nomeada · 1 parcial · 1 só intenção</p>
+      <p class="pt-nota"><b>O que mudaria:</b> Contando parciais: Flávio à frente, 4 × 3.</p>
+      <figcaption class="sc-src">Fonte: planos de governo registrados no TSE (2026), página citada em cada trecho · programas em execução contam como caminho, o que favorece quem governa</figcaption>
+    </figure>
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-economia" data-share-placement="card" data-share-anchor="cap-economia" data-share-name="o dado de economia"
+         data-share-text="📊 Planos 2026 (TSE), economia e crescimento (4 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 1 × 2; algum caminho 4 × 3; só intenção 0 × 1. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
+    <p class="tr-cab">O que cada plano promete, tema a tema (toque para ler o trecho e a página):</p>
   <!-- ECONOMIA -->
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Economia e contas públicas</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Economia e contas públicas</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Reformular as regras fiscais (dívida em queda, superávit primário…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Manter o arcabouço fiscal e buscar juros em queda; seguir a…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -923,7 +988,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </details>
   <!-- INFRA -->
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Infraestrutura e crescimento</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Infraestrutura e crescimento</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Investir R$ 900 bi em 4 anos (rodovias, ferrovias, portos…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Seguir o novo ciclo de PAC, obras de logística e infraestrutura…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -938,7 +1003,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </div>
   </details>
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Micro e pequenos negócios</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Micro e pequenos negócios</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> “Minha Primeira Empresa”: menos burocracia para abrir e formalizar +…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> “O Brasil é um país de pequenos negócios”: crédito já rodando e a…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -955,7 +1020,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </div>
   </details>
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Terras raras e minerais críticos</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Terras raras e minerais críticos</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> “A riqueza do subsolo virando emprego qualificado aqui dentro”…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Promete uma política específica para minerais críticos e terras…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -971,22 +1036,30 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
     </article>
   </div>
   </details>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Flávio Bolsonaro</b></span>, ferramenta nomeada em 1 (infraestrutura: PPPs, concessões e fundo de securitização), parcial em 3 (economia, micro e pequenos negócios, terras raras), só intenção em 0 (de 4). <span class="gl"><b>Lula</b></span>, ferramenta nomeada em 2 (economia e contas públicas, infraestrutura), parcial em 1 (micro e pequenos negócios), só intenção em 1 (terras raras) (de 4).</div>
-    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-economia" data-share-placement="card" data-share-anchor="cap-economia" data-share-name="o dado de economia"
-         data-share-text="📊 Planos 2026 (TSE), economia e crescimento (4 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 1 × 2; algum caminho 4 × 3; só intenção 0 × 1. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
   </section>
 
   <section class="chap" id="cap-ambiente" data-track-section="cap-ambiente" data-track-name="Ambiente e instituições">
     <div class="chap-hd">
       <div class="kicker">E o meio ambiente e as instituições?</div>
-      <h2>Meio ambiente e instituições: ferramenta nomeada 0 × 1 de 2 · algum caminho 2 × 1</h2>
-      <div class="answer"><span class="selo-n">Ferramenta nomeada: Flávio 0 × Lula 1 de 2</span> <span class="q-forca q-forca--regua" title="O resultado muda conforme a régua (contando ou não as parciais).">depende da régua</span> <span class="note">Contando parciais: Flávio à frente, 2 × 1.</span></div>
+      <h2>Meio ambiente e instituições</h2>
     </div>
-    <p class="lead"><b>O que isto mostra:</b> o que cada plano promete para o ambiente e as regras da política. <b>Por que importa para você:</b> são decisões que valem por muitos anos.</p>
-    <figure class="card cv"><div class="capviz" data-scope="cap-ambiente"></div></figure>
+    <p class="lead">Decisões que valem por muitos anos.</p>
+    <figure class="card sc" id="q-sec-ambiente">
+      <p class="sc-t"><span class="selo-n">Ferramenta nomeada: <span class="gb">Flávio 0</span> × <span class="gl">Lula 1</span> de 2</span> <span class="q-forca q-forca--regua" title="O resultado muda conforme a régua (contando ou não as parciais).">depende da régua</span></p>
+      <p class="sc-k">O plano diz como vai fazer? 2 temas em cada plano</p>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--b" aria-hidden="true"></i>Flávio</span><div class="sbar sbar--cat" role="img" aria-label="Flávio: parcial 2 (de 2 temas)"><i class="seg seg--claro" title="parcial: 2 de 2" style="flex:2 1 0"><span>2</span></i></div></div>
+      <p class="bar-rot">2 parciais</p>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><div class="sbar sbar--cat" role="img" aria-label="Lula: ferramenta nomeada 1, só intenção 1 (de 2 temas)"><i class="seg seg--cheio" title="ferramenta nomeada: 1 de 2" style="flex:1 1 0"><span>1</span></i><i class="seg seg--vazio" title="só intenção: 1 de 2" style="flex:1 1 0"><span>1</span></i></div></div>
+      <p class="bar-rot">1 ferramenta nomeada · 1 só intenção</p>
+      <p class="pt-nota"><b>O que mudaria:</b> Contando parciais: Flávio à frente, 2 × 1.</p>
+      <figcaption class="sc-src">Fonte: planos de governo registrados no TSE (2026), página citada em cada trecho · programas em execução contam como caminho, o que favorece quem governa</figcaption>
+    </figure>
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-ambiente" data-share-placement="card" data-share-anchor="cap-ambiente" data-share-name="o dado de meio ambiente e instituições"
+         data-share-text="📊 Planos 2026 (TSE), meio ambiente e instituições (2 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 1; algum caminho 2 × 1; só intenção 0 × 1. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
+    <p class="tr-cab">O que cada plano promete, tema a tema (toque para ler o trecho e a página):</p>
   <!-- AMBIENTE -->
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Meio ambiente</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Meio ambiente</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Desmatamento ilegal zero até 2029; mercado regulado de carbono…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Desmatamento líquido zero até 2030; redução de 59% a 67% das…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -1002,7 +1075,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </details>
   <!-- INSTITUIÇÕES -->
   <details class="tema-row">
-    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Instituições e democracia</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span></span></summary>
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Instituições e democracia</h3><span class="tr-p"><span class="tr-pl"><i class="mk mk--b" aria-hidden="true"></i><b>Flávio:</b> Reforma do Judiciário (limitar decisões individuais do STF…</span><span class="tr-pl"><i class="mk mk--l" aria-hidden="true"></i><b>Lula:</b> Regulação das redes sociais contra desinformação; reforma política…</span></span><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span></span></summary>
   <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
@@ -1016,16 +1089,13 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
     <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="15–17" data-tema="Instituições e democracia">Ver o texto exato na proposta</button></div></article>
   </div>
   </details>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Flávio Bolsonaro</b></span>, ferramenta nomeada em 0, parcial em 2 (mercado de carbono “com segurança jurídica”; PEC do fim da reeleição já protocolada e revogação de atos), só intenção em 0 (de 2). <span class="gl"><b>Lula</b></span>, ferramenta nomeada em 1 (meio ambiente: planos e leis existentes, regulamentação do SBCE), parcial em 0, só intenção em 1 (instituições e democracia) (de 2).</div>
-    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-ambiente" data-share-placement="card" data-share-anchor="cap-ambiente" data-share-name="o dado de meio ambiente e instituições"
-         data-share-text="📊 Planos 2026 (TSE), meio ambiente e instituições (2 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 1; algum caminho 2 × 1; só intenção 0 × 1. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
   </section>
   <section class="chap" id="catalogo" data-track-section="catalogo" data-track-name="Catálogo de propostas">
     <div class="chap-hd">
       <div class="kicker">Explore</div>
       <h2>Todas as 38 propostas (19 temas × 2 planos)</h2>
     </div>
-    <p class="lead"><b>O que isto mostra:</b> cada proposta com o rótulo, a página do plano e o trecho original. <b>Por que importa para você:</b> para ler a promessa inteira, nas palavras do próprio plano (toque em <b>detalhes</b>).</p>
+    <p class="lead">Cada proposta com o rótulo e a página do plano (toque em <b>detalhes</b>).</p>
     <div class="filters">
       <div class="f"><label for="f-cand">Candidato</label>
         <select id="f-cand"><option value="">Todos</option><option value="flavio">Flávio Bolsonaro (PL)</option><option value="lula">Lula (PT)</option></select></div>
@@ -1047,7 +1117,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
       </table>
     </div>
     <button type="button" class="cat-mais-btn" id="cat-mais" hidden data-track="catalogo_mais" data-track-label="propostas">Mostrar mais 15</button>
-    <p class="note">“Só intenção” não significa que a proposta não vai acontecer, significa que o plano não diz como realizá-la. A régua é única para os dois planos (ver “A régua” e o “Método”).</p>
+    <p class="note">“Só intenção” não quer dizer que não vai acontecer: o plano só não diz como.</p>
   </section>
 
   <section class="chap apx" id="metodo" data-track-section="metodo" data-track-name="Método">
@@ -1055,16 +1125,15 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
       <div class="kicker">De onde vem cada rótulo?</div>
       <h2>Como classificamos e onde ler os planos inteiros</h2>
     </div>
-    <p class="lead"><b>O que isto mostra:</b> a regra de cada rótulo e os dois planos na íntegra. <b>Por que importa para você:</b> para conferir a classificação de qualquer tema.</p>
     <div class="block-t" style="margin-top:6px">Proposta na íntegra</div>
   <div class="fullbar" id="integra">
     <button class="fullbtn flavio" onclick="openProp('flavio')">Plano de Flávio, inteiro (76 págs.)</button>
     <button class="fullbtn lula" onclick="openProp('lula')">Plano de Lula, inteiro (84 págs.)</button>
   </div>
-  <p class="fullhint">O documento completo, como registrado no TSE, palavras exatas do PDF (só quebras de linha ajustadas). Dica: “pág. N” abre o documento completo naquela página; e o botão “Ver o texto exato na proposta”, em cada cartão, mostra o recorte fiel das páginas citadas.</p>
   <details class="q-mais">
     <summary data-track="detalhes_abertos" data-track-label="metodo-regras"><span class="ao-abrir">Método e fontes: as regras, item a item</span><span class="ao-fechar">Fechar</span></summary>
     <div class="q-mais-corpo">
+  <p class="fullhint">O documento completo, como registrado no TSE, palavras exatas do PDF (só quebras de linha ajustadas). Dica: “pág. N” abre o documento completo naquela página; e o botão “Ver o texto exato na proposta”, em cada cartão, mostra o recorte fiel das páginas citadas.</p>
   <div class="rows">
     <div class="row"><b>O que foi analisado:</b> os planos de governo registrados no TSE para o segundo turno das eleições de 2026, os dois candidatos: Lula, arquivo 2026BR280002542548_01.pdf (84 páginas); Flávio Bolsonaro, arquivo 2026BR280002551544_01.pdf (76 páginas), no ZIP “BR – Proposta de governo” do dataset candidatos-2026. Os “pág. N” citados referem-se a esses PDFs, e o texto integral está embutido nos botões “Ver a proposta…” e no “Ver o texto exato na proposta” de cada cartão.</div>
     <div class="row"><b>Fontes (só TSE):</b> Portal de Dados Abertos do TSE, recurso “Proposta de governo” em dadosabertos.tse.jus.br/dataset/candidatos-2026; resultado do 1º turno: “Relatório de Totalização” em dadosabertos.tse.jus.br/dataset/resultados-2026. Nenhuma outra fonte.</div>
@@ -1371,7 +1440,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
         if (hay.indexOf(q) === -1) continue;
       }
       shown += 1;
-      var oculto = CELULAR.matches && shown > limite;
+      var oculto = shown > limite;
       var snip = it.what.length > 150 ? it.what.slice(0,150) + '…' : it.what;
       rows.push('<tr' + (oculto ? ' hidden' : '') + '>'
         + '<td class="who ' + CAND2[it.cand].cls + '">' + esc(CAND2[it.cand].nome) + '</td>'
@@ -1385,7 +1454,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
     }
     catBody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6" class="empty-row">Nenhum item com esses filtros. <button type="button" class="ghost-btn" data-limpar>Limpar filtros</button></td></tr>';
     catStatus.textContent = shown + ' de ' + DATA.length + ' propostas';
-    var falta = CELULAR.matches ? Math.max(0, shown - limite) : 0;
+    var falta = Math.max(0, shown - limite);
     catMais.hidden = !falta;
     catMais.textContent = 'Mostrar mais ' + Math.min(PASSO, falta);
   }
