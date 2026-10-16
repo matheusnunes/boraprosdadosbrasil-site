@@ -36,7 +36,6 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
-a{color:var(--c1)}
 p{margin:.45em 0}
 .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 64px}
 h1{font-size:27px;margin:0 0 4px;letter-spacing:-.02em;line-height:1.2}
@@ -189,58 +188,412 @@ body.modal-open{overflow:hidden}
 .detail-body .box{border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:10px 0;background:#fff}
 .detail-body .box h5{margin:0 0 6px;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
 @media print{.tablewrap{break-inside:avoid}}
+/* ==== 15/10/2026 — páginas de análise no celular: resumo, seções simétricas, catálogo em cards ====
+   Cores dos lados vêm do site.css (--gb/--gl e tons de texto --gb-txt/--gl-txt). Status (categorias)
+   NUNCA usa verde/vermelho/ciano: cor do lado cheia = melhor categoria, cor clara = parcial,
+   listrado = em andamento, cinza = não cumprida, vazado = sem evidência; nos selos, ícone + texto. */
+a{color:#02522b}
+.pg-hero .sub{color:#3f3f46;font-size:15.5px;max-width:72ch}
+.pg-hero h1{margin-bottom:6px}
+.selo-lado{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;padding:4px 11px;border-radius:999px}
+.selo-lado.w1{background:var(--gb-tint);color:var(--gb-txt)}
+.selo-lado.w2{background:var(--gl-tint);color:var(--gl-txt)}
+.selo-n{display:inline-flex;align-items:center;font-size:13.5px;font-weight:700;color:#18181b;padding:4px 11px;border-radius:999px;border:1px solid #d4d4d8;background:#fff}
+.answer{gap:6px 8px;font-size:13.5px}
+.h2-sub{margin:-2px 0 8px;font-size:14.5px;color:#3f3f46;font-variant-numeric:tabular-nums}
+.chap .lead b{color:#18181b}
+.chap-hd h2 .x{color:#71717a;font-weight:600}
+/* saldo da seção: neutro (antes era índigo, perto do roxo de um dos lados) */
+.saldo{background:#f4f4f5;border:1px solid #e4e4e7;border-left:4px solid #52525b;color:#27272a}
+.saldo>b:first-child{color:#18181b}
+.saldo .gb b,.saldo .gl b{color:inherit}
+.saldo .gb b::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gb);margin-right:5px;vertical-align:1px}
+.saldo .gl b::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--gl);margin-right:5px;vertical-align:1px}
+.sec-acoes{display:flex;justify-content:flex-end;margin:-4px 0 0}
+.sec-acoes .share--mini{margin:0}
+
+/* selos de categoria: ícone + texto, neutros e iguais para os dois lados */
+.chip{background:#f4f4f5;color:#18181b;border:1.5px solid transparent;font-weight:700;letter-spacing:.01em}
+.chip::before{margin-right:5px;font-weight:800}
+.chip-ok{background:#27272a;color:#fff}
+.chip-ok::before{content:"✓"}
+.chip-mid,.chip-partial{background:#e4e4e7;color:#18181b}
+.chip-mid::before,.chip-partial::before{content:"◐"}
+.chip-run{background:repeating-linear-gradient(45deg,#e4e4e7 0 4px,#fff 4px 8px);border-color:#a1a1aa;color:#18181b}
+.chip-run::before{content:"↻"}
+.chip-no{background:#fff;border-color:#52525b;color:#27272a}
+.chip-no::before{content:"✕"}
+.chip-na{background:transparent;border:1.5px dashed #a1a1aa;color:#3f3f46}
+.chip-na::before{content:"?"}
+.chip-warn{background:transparent;border:1.5px dashed #71717a;color:#27272a}
+.chip-warn::before{content:"○"}
+.pg-prop .chip-ok::before{content:"●"}
+.chip.sm{font-size:12px;padding:2px 9px}
+.legend .chip{min-width:0}
+
+/* barras 100% por lado (mesma codificação do gráfico) */
+.sbar{display:flex;gap:2px;height:24px;border:0;border-radius:6px;background:transparent;overflow:hidden}
+.sbar i{display:flex;align-items:center;justify-content:center;min-width:0;height:100%;font-style:normal;font-size:12px;font-weight:800;overflow:hidden;white-space:nowrap;border-radius:0}
+.sbar i:first-child{border-radius:5px 0 0 5px}
+.sbar i:last-child{border-radius:0 5px 5px 0}
+.sbar i:only-child{border-radius:5px}
+.sbar i span{padding:0 4px;border-radius:3px;line-height:16px}
+.sbar--b .seg--cheio{background:var(--gb);color:#fff}
+.sbar--l .seg--cheio{background:var(--gl);color:#fff}
+.sbar--b .seg--claro{background:var(--gb-claro);color:#18181b}
+.sbar--l .seg--claro{background:var(--gl-claro);color:#18181b}
+.sbar--b .seg--listrado{background:repeating-linear-gradient(45deg,var(--gb-claro) 0 3px,#fff 3px 6px)}
+.sbar--l .seg--listrado{background:repeating-linear-gradient(45deg,var(--gl-claro) 0 3px,#fff 3px 6px)}
+.seg--listrado span,.seg--vazio span{background:#fff;color:#18181b}
+.sbar .seg--neutro{background:#52525b;color:#fff}
+.sbar .seg--vazio{background:#fff;outline:1px dashed #71717a;outline-offset:-1px}
+.seg-leg{display:flex;flex-wrap:wrap;gap:4px 14px;margin:10px 0 0;font-size:13px;color:#3f3f46}
+.seg-leg span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:24px;height:12px;border-radius:3px;flex:0 0 auto}
+.sw--cheio{background:linear-gradient(90deg,var(--gb) 50%,var(--gl) 50%)}
+.sw--claro{background:linear-gradient(90deg,var(--gb-claro) 50%,var(--gl-claro) 50%)}
+.sw--listrado{background:repeating-linear-gradient(45deg,var(--gb-claro) 0 3px,#fff 3px 6px);box-shadow:inset -12px 0 0 0 transparent;position:relative}
+.sw--listrado::after{content:"";position:absolute;right:0;top:0;width:12px;height:12px;border-radius:0 3px 3px 0;background:repeating-linear-gradient(45deg,var(--gl-claro) 0 3px,#fff 3px 6px)}
+.sw--neutro{background:#52525b}
+.sw--vazio{background:#fff;outline:1px dashed #71717a;outline-offset:-1px}
+.vrow{grid-template-columns:200px 1fr}
+.vname{display:flex;flex-wrap:wrap;align-items:center;gap:0 6px;color:#18181b}
+.vname small{flex-basis:100%}
+.vtxt{color:#3f3f46}
+
+/* mapa tema a tema (cabe em 390 px: uma linha por lado, empilhadas) */
+.mapa2{display:grid;gap:4px}
+.mt{padding:8px 0;border-bottom:1px solid #e4e4e7}
+.mt:last-child{border-bottom:0}
+.mt-t{margin:0 0 4px;font-size:14px;font-weight:700}
+.mt-r{display:grid;grid-template-columns:96px minmax(0,1fr) 28px;align-items:center;gap:8px;margin:3px 0}
+.mt-n{display:flex;align-items:center;gap:6px;font-size:13px;color:#3f3f46}
+.mt-c{font-size:13px;color:#52525b;text-align:right;font-variant-numeric:tabular-nums}
+.mt-0{font-size:12.5px;color:#71717a}
+.mt-r .sbar{height:18px}
+@media(min-width:900px){.mapa2{grid-template-columns:1fr 1fr;column-gap:28px}.mt:nth-last-child(2){border-bottom:0}}
+
+/* resumo em 1 minuto: blocos de mesmo tamanho */
+.r3{display:grid;grid-template-columns:1fr;gap:10px;margin:4px 0 0}
+@media(min-width:860px){.r3{grid-template-columns:repeat(3,1fr)}}
+.r3-c{border:1px solid var(--linha,#e4e4e7);border-radius:14px;padding:10px 12px 10px;scroll-margin-top:64px;display:flex;flex-direction:column;gap:6px}
+.r3-c:target{outline:2px solid #18181b;outline-offset:2px}
+.r3-q{margin:0;font-size:15px;font-weight:700;line-height:1.35}
+.r3-c .q-vals dd small{display:block;font-size:12.5px;font-weight:500;color:#52525b}
+.r3-pe{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;color:#3f3f46}
+.r-fixa{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:#f4f4f5;font-size:14.5px;line-height:1.5;color:#18181b}
+.r-ress{margin:8px 0 0;padding:10px 12px;border:1.5px solid #52525b;border-radius:12px;font-size:14.5px;line-height:1.5;color:#18181b;background:#fff}
+.r-ress b{font-weight:700}
+.r-sub{margin:16px 0 4px;font-size:15.5px;font-weight:700}
+.r-sub small{font-weight:500;color:#52525b;font-size:13px}
+.q-resumo .q-linhas{margin-top:2px}
+.q-linha-nome a{color:#18181b;text-decoration:underline;text-decoration-color:#d4d4d8;text-underline-offset:3px}
+.r-acoes{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px 12px;margin-top:4px}
+.r-acoes .share{margin:12px 0 0;flex:1 1 280px}
+.dl-img{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:10px 16px;margin-top:12px;border:1px solid #d4d4d8;border-radius:999px;background:#fff;color:#18181b;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.dl-img:hover{border-color:#a1a1aa;background:#fafafa}
+.dl-img[hidden]{display:none}
+/* tabela por seção (propostas): 4 colunas que cabem em 358 px */
+.r-sec{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin-top:4px}
+.r-sec caption{text-align:left;font-size:13px;color:#52525b;padding:0 0 4px}
+.r-sec th,.r-sec td{padding:8px 4px;border-bottom:1px solid #e4e4e7;text-align:center;vertical-align:top;font-size:14.5px}
+.r-sec thead th{font-size:12.5px;font-weight:600;color:#52525b;line-height:1.25;vertical-align:bottom}
+.r-sec tbody th{text-align:left;font-weight:700;font-size:14.5px;line-height:1.35;width:40%}
+.r-sec tbody th a{color:#18181b;text-decoration:underline;text-decoration-color:#d4d4d8;text-underline-offset:3px}
+.r-sec tbody th small{display:block;font-weight:500;color:#52525b;font-size:12.5px}
+.r-sec .q-forca{margin-top:4px}
+.r-sec .mud{display:block;font-weight:500;font-size:12.5px;color:#3f3f46;margin-top:3px}
+.r-sec tr:last-child th,.r-sec tr:last-child td{border-bottom:0}
+.r-sec td b{font-weight:700}
+.vbar-row > span{white-space:nowrap}
+
+/* linhas de tema recolhíveis (seções) */
+.tema-row{border:1px solid #e4e4e7;border-radius:12px;background:#fff;margin:8px 0}
+.tema-row>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) 16px;gap:4px 10px;align-items:center;min-height:56px;padding:9px 14px;border-radius:12px;-webkit-tap-highlight-color:transparent}
+.tema-row>summary::-webkit-details-marker{display:none}
+.tema-row>summary::after{content:"";grid-column:2;grid-row:1 / span 2;width:8px;height:8px;border-right:2px solid #52525b;border-bottom:2px solid #52525b;transform:rotate(45deg);transition:transform .18s ease;justify-self:center}
+.tema-row[open]>summary::after{transform:rotate(-135deg)}
+.tema-row>summary:hover{background:#fafafa}
+.tema-row>summary:focus-visible{outline:3px solid rgba(2,82,43,.45);outline-offset:2px}
+.tr-t{font-size:15.5px;font-weight:700;color:#18181b;line-height:1.3}
+.tr-t .theme-note{display:block;margin:0;font-weight:500}
+.tr-s{grid-column:1;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13.5px;color:#3f3f46}
+.tr-v{display:inline-flex;align-items:center;gap:6px}
+.tema-row>.grid2{padding:2px 12px 12px}
+.tema-row .card{box-shadow:none}
+@media (prefers-reduced-motion:reduce){.tema-row>summary::after{transition:none}}
+
+/* catálogo: tabela no desktop, lista de cards no celular (com e sem JS) */
+.cat-mais-btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin:8px 0 0;border:1px solid #d4d4d8;border-radius:12px;background:#fff;font:inherit;font-size:15px;font-weight:700;color:#18181b;cursor:pointer}
+.cat-mais-btn[hidden]{display:none}
+.cat-mais-btn:hover{background:#fafafa}
+table.cat tr[hidden]{display:none!important}
+table.cat td.who.bolso,table.cat td.who.flavio{color:var(--gb-txt)}
+table.cat td.who.lula{color:var(--gl-txt)}
+table.cat td.who::before{content:"";display:inline-block;width:9px;height:9px;margin-right:6px;vertical-align:0}
+table.cat td.who.bolso::before,table.cat td.who.flavio::before{border-radius:50%;background:var(--gb)}
+table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
+@media (max-width:760px){
+  .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;align-items:end}
+  .filters .f{min-width:0}
+  .filters .f:nth-child(4){grid-column:1 / -1}
+  .filters select,.filters input{width:100%;min-height:44px;font-size:16px}
+  .filters label{font-size:12.5px}
+  .search-status{display:flex;align-items:center;min-height:44px;font-size:14px;color:#3f3f46}
+  .filters .ghost-btn{width:100%;min-height:44px}
+  .tablewrap{overflow:visible;background:transparent;border:0;box-shadow:none}
+  table.cat,table.cat tbody{display:block}
+  table.cat thead{display:none}
+  table.cat tr{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"who chip" "prom prom" "meta pag" "det det";gap:4px 10px;margin:0 0 8px;padding:11px 14px 12px;background:#fff;border:1px solid #e4e4e7;border-left:4px solid #a1a1aa;border-radius:12px}
+  table.cat tr:has(td.who.bolso),table.cat tr:has(td.who.flavio){border-left-color:var(--gb)}
+  table.cat tr:has(td.who.lula){border-left-color:var(--gl)}
+  table.cat td{display:block;padding:0;border:0;min-width:0}
+  table.cat td:nth-child(1){grid-area:who;align-self:center;font-size:14px}
+  table.cat td:nth-child(2){grid-area:meta;font-size:13px;color:#52525b;align-self:center}
+  table.cat td:nth-child(3){grid-area:prom}
+  table.cat td:nth-child(4){grid-area:pag;font-size:13px;color:#52525b;white-space:nowrap;align-self:center;text-align:right}
+  table.cat td:nth-child(4)::before{content:"pág. "}
+  table.cat td:nth-child(5){grid-area:chip;align-self:center;text-align:right}
+  table.cat td:nth-child(6){grid-area:det}
+  table.cat td:nth-child(6):empty{display:none}
+  table.cat td .t{display:block;font-size:15px;line-height:1.35}
+  table.cat td .tr-snip{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13.5px;color:#52525b;margin-top:2px}
+  table.cat .detail-btn{width:100%;min-height:44px;margin-top:4px}
+  table.cat .empty-row{display:block;background:#fff;border-radius:12px}
+  table.cat tr:has(.empty-row){display:block;border-left-color:#e4e4e7}
+}
+@media (max-width:760px){
+  .wrap{padding:20px 16px 56px}
+  .chap{margin-top:40px}
+  .vrow{grid-template-columns:1fr}
+  .grid2{gap:10px}
+  body .q-resumo{padding:14px 14px 12px}
+}
+/* ---- compacto: meta de altura no celular (≤ 15 telas) ---- */
+.bpd-tabela table{display:block;overflow-x:auto}
+.q-resumo .q-linhas .q-v{display:flex;align-items:baseline;justify-content:space-between;gap:6px;padding:5px 9px}
+.q-resumo .q-linhas .q-v dd{font-size:16px}
+.q-resumo .q-linha{padding:8px 0}
+.q-resumo .q-linha-hd{margin-bottom:4px}
+.q-resumo .q-ress{margin-top:4px;font-size:13.5px}
+.r3-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.r3-c .q-vals .q-v{padding:6px 9px}
+.r-nota{margin:2px 0 8px;font-size:13.5px;color:#3f3f46}
+.leg-chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}
+.leg-chips .chip{margin:0}
+.capviz .figt{font-size:14px;margin:0 0 2px}
+.capviz .vrow{margin:6px 0;gap:3px 14px}
+.capviz .vname{font-size:14px;gap:0 6px}
+.capviz .vname small{flex-basis:auto;display:inline;font-size:12.5px;font-weight:500}
+.capviz .vtxt{font-size:13px;margin-top:0}
+.card.cv{padding:12px 14px}
+@media (max-width:760px){
+  table.cat tr{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"who who chip" "prom prom prom" "meta pag det";padding:10px 12px 8px}
+  table.cat td:nth-child(6){align-self:center}
+  table.cat td:nth-child(6):empty{display:none}
+  table.cat td .tr-snip{-webkit-line-clamp:1}
+  table.cat .detail-btn,table.cat .cat-det{width:auto;margin-top:0;min-height:44px;padding:0 14px}
+  table.cat td:nth-child(4){text-align:left}
+}
+/* ---- compacto 2: resumo em linhas no celular, linhas de tema de 1 linha de status ---- */
+.r3-cab{display:none}
+@media (max-width:859px){
+  .r3{gap:0;border:1px solid #e4e4e7;border-radius:14px;overflow:hidden}
+  .r3-cab{display:grid;grid-template-columns:minmax(0,1fr) 88px 88px;gap:6px;padding:6px 10px;background:#fafafa;border-bottom:1px solid #e4e4e7;font-size:12.5px;font-weight:600;color:#3f3f46}
+  .r3-cab span{display:flex;align-items:center;gap:5px}
+  .r3-c{display:grid;grid-template-columns:minmax(0,1fr) 182px;align-items:center;gap:6px;border:0;border-bottom:1px solid #e4e4e7;border-radius:0;padding:8px 10px}
+  .r3-c:last-child{border-bottom:0}
+  .r3-hd{flex-direction:column;align-items:flex-start;gap:4px}
+  .r3-q{font-size:14px}
+  .r3-c .q-vals{grid-template-columns:88px 88px;gap:6px}
+  .r3-c .q-v dt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .r3-c .q-v{padding:5px 8px}
+  .r3-c .q-v dd{font-size:17px}
+}
+.tema-row>summary{min-height:52px;padding:7px 12px}
+.tema-row{margin:6px 0}
+.tr-s{gap:2px 12px;font-size:13px}
+.tr-s .tr-lbl{color:#52525b}
+@media (max-width:760px){
+  table.cat td .tr-snip{display:none}
+  body .q-cred{row-gap:0}
+}
+/* ---- compacto 3: linhas do resumo (por tema/seção), filtros em 4 linhas, texto de apoio 15 px ---- */
+.q-v dd{white-space:nowrap}
+.r3--tema,.r3--linhas{grid-template-columns:1fr!important;gap:0;border:1px solid #e4e4e7;border-radius:14px;overflow:hidden}
+.r3--tema .r3-cab,.r3--linhas .r3-cab{display:grid;grid-template-columns:minmax(0,1fr) 88px 88px;gap:6px;padding:6px 10px;background:#fafafa;border-bottom:1px solid #e4e4e7;font-size:12.5px;font-weight:600;color:#3f3f46}
+.r3--tema .r3-cab span,.r3--linhas .r3-cab span{display:flex;align-items:center;gap:5px}
+.r3--tema .r3-c,.r3--linhas .r3-c{display:grid;grid-template-columns:minmax(0,1fr) 182px;align-items:center;gap:4px 6px;border:0;border-bottom:1px solid #e4e4e7;border-radius:0;padding:8px 10px}
+.r3--tema .r3-c:last-child,.r3--linhas .r3-c:last-child{border-bottom:0}
+.r3--tema .r3-hd,.r3--linhas .r3-hd{flex-direction:column;align-items:flex-start;gap:4px}
+.r3--tema .r3-q,.r3--linhas .r3-q{font-size:14.5px}
+.r3--tema .r3-q a,.r3--linhas .r3-q a{color:#18181b;text-decoration:underline;text-decoration-color:#d4d4d8;text-underline-offset:3px}
+.r3--tema .q-vals,.r3--linhas .q-vals{grid-template-columns:88px 88px;gap:6px}
+.r3--tema .q-v dt,.r3--linhas .q-v dt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.r3--tema .q-v,.r3--linhas .q-v{padding:5px 8px}
+.r3--tema .q-v dd,.r3--linhas .q-v dd{font-size:16px}
+.r3-nota{grid-column:1 / -1;margin:0;font-size:13px;line-height:1.45;color:#3f3f46}
+.r3-nota b{color:#18181b}
+@media (min-width:860px){.r3--tema,.r3--linhas{max-width:720px}}
+@media (pointer:coarse){.r3-q a{display:inline-flex;align-items:center;min-height:44px;margin:-10px 0}}
+@media (max-width:760px){
+  body .chap{margin-top:30px}
+  .chap .lead,.pg-hero .sub{font-size:15px;line-height:1.5}
+  body .chap-hd{margin-bottom:10px}
+  .filters{grid-template-columns:1fr 1fr;grid-template-areas:"cand tema" "cat limpa" "busca busca" "status status";gap:6px 10px}
+  .filters .f:nth-child(1){grid-area:cand}
+  .filters .f:nth-child(2){grid-area:tema}
+  .filters .f:nth-child(3){grid-area:cat}
+  .filters .f:nth-child(4){grid-area:busca;grid-column:1 / -1}
+  .filters .f:nth-child(5){grid-area:status}
+  .filters .f:nth-child(6){grid-area:limpa;align-self:end}
+  .filters .f:nth-child(5) label,.filters .f:nth-child(6) label{display:none}
+  .filters .f:nth-child(5) .search-status{min-height:0;font-size:13.5px}
+  .fullbar .fullbtn{width:100%;min-height:44px}
+}
+.q-cred-neutro{color:#3f3f46}
+
+body .q-forca--regua::before{background:transparent;border:1.5px dashed currentColor}
+.mb{display:block;height:6px;border-radius:3px;background:#e4e4e7;margin-top:4px;overflow:hidden}
+.mb i{display:block;height:100%;width:calc(var(--v,0)*100%);border-radius:3px}
+.q-v--b .mb i{background:var(--gb)} .q-v--l .mb i{background:var(--gl)}
+.r3--linhas .q-v dd{font-size:15.5px}
+.r3--linhas .r3-q small{display:block;font-weight:500;font-size:12.5px;color:#52525b}
+.r-sec .mud{font-size:12.5px}
+.chap h3.tr-t{margin:0;font-size:15.5px;letter-spacing:0}
+.tr-v .chip{margin:0}
+.tema-row .card .how{font-size:14px}
+@media (max-width:760px){.tr-t .theme-note{display:none}.tema-row>summary{min-height:48px}.tr-v .lg{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.tr-s{gap:2px 16px}}
+.r-sec{table-layout:fixed}
+.r-sec thead th:first-child{width:37%}
+.r-sec th,.r-sec td{padding:7px 2px}
+.r-sec td{white-space:nowrap;font-size:14.5px}
+.r-sec thead th:first-child{text-align:left}
+.r-sec thead th{font-size:12px;overflow-wrap:anywhere}
+.r-sec tbody th small{display:inline;margin-left:4px}
+.r-sec tbody th .q-forca{margin-top:3px}
+.r-sec .mud{display:block}
+@media (pointer:coarse){.r-sec tbody th a{display:inline-flex;align-items:center;min-height:44px;margin:-12px 0}}
+@media (max-width:760px){.chap-hd>.kicker{display:none}body .chap-hd{padding-top:4px}.glossary .g{grid-template-columns:1fr}}
 
 </style>
 <link rel="stylesheet" href="/assets/css/site.css">
 <script>window.SITE_CONFIG={"gaId":"__GA_ID__","siteUrl":"__SITE_URL__","pageId":"propostas","consent":"__CONSENT__"};</script>
 <script defer src="/assets/js/analytics.js"></script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "__SITE_URL__/#org", "name": "Bora pros dados Brasil", "url": "__SITE_URL__/", "logo": {"@type": "ImageObject", "url": "__SITE_URL__/assets/img/logo-400.png", "width": 400, "height": 225}, "description": "Análises descritivas com dados públicos oficiais do Brasil, sem juízo político, com os arquivos originais para download."}, {"@type": "WebSite", "@id": "__SITE_URL__/#website", "name": "Bora pros dados Brasil", "url": "__SITE_URL__/", "inLanguage": "pt-BR", "publisher": {"@id": "__SITE_URL__/#org"}}, {"@type": "BreadcrumbList", "@id": "__SITE_URL__/propostas/#breadcrumb", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Início", "item": "__SITE_URL__/"}, {"@type": "ListItem", "position": 2, "name": "Propostas 2026: Lula × Flávio Bolsonaro", "item": "__SITE_URL__/propostas/"}]}, {"@type": "WebPage", "@id": "__SITE_URL__/propostas/#webpage", "url": "__SITE_URL__/propostas/", "name": "Propostas Lula × Flávio Bolsonaro: planos de governo 2026 (2º turno)", "description": "O que os planos de governo de Lula (PT) e Flávio Bolsonaro (PL) registrados no TSE prometem para o 2º turno de 2026, tema a tema, e se cada proposta diz como será feita.", "inLanguage": "pt-BR", "isPartOf": {"@id": "__SITE_URL__/#website"}, "primaryImageOfPage": {"@type": "ImageObject", "url": "__SITE_URL__/assets/img/og-propostas.jpg", "width": 1200, "height": 630}, "datePublished": "__DATE_PUBLISHED__", "dateModified": "__DATE_MODIFIED__", "breadcrumb": {"@id": "__SITE_URL__/propostas/#breadcrumb"}}, {"@type": "Article", "@id": "__SITE_URL__/propostas/#article", "headline": "Lula × Flávio no 2º turno: o que cada plano promete, e se diz como", "description": "O que os planos de governo de Lula (PT) e Flávio Bolsonaro (PL) registrados no TSE prometem para o 2º turno de 2026, tema a tema, e se cada proposta diz como será feita.", "inLanguage": "pt-BR", "mainEntityOfPage": {"@id": "__SITE_URL__/propostas/#webpage"}, "image": "__SITE_URL__/assets/img/og-propostas.jpg", "datePublished": "__DATE_PUBLISHED__", "dateModified": "__DATE_MODIFIED__", "author": {"@id": "__SITE_URL__/#org"}, "publisher": {"@id": "__SITE_URL__/#org"}, "isAccessibleForFree": true, "articleSection": "Eleições 2026", "keywords": "Lula x Flávio Bolsonaro propostas, plano de governo 2026, segundo turno 2026, propostas Lula 2026, propostas Flávio Bolsonaro, eleições 2026, TSE", "isBasedOn": ["https://dadosabertos.tse.jus.br/dataset/candidatos-2026", "__SITE_URL__/dados/tse/2026BR280002542548_01.pdf", "__SITE_URL__/dados/tse/2026BR280002551544_01.pdf"], "about": [{"@type": "Person", "name": "Luiz Inácio Lula da Silva", "alternateName": "Lula", "sameAs": "https://pt.wikipedia.org/wiki/Luiz_Inácio_Lula_da_Silva"}, {"@type": "Person", "name": "Flávio Bolsonaro", "sameAs": "https://pt.wikipedia.org/wiki/Flávio_Bolsonaro"}, {"@type": "Thing", "name": "Eleição presidencial no Brasil em 2026", "sameAs": "https://pt.wikipedia.org/wiki/Eleição_presidencial_no_Brasil_em_2026"}]}]}</script>
+<link rel="stylesheet" href="/assets/css/share.css">
+<script defer src="/assets/js/share.js"></script>
+<script defer src="/assets/js/charts.js"></script>
+<script defer src="/assets/js/ui.js"></script>
 </head>
-<body>
+<body class="pg-prop">
 <header class="sitebar">
   <div class="sb-in">
     <a class="sb-brand" href="/" aria-label="Bora pros dados Brasil, início"><img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil" width="200" height="113"></a>
+    <a href="/fontes/" class="sb-cta"><svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span class="t-longo">Baixar fontes →</span> <span class="t-curto">Fontes</span></a>
     <nav class="sb-nav" aria-label="Páginas do site">
-      <a href="/">Governo Lula × Bolsonaro</a>
-      <a href="/propostas/" class="ativo">Propostas 2026</a>
-      <a href="/balanco/">Promessas e Realizações Lula × Bolsonaro</a>
-      <a href="/fontes/" class="sb-cta">Baixar fontes →</a>
+      <a href="/"><span class="t-longo">Governo Lula × Bolsonaro</span> <span class="t-curto">Governos</span></a>
+      <a href="/propostas/" class="ativo" aria-current="page">Propostas 2026</a>
+      <a href="/balanco/"><span class="t-longo">Promessas e Realizações Lula × Bolsonaro</span> <span class="t-curto">Promessas</span></a>
     </nav>
   </div>
 </header>
 <nav class="topnav" aria-label="Seções">
   <div class="in">
-    <a href="#topo">Resumo</a>
-    <a href="#regua">A régua</a>
-    <a href="#placar">Placar do “como”</a>
+    <a href="#resumo">Resumo</a>
+    <a href="#regua">Régua</a>
+    <a href="#placar">Placar</a>
     <a href="#cap-bolso">Bolso</a>
     <a href="#cap-seguranca">Segurança</a>
     <a href="#cap-servicos">Serviços</a>
     <a href="#cap-economia">Economia</a>
-    <a href="#cap-ambiente">Ambiente e instituições</a>
-    <a href="#catalogo">Catálogo</a>
-    <a href="#integra">Na íntegra</a>
+    <a href="#cap-ambiente">Ambiente</a>
+    <a href="#catalogo">Todas</a>
     <a href="#metodo">Método</a>
   </div>
   <div class="prog" id="prog"></div>
 </nav>
+<div class="q-cred-wrap">
+  <div class="q-cred" role="note" aria-label="Sobre a confiabilidade destes dados">
+    <span class="q-cred-selo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 3.5v6c0 5-3.4 8.8-8 10.5-4.6-1.7-8-5.5-8-10.5v-6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg> Só fontes oficiais</span>
+    <span class="q-cred-fontes">Só o texto dos planos no <b>TSE</b> · página citada em cada trecho</span>
+    <span class="q-cred-data">Atualizado em <time datetime="__UPDATED_ISO__">__UPDATED__</time></span>
+    <span class="q-cred-links"><a href="#metodo">Como classificamos ›</a><a href="/fontes/#fonte-tse">Os 2 PDFs com SHA-256 ›</a><a href="#quem-fez">Quem fez ›</a></span>
+    <span class="q-cred-neutro">Este site não indica voto.</span>
+  </div>
+</div>
 <div class="wrap" id="topo">
-  <p class="eyebrow">Bora pros dados Brasil · Eleições 2026 · 2º turno · comparativo das propostas registradas no TSE</p>
+  <div class="pg-hero">
+  <p class="eyebrow">Planos de governo 2026 · 2º turno · registrados no TSE</p>
   <h1><span class="gb">Flávio Bolsonaro</span> × <span class="gl">Lula</span>: o que cada plano promete, e se diz como</h1>
-  <p class="sub">O que cada candidato promete no plano de governo registrado no TSE, tema a tema, e se o próprio plano diz <b>como</b> vai cumprir (por lei, programa, parceria ou fonte de dinheiro).</p>
-  <p class="sub">Por que importa para você: saber o caminho ajuda a entender o que depende só do governo e o que depende do Congresso, e a cobrar depois. No fim da página estão o catálogo completo e o texto na íntegra de cada plano. O site não indica voto.</p>
+  <p class="sub">Os 19 temas dos planos registrados no TSE, lado a lado: em quantos o plano diz qual ferramenta vai usar. Não mede se a ideia é boa.</p>
+  </div>
+
+  <section class="q-resumo" id="resumo" data-track-section="resumo" data-track-name="Resumo em 1 minuto" aria-labelledby="resumo-t">
+    <p class="q-resumo-kicker">Resumo em 1 minuto</p>
+    <h2 class="q-resumo-t" id="resumo-t">Qual plano mais diz COMO vai fazer</h2>
+    <p class="q-resumo-sub">19 temas em cada plano · conta o que o plano escreve, não se a ideia é boa</p>
+    <div class="r3 r3--linhas">
+      <div class="r3-cab" aria-hidden="true"><span>Em quantos temas</span><span><i class="mk mk--b"></i>Flávio</span><span><i class="mk mk--l"></i>Lula</span></div>
+      <div class="r3-c">
+        <div class="r3-hd"><p class="r3-q">● Nomeia a ferramenta<small>lei, programa, verba, parceria</small></p></div>
+        <dl class="q-vals">
+          <div class="q-v q-v--b"><dt><i class="mk mk--b" aria-hidden="true"></i>Flávio</dt><dd>1 de 19<span class="mb" aria-hidden="true"><i style="--v:0.053"></i></span></dd></div>
+          <div class="q-v q-v--l"><dt><i class="mk mk--l" aria-hidden="true"></i>Lula</dt><dd>11 de 19<span class="mb" aria-hidden="true"><i style="--v:0.579"></i></span></dd></div>
+        </dl>
+      </div>
+      <div class="r3-c">
+        <div class="r3-hd"><p class="r3-q">◐ Algum caminho<small>ferramenta para tudo ou parte</small></p></div>
+        <dl class="q-vals">
+          <div class="q-v q-v--b"><dt><i class="mk mk--b" aria-hidden="true"></i>Flávio</dt><dd>13 de 19<span class="mb" aria-hidden="true"><i style="--v:0.684"></i></span></dd></div>
+          <div class="q-v q-v--l"><dt><i class="mk mk--l" aria-hidden="true"></i>Lula</dt><dd>17 de 19<span class="mb" aria-hidden="true"><i style="--v:0.895"></i></span></dd></div>
+        </dl>
+      </div>
+      <div class="r3-c">
+        <div class="r3-hd"><p class="r3-q">○ Só intenção<small>“vamos”, “propomos”</small></p></div>
+        <dl class="q-vals">
+          <div class="q-v q-v--b"><dt><i class="mk mk--b" aria-hidden="true"></i>Flávio</dt><dd>6 de 19<span class="mb" aria-hidden="true"><i style="--v:0.316"></i></span></dd></div>
+          <div class="q-v q-v--l"><dt><i class="mk mk--l" aria-hidden="true"></i>Lula</dt><dd>2 de 19<span class="mb" aria-hidden="true"><i style="--v:0.105"></i></span></dd></div>
+        </dl>
+      </div>
+    </div>
+    <p class="r-ress"><b>Ressalva:</b> programas já em execução contam como caminho, o que favorece quem governa. A contagem mede se o plano diz como fazer, não se a proposta é boa nem se vai acontecer.</p>
+    <table class="r-sec">
+      <caption>Por seção · Flávio × Lula</caption>
+      <thead><tr><th scope="col">Seção</th><th scope="col">Ferramenta nomeada</th><th scope="col">Algum caminho</th><th scope="col">Só intenção</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><a href="#cap-bolso">Bolso</a><small>5 temas</small><span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></th><td>0 × 2</td><td>2 × 5</td><td>3 × 0</td></tr>
+        <tr><th scope="row"><a href="#cap-seguranca">Segurança</a><small>3 temas</small><span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span><span class="mud">Contando parciais: empate, 3 × 3.</span></th><td>0 × 2</td><td>3 × 3</td><td>0 × 0</td></tr>
+        <tr><th scope="row"><a href="#cap-servicos">Serviços</a><small>5 temas</small><span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></th><td>0 × 4</td><td>2 × 5</td><td>3 × 0</td></tr>
+        <tr><th scope="row"><a href="#cap-economia">Economia</a><small>4 temas</small><span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span><span class="mud">Contando parciais: Flávio à frente, 4 × 3.</span></th><td>1 × 2</td><td>4 × 3</td><td>0 × 1</td></tr>
+        <tr><th scope="row"><a href="#cap-ambiente">Ambiente e instituições</a><small>2 temas</small><span class="q-forca q-forca--regua" title="O resultado muda conforme a régua (contando ou não as parciais).">depende da régua</span><span class="mud">Contando parciais: Flávio à frente, 2 × 1.</span></th><td>0 × 1</td><td>2 × 1</td><td>0 × 1</td></tr>
+      </tbody>
+    </table>
+    <p class="q-resumo-pe">Fonte: planos de governo registrados no TSE (Flávio Bolsonaro, 76 págs.; Lula, 84 págs.), página citada em cada trecho · 19 temas por plano · atualizado em __UPDATED__ · <a href="#metodo">Como classificamos ›</a></p>
+    <p class="q-resumo-url">boraprosdadosbrasil.netlify.app/propostas/</p>
+    <div class="r-acoes">
+      <div class="share" data-share-section="propostas" data-share-placement="placar" data-share-anchor="resumo" data-share-name="o resumo das propostas"
+           data-share-text="📊 Planos de 2026: diz COMO vai fazer (instrumento nomeado) em 1 de 19 temas (Flávio) × 11 de 19 (Lula); algum caminho: 13 × 17. Programas em execução contam, o que favorece quem governa."></div>
+    </div>
+  </section>
+
 
   <section class="chap" id="regua" data-track-section="regua" data-track-name="A régua">
     <div class="chap-hd">
       <div class="kicker">A régua</div>
       <h2>Três rótulos para o “como”, iguais para os dois planos</h2>
     </div>
-    <p class="lead">Tema a tema: o que cada plano promete e qual caminho o próprio plano indica para chegar lá. Quando o plano não diz o instrumento, ou seja, a ferramenta para fazer acontecer (lei? mudança na Constituição? decreto?), isso está marcado, e isso, por si só, é um dado importante.</p>
-  <div class="legend">
-    <span><span class="chip chip-ok">caminho explícito</span> o plano diz a ferramenta (lei/PEC já aprovada ou enviada, decreto, programa existente que será mantido, parceria com regras definidas, PPP/concessão, de onde vem o dinheiro)</span>
+    <p class="lead"><b>O que isto mostra:</b> como cada proposta foi classificada: ferramenta nomeada, parcial ou só intenção. <b>Por que importa para você:</b> saber o caminho ajuda a cobrar depois quem for eleito.</p>
+  <p class="leg-chips" aria-label="Os três rótulos"><span class="chip chip-ok">ferramenta nomeada</span><span class="chip chip-partial">parcial</span><span class="chip chip-warn">só intenção</span></p>
+  <details class="q-mais">
+    <summary data-track="detalhes_abertos" data-track-label="regua-ver-mais"><span class="ao-abrir">O que cada rótulo quer dizer, glossário e os planos em uma frase</span><span class="ao-fechar">Fechar</span></summary>
+    <div class="q-mais-corpo">
+  <div class="legend" style="margin:6px 0 10px">
+    <span><span class="chip chip-ok">ferramenta nomeada</span> o plano diz a ferramenta (lei/PEC já aprovada ou enviada, decreto, programa existente que será mantido, parceria com regras definidas, PPP/concessão, de onde vem o dinheiro)</span>
     <span><span class="chip chip-partial">parcial</span> o plano diz a ferramenta só para parte da medida, ou cita um parceiro sem dizer a lei ou o acordo</span>
-    <span><span class="chip chip-warn">sem caminho</span> só declara a intenção (“vamos”, “propomos”)</span>
+    <span><span class="chip chip-warn">só intenção</span> só declara a intenção (“vamos”, “propomos”)</span>
   </div>
+
   <div class="glossary">
     <b>Entenda os termos que aparecem:</b>
     <div class="g">
@@ -260,373 +613,428 @@ body.modal-open{overflow:hidden}
   </div>
     <div class="block-t">Os dois planos em uma frase</div>
   <div class="grid2">
-    <div class="row"><b>Lula, “continuar e ampliar”.</b> Mantém o que já existe (Bolsa Família, PAC, Minha Casa Minha Vida, Pé-de-Meia) e promete o que falta via Congresso ou regulamentação das leis novas.</div>
     <div class="row"><b>Flávio, “virar a chave”.</b> O mote é o “Tesouraço”: cortar gasto, enxugar a máquina, reduzir imposto e endurecer na segurança.</div>
+    <div class="row"><b>Lula, “continuar e ampliar”.</b> Mantém o que já existe (Bolsa Família, PAC, Minha Casa Minha Vida, Pé-de-Meia) e promete o que falta via Congresso ou regulamentação das leis novas.</div>
   </div>
-      <p class="note">Nota de leitura: quem já está no governo leva vantagem nesta régua, porque programas e obras que já existem contam como “caminho explícito”; o plano de quem desafia tende a descrever intenções. A régua mede o que o plano diz, não a chance de a promessa ser cumprida.</p>
+    </div>
+  </details>
+      <p class="r-ress"><b>Nota de leitura:</b> programas e obras que já existem contam como caminho, o que favorece quem governa. A régua mede o que o plano diz, não a chance de a promessa ser cumprida.</p>
   </section>
 
   <section class="chap" id="placar" data-track-section="placar" data-track-name="Placar do como">
     <div class="chap-hd">
       <div class="kicker">O placar do “como”</div>
-      <h2>Caminho explícito em 11 de 19 temas no plano de <span class="gl">Lula</span> × 1 de 19 no de <span class="gb">Flávio Bolsonaro</span></h2>
+      <h2>Ferramenta nomeada: Flávio 1 × Lula 11 de 19 temas · algum caminho: 13 × 17</h2>
+      <div class="answer"><span class="selo-n">Mais ferramentas nomeadas: Lula</span> <span class="note">mede o que o plano escreve; não é “vencer”</span></div>
     </div>
-    <figure class="card">
-      <h3 class="figt" style="margin-top:0">O “como” de cada plano, nos 19 temas</h3>
+    <p class="lead"><b>O que isto mostra:</b> as três contagens para os 19 temas, com a barra de cada plano. <b>Por que importa para você:</b> mostra o quanto cada plano já diz como fazer.</p>
+    <figure class="card cv">
+      <h3 class="figt" style="margin-top:0">Em quantos dos 19 temas o plano diz como fazer?</h3>
       <div class="capviz" data-scope="all"></div>
+      <figcaption>Programas já em execução contam como caminho, o que favorece quem governa. Fonte: planos registrados no TSE · 19 temas por plano.</figcaption>
     </figure>
-    <div class="callout soft">
-    <h4>Balanço do “como”</h4>
-    <p>Com a régua única (ver Método): <b>Lula</b>, 11 cartões com caminho explícito, 6 parciais, 2 sem caminho. <b>Flávio</b>, 1 com caminho explícito (Infraestrutura: PPPs, concessões e fundo de securitização), 12 parciais, 6 sem caminho.</p>
+    <details class="q-mais">
+    <summary data-track="detalhes_abertos" data-track-label="placar-balanco-como"><span class="ao-abrir">Ver mais: balanço do “como”</span><span class="ao-fechar">Fechar</span></summary>
+    <div class="q-mais-corpo callout soft">
+    <p>Com a régua única (ver Método): <b>Flávio</b>, 1 com ferramenta nomeada (Infraestrutura: PPPs, concessões e fundo de securitização), 12 parciais, 6 só intenção. <b>Lula</b>, 11 com ferramenta nomeada, 6 parciais, 2 só intenção.</p>
     <p>“Parcial” reúne os cartões em que parte das medidas tem ferramenta nomeada (leis, programas, parcerias, PPPs, fundos) e parte fica em “vamos”. Nos dois planos há continuidade: um segue leis e programas aprovados no próprio mandato; o outro retoma programas anteriores (Casa Verde e Amarela, Programa Nacional de Desestatização).</p>
-    <p class="note">O rótulo mede o que o PLANO nomeia como caminho, não se a medida é boa ou ruim; e promessa não é entrega. Lembre: quem governa hoje pode citar programas que já existem, o que aumenta a contagem de “caminho explícito” (ver a nota de leitura acima).</p>
-  </div>
+    <p class="note">O rótulo mede o que o PLANO nomeia como caminho, não se a medida é boa ou ruim; e promessa não é entrega. Lembre: quem governa hoje pode citar programas que já existem, o que aumenta a contagem de “ferramenta nomeada” (ver a nota de leitura acima).</p>
+    </div>
+  </details>
   </section>
 
   <section class="chap" id="cap-bolso" data-track-section="cap-bolso" data-track-name="Bolso">
     <div class="chap-hd">
       <div class="kicker">O que os planos prometem para o meu bolso?</div>
-      <h2>Impostos, trabalho, renda e casa: <span class="gl">Lula</span> aponta o caminho em 2 de 5 temas e parcialmente nos outros 3; <span class="gb">Flávio Bolsonaro</span> fica sem caminho em 3 de 5</h2>
-      <div class="answer"><span>Mais caminhos explícitos:</span> <span class="chipw w2">Lula (2 de 5)</span></div>
+      <h2>Impostos, trabalho, renda e casa: ferramenta nomeada 0 × 2 de 5 · só intenção 3 × 0</h2>
+      <div class="answer"><span class="selo-n">Ferramenta nomeada: Flávio 0 × Lula 2 de 5</span> <span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></div>
     </div>
-    <p class="lead">O que esta seção mostra: o que cada plano promete sobre impostos, trabalho, renda e moradia, e se diz como vai fazer. Por que importa para você: são as propostas que mexem mais direto no orçamento da sua casa.</p>
-    <figure class="card"><div class="capviz" data-scope="cap-bolso"></div></figure>
+    <p class="lead"><b>O que isto mostra:</b> o que cada plano promete para o orçamento da casa e se diz como. <b>Por que importa para você:</b> são as propostas que mexem direto no seu bolso.</p>
+    <figure class="card cv"><div class="capviz" data-scope="cap-bolso"></div></figure>
   <!-- IMPOSTOS -->
-  <h3>Impostos e custo de vida</h3>
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Impostos e custo de vida</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
-    <article class="card lula">
-      <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what">Cesta básica isenta e <b>cashback</b> de imposto para os mais pobres; isenção de IR até R$ 5 mil, registrada como <b>feita</b> no mandato, sem promessa explícita de manutenção; Imposto Seletivo sobre produtos nocivos; Gás do Povo (recarga gratuita do botijão). Direção declarada: “colocar o pobre no orçamento e o rico no Imposto de Renda”.</p>
-      <p class="how"><span class="chip chip-ok">caminho explícito</span> cesta e cashback: implementação da reforma <b>já aprovada</b> (pág. 11); IR até R$ 5 mil: registrado como feito (pág. 19); Imposto Seletivo: regulamentação em curso (pág. 59); Gás do Povo: programa em execução (pág. 66) (<button type="button" class="pageref" data-cand="lula" data-page="11" title="Abrir o documento completo nesta página">pág. 11, 19, 59, 66</button>).</p>
-    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="11, 19, 59, 66" data-tema="Impostos e custo de vida">Ver o texto exato na proposta</button></div></article>
-    <article class="card flavio">
+<article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
       <p class="what">Corrigir a reforma tributária e <b>reduzir o IVA</b> (diz que hoje ficaria num dos maiores do mundo, ~30%); “menos imposto no que você consome”; cortar imposto de energia e combustíveis; comida mais barata via logística.</p>
-      <p class="how"><span class="chip chip-warn">sem caminho</span> “revisar e redimensionar a reforma”, reduzir o IVA, cortar imposto de energia e combustíveis e baratear comida via logística, sem instrumento nomeado e sem quanto (<button type="button" class="pageref" data-cand="flavio" data-page="30" title="Abrir o documento completo nesta página">pág. 30–32</button>).</p>
+      <p class="how"><span class="chip chip-warn">só intenção</span> “revisar e redimensionar a reforma”, reduzir o IVA, cortar imposto de energia e combustíveis e baratear comida via logística, sem instrumento nomeado e sem quanto (<button type="button" class="pageref" data-cand="flavio" data-page="30" title="Abrir o documento completo nesta página">pág. 30–32</button>).</p>
     <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="30–32" data-tema="Impostos e custo de vida">Ver o texto exato na proposta</button></div></article>
+<article class="card lula">
+      <header><span class="name">Lula</span><span class="party">PT</span></header>
+      <p class="what">Cesta básica isenta e <b>cashback</b> de imposto para os mais pobres; isenção de IR até R$ 5 mil, registrada como <b>feita</b> no mandato, sem promessa explícita de manutenção; Imposto Seletivo sobre produtos nocivos; Gás do Povo (recarga gratuita do botijão). Direção declarada: “colocar o pobre no orçamento e o rico no Imposto de Renda”.</p>
+      <p class="how"><span class="chip chip-ok">ferramenta nomeada</span> cesta e cashback: implementação da reforma <b>já aprovada</b> (pág. 11); IR até R$ 5 mil: registrado como feito (pág. 19); Imposto Seletivo: regulamentação em curso (pág. 59); Gás do Povo: programa em execução (pág. 66) (<button type="button" class="pageref" data-cand="lula" data-page="11" title="Abrir o documento completo nesta página">pág. 11, 19, 59, 66</button>).</p>
+    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="11, 19, 59, 66" data-tema="Impostos e custo de vida">Ver o texto exato na proposta</button></div></article>
   </div>
+  </details>
   <!-- TRABALHO -->
-  <h3>Trabalho</h3>
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Trabalho</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
   <div class="grid2">
-    <article class="card lula">
+<article class="card flavio">
+      <header><span class="name">Flávio</span><span class="party">PL</span></header>
+      <p class="what">Baratear o custo de contratar (sem tirar direitos); contratos mais baratos para jovens (18–24) e 50+ desempregados; jornada “negociado sobre o legislado”; banco nacional de vagas.</p>
+      <p class="how"><span class="chip chip-warn">só intenção</span> não diz o instrumento (<button type="button" class="pageref" data-cand="flavio" data-page="43" title="Abrir o documento completo nesta página">pág. 43–44</button>).</p>
+    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="43–44" data-tema="Trabalho">Ver o texto exato na proposta</button></div></article>
+<article class="card lula">
       <header><span class="name">Lula</span><span class="party">PT</span></header>
       <p class="what">Continuar a política de valorização do salário mínimo; fim da escala 6x1, jornada de 40h sem reduzir salário; proteção aos trabalhadores de plataformas digitais e do transporte por aplicativos.</p>
       <p class="how"><span class="chip chip-partial">parcial</span> no 6x1: o texto <b>já foi aprovado na Câmara</b> e o plano promete atuação no Senado (pág. 75); o mínimo segue a política de valorização (pág. 74); a proteção a plataformas fica em “consolidar um sistema… que normatize”, sem instrumento nomeado (<button type="button" class="pageref" data-cand="lula" data-page="74" title="Abrir o documento completo nesta página">pág. 74–77</button>).</p>
     <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="74–77" data-tema="Trabalho">Ver o texto exato na proposta</button></div></article>
-    <article class="card flavio">
-      <header><span class="name">Flávio</span><span class="party">PL</span></header>
-      <p class="what">Baratear o custo de contratar (sem tirar direitos); contratos mais baratos para jovens (18–24) e 50+ desempregados; jornada “negociado sobre o legislado”; banco nacional de vagas.</p>
-      <p class="how"><span class="chip chip-warn">sem caminho</span> não diz o instrumento (<button type="button" class="pageref" data-cand="flavio" data-page="43" title="Abrir o documento completo nesta página">pág. 43–44</button>).</p>
-    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="43–44" data-tema="Trabalho">Ver o texto exato na proposta</button></div></article>
   </div>
-  <h3>Melhorias para o trabalhador <span class="theme-note">além do card “Trabalho”</span></h3>
+  </details>
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Melhorias para o trabalhador <span class="theme-note">além do card “Trabalho”</span></h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
   <div class="grid2">
+<article class="card flavio">
+      <header><span class="name">Flávio</span><span class="party">PL</span></header>
+      <p class="what">Para quem trabalha: reduzir o custo da contratação <b>“sem retirar direitos”</b> (hoje o trabalhador formal custa quase 2x o salário) para ampliar a carteira assinada; contratos mais baratos para jovens 18–24 (primeiro emprego) e 50+; <b>“negociado sobre o legislado”</b>; banco nacional de vagas conectado ao RH das empresas; trilha de qualificação; <b>volta sem fila ao benefício após o seguro-desemprego</b>, “para que ninguém tenha medo de tentar um emprego”; prioridade a beneficiários de programas em primeiro emprego, qualificação e intermediação (<button type="button" class="pageref" data-cand="flavio" data-page="43" title="Abrir o documento completo nesta página">pág. 43–45</button>).</p>
+      <p class="how"><span class="chip chip-warn">só intenção</span> tudo anunciado sem instrumento (“vamos reduzir gradualmente”, “vamos modernizar”).</p>
+      <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="43–45" data-tema="Melhorias para o trabalhador">Ver o texto exato na proposta</button></div>
+    </article>
 <article class="card lula">
       <header><span class="name">Lula</span><span class="party">PT</span></header>
       <p class="what">Além de mínimo e 6x1: reconstruir o Sistema Público de Emprego e expandir a <b>Plataforma Nacional de Empregabilidade com IA</b> na rede SINE (vagas + cursos + certificações); qualificação contínua e requalificação de categorias afetadas por tecnologia; combater fraudes em terceirizações e a precarização; fortalecer <b>negociação coletiva</b> e atualizar o sistema sindical; ampliar acesso à Previdência; apoio a autônomos, crédito produtivo, <b>Contrata+ Brasil</b> (compras públicas) e linhas para motoristas de app comprarem o veículo (<button type="button" class="pageref" data-cand="lula" data-page="74" title="Abrir o documento completo nesta página">pág. 74–77</button>).</p>
       <p class="how"><span class="chip chip-partial">parcial</span> SINE/Plataforma Nacional de Empregabilidade e crédito produtivo/Contrata+ Brasil em expansão, programas existentes (pág. 74, 76); mudanças na legislação trabalhista/sindical e a regulação do trabalho por plataforma ficam em “vamos” (<button type="button" class="pageref" data-cand="lula" data-page="74" title="Abrir o documento completo nesta página">pág. 74–77</button>).</p>
       <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="74–77" data-tema="Melhorias para o trabalhador">Ver o texto exato na proposta</button></div>
     </article>
-<article class="card flavio">
-      <header><span class="name">Flávio</span><span class="party">PL</span></header>
-      <p class="what">Para quem trabalha: reduzir o custo da contratação <b>“sem retirar direitos”</b> (hoje o trabalhador formal custa quase 2x o salário) para ampliar a carteira assinada; contratos mais baratos para jovens 18–24 (primeiro emprego) e 50+; <b>“negociado sobre o legislado”</b>; banco nacional de vagas conectado ao RH das empresas; trilha de qualificação; <b>volta sem fila ao benefício após o seguro-desemprego</b>, “para que ninguém tenha medo de tentar um emprego”; prioridade a beneficiários de programas em primeiro emprego, qualificação e intermediação (<button type="button" class="pageref" data-cand="flavio" data-page="43" title="Abrir o documento completo nesta página">pág. 43–45</button>).</p>
-      <p class="how"><span class="chip chip-warn">sem caminho</span> tudo anunciado sem instrumento (“vamos reduzir gradualmente”, “vamos modernizar”).</p>
-      <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="43–45" data-tema="Melhorias para o trabalhador">Ver o texto exato na proposta</button></div>
-    </article>
   </div>
+  </details>
   <!-- SOCIAL -->
-  <h3>Renda e área social</h3>
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Renda e área social</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
   <div class="grid2">
-    <article class="card lula">
-      <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what">Manter e ampliar o Bolsa Família e a rede do SUAS (Sistema Único de Assistência Social, os CRAS e serviços sociais); Política Nacional de Cuidados (cozinhas solidárias, restaurantes populares); titulação de territórios quilombolas e demarcação de terras indígenas.</p>
-      <p class="how"><span class="chip chip-partial">parcial</span> Bolsa Família e SUAS: continuidade e ampliação de programas existentes (pág. 19, 25); titulação e demarcação: continuidade de processos, 65 titulações, 21 portarias declaratórias e decretos de desapropriação no mandato (pág. 20); a Política Nacional de Cuidados fica em “serão fortalecidas / fomentaremos” (<button type="button" class="pageref" data-cand="lula" data-page="19" title="Abrir o documento completo nesta página">pág. 19–26</button>).</p>
-    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="19–26" data-tema="Renda e área social">Ver o texto exato na proposta</button></div></article>
-    <article class="card flavio">
+<article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
       <p class="what">Manter os programas sociais, “Quem depende hoje da ajuda do Estado para pôr comida na mesa não vai ter essa ajuda tirada. Ponto.”, com combate a fraudes; prioridade de emprego a beneficiários; volta rápida ao benefício depois do seguro-desemprego.</p>
       <p class="how"><span class="chip chip-partial">parcial</span> “manter os programas sociais existentes” conta como caminho, programa existente mantido (pág. 42); “aperfeiçoamento da gestão, combate às fraudes”, prioridade de emprego e retorno sem fila ao benefício ficam em “vamos” (<button type="button" class="pageref" data-cand="flavio" data-page="42" title="Abrir o documento completo nesta página">pág. 42–43</button>).</p>
     <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="42–43" data-tema="Renda e área social">Ver o texto exato na proposta</button></div></article>
-  </div>
-  <!-- CASA -->
-  <h3>Casa própria</h3>
-  <div class="grid2">
-    <article class="card lula">
+<article class="card lula">
       <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what">Seguir o Minha Casa Minha Vida (meta corrente: 3 milhões de moradias) e o Periferia Viva.</p>
-      <p class="how"><span class="chip chip-ok">caminho explícito</span> orçamento federal, crédito imobiliário e novas seleções (<button type="button" class="pageref" data-cand="lula" data-page="45" title="Abrir o documento completo nesta página">pág. 45–46</button>).</p>
-    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="45–46" data-tema="Casa própria">Ver o texto exato na proposta</button></div></article>
-    <article class="card flavio">
+      <p class="what">Manter e ampliar o Bolsa Família e a rede do SUAS (Sistema Único de Assistência Social, os CRAS e serviços sociais); Política Nacional de Cuidados (cozinhas solidárias, restaurantes populares); titulação de territórios quilombolas e demarcação de terras indígenas.</p>
+      <p class="how"><span class="chip chip-partial">parcial</span> Bolsa Família e SUAS: continuidade e ampliação de programas existentes (pág. 19, 25); titulação e demarcação: continuidade de processos, 65 titulações, 21 portarias declaratórias e decretos de desapropriação no mandato (pág. 20); a Política Nacional de Cuidados fica em “serão fortalecidas / fomentaremos” (<button type="button" class="pageref" data-cand="lula" data-page="19" title="Abrir o documento completo nesta página">pág. 19–26</button>).</p>
+    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="19–26" data-tema="Renda e área social">Ver o texto exato na proposta</button></div></article>
+  </div>
+  </details>
+  <!-- CASA -->
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Casa própria</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+  <div class="grid2">
+<article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
       <p class="what">Retomar o Casa Verde e Amarela (meta de 2,5 milhões); recuperar áreas dominadas por facções; dar escritura (de preferência no nome da mulher).</p>
       <p class="how"><span class="chip chip-partial">parcial</span> retomada de programa existente: Casa Verde e Amarela com meta de 2,5 milhões e PPPs que integram moradia e infraestrutura (pág. 47); escritura via regularização fundiária (pág. 47); “retomar as áreas sob domínio de facções” fica em “vamos” (<button type="button" class="pageref" data-cand="flavio" data-page="47" title="Abrir o documento completo nesta página">pág. 47</button>).</p>
     <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="47" data-tema="Casa própria">Ver o texto exato na proposta</button></div></article>
+<article class="card lula">
+      <header><span class="name">Lula</span><span class="party">PT</span></header>
+      <p class="what">Seguir o Minha Casa Minha Vida (meta corrente: 3 milhões de moradias) e o Periferia Viva.</p>
+      <p class="how"><span class="chip chip-ok">ferramenta nomeada</span> orçamento federal, crédito imobiliário e novas seleções (<button type="button" class="pageref" data-cand="lula" data-page="45" title="Abrir o documento completo nesta página">pág. 45–46</button>).</p>
+    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="45–46" data-tema="Casa própria">Ver o texto exato na proposta</button></div></article>
   </div>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gl"><b>Lula</b></span>, 2 caminhos explícitos (impostos e casa própria) e 3 parciais (trabalho, melhorias para o trabalhador, renda e área social). <span class="gb"><b>Flávio Bolsonaro</b></span>, 2 parciais (renda e área social, casa própria) e 3 sem caminho (impostos, trabalho, melhorias para o trabalhador).</div>
+  </details>
+    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Flávio Bolsonaro</b></span>, ferramenta nomeada em 0, parcial em 2 (renda e área social, casa própria), só intenção em 3 (impostos, trabalho, melhorias para o trabalhador) (de 5). <span class="gl"><b>Lula</b></span>, ferramenta nomeada em 2 (impostos e casa própria), parcial em 3 (trabalho, melhorias para o trabalhador, renda e área social), só intenção em 0 (de 5).</div>
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-bolso" data-share-placement="card" data-share-anchor="cap-bolso" data-share-name="o dado de impostos, trabalho, renda e casa"
+         data-share-text="📊 Planos 2026 (TSE), impostos, trabalho, renda e casa (5 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 2; algum caminho 2 × 5; só intenção 3 × 0. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
   </section>
 
   <section class="chap" id="cap-seguranca" data-track-section="cap-seguranca" data-track-name="Segurança">
     <div class="chap-hd">
       <div class="kicker">E a segurança?</div>
-      <h2>Segurança e crime organizado: <span class="gl">Lula</span> nomeia o instrumento em 2 de 3 temas; <span class="gb">Flávio Bolsonaro</span>, em parte dos 3</h2>
-      <div class="answer"><span>Mais caminhos explícitos:</span> <span class="chipw w2">Lula (2 de 3)</span></div>
+      <h2>Segurança e crime organizado: ferramenta nomeada 0 × 2 de 3 · algum caminho 3 × 3</h2>
+      <div class="answer"><span class="selo-n">Ferramenta nomeada: Flávio 0 × Lula 2 de 3</span> <span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span> <span class="note">Contando parciais: empate, 3 × 3.</span></div>
     </div>
-    <p class="lead">O que esta seção mostra: as propostas de cada plano contra o crime, as facções e a lavagem de dinheiro, e se o plano diz como vai fazer. Por que importa para você: segurança é o tema nº 1 dos dois planos.</p>
-    <figure class="card"><div class="capviz" data-scope="cap-seguranca"></div></figure>
+    <p class="lead"><b>O que isto mostra:</b> as propostas contra crime, facções e lavagem de dinheiro, e se o plano diz como. <b>Por que importa para você:</b> segurança é o tema nº 1 dos dois planos.</p>
+    <figure class="card cv"><div class="capviz" data-scope="cap-seguranca"></div></figure>
   <!-- SEGURANÇA -->
-  <h3>Segurança pública <span class="theme-note">o tema nº 1 dos dois planos</span></h3>
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Segurança pública <span class="theme-note">o tema nº 1 dos dois planos</span></h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
-    <article class="card lula">
-      <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what">Criar o Ministério da Segurança Pública; manter a Lei Antifacção (2026) e o programa de R$ 10 bi contra o crime organizado; ampliar câmeras corporais com padrão nacional.</p>
-      <p class="how"><span class="chip chip-ok">caminho explícito</span> A <b>PEC da Segurança Pública já foi enviada</b> ao Congresso, o ministério só vem “uma vez aprovada a PEC” (<button type="button" class="pageref" data-cand="lula" data-page="27" title="Abrir o documento completo nesta página">pág. 27–30</button>).</p>
-    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="27–30" data-tema="Segurança pública">Ver o texto exato na proposta</button></div></article>
-    <article class="card flavio">
+<article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
-      <p class="what">Tratar PCC, CV e milícias como “organizações narcoterroristas”; tropa de elite nas fronteiras; 5 presídios de segurança máxima modelo El Salvador (o complexo “TREVA”) + meio milhão de vagas em 4 anos; maioridade penal de 18→16 (e punir 14+ em crimes graves); castração química para estupradores; tolerância zero ao feminicídio; +1 milhão de câmeras de reconhecimento facial (“Muralha Brasileira”). O texto diz até que “bandido armado com fuzil na mão vai ser abatido”.</p>
+      <p class="what">Tratar PCC, CV e milícias como “organizações narcoterroristas”; tropa de elite nas fronteiras; 5 presídios de segurança máxima modelo El Salvador (o complexo “TREVA”) + meio milhão de vagas em 4 anos; maioridade penal de 18→16 (e punir 14+ em crimes graves); castração química para estupradores; tolerância zero ao feminicídio; +1 milhão de câmeras de reconhecimento facial (“Muralha Brasileira”). O texto diz que “bandido armado com fuzil na mão vai ser abatido”.</p>
       <p class="how"><span class="chip chip-partial">parcial</span> parte tem arranjo nomeado: segurança máxima “em parceria com os governos estaduais” (pág. 14) e “consórcios e convênios” com estados e municípios (pág. 13); no restante, narcoterrorismo, tropas de fronteira, TREVA, Muralha, maioridade penal e castração química (“apoiar e sancionar”), só “vamos” (<button type="button" class="pageref" data-cand="flavio" data-page="13" title="Abrir o documento completo nesta página">pág. 13–15</button>).</p>
     <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="13–15" data-tema="Segurança pública">Ver o texto exato na proposta</button></div></article>
-  </div>
-  <h3>Facções e crime organizado <span class="theme-note">aprofundamento do tema de segurança</span></h3>
-  <div class="grid2">
 <article class="card lula">
       <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what"><b>Lei Antifacção</b> (sancionada em 2026) + “asfixia financeira”: <b>R$ 35,8 bilhões</b> de prejuízo ao crime organizado desde 2023; <b>Programa Brasil Contra o Crime Organizado</b> (maio/2026, R$ 10 bi); medidas, junto aos demais poderes, para <b>barrar candidaturas ligadas ao crime</b> e acelerar punições; tráfico de armas, munições e explosivos; qualificação da investigação de homicídios; <b>FICCOs</b> (forças integradas de combate ao crime organizado) como política de Estado; Forças Armadas nas fronteiras amazônicas; retomada de territórios com presença do Estado (<button type="button" class="pageref" data-cand="lula" data-page="26" title="Abrir o documento completo nesta página">pág. 26–30</button>).</p>
-      <p class="how"><span class="chip chip-ok">caminho explícito</span> em execução (leis sancionadas, programas rodando); PEC da Segurança no Congresso.</p>
-      <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="26–30" data-tema="Facções e crime organizado">Ver o texto exato na proposta</button></div>
-    </article>
+      <p class="what">Criar o Ministério da Segurança Pública; manter a Lei Antifacção (2026) e o programa de R$ 10 bi contra o crime organizado; ampliar câmeras corporais com padrão nacional.</p>
+      <p class="how"><span class="chip chip-ok">ferramenta nomeada</span> A <b>PEC da Segurança Pública já foi enviada</b> ao Congresso, o ministério só vem “uma vez aprovada a PEC” (<button type="button" class="pageref" data-cand="lula" data-page="27" title="Abrir o documento completo nesta página">pág. 27–30</button>).</p>
+    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="27–30" data-tema="Segurança pública">Ver o texto exato na proposta</button></div></article>
+  </div>
+  </details>
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Facções e crime organizado <span class="theme-note">aprofundamento do tema de segurança</span></h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+  <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
       <p class="what">Declarar <b>PCC, CV e milícias “organizações narcoterroristas”</b>; “seguir o dinheiro” (bloqueio de ativos e lavagem); <b>Sistema Nacional de Fronteira</b>, “paredão” com tropa de elite das Forças Armadas (hoje: 1 policial a cada 100 km de fronteira), com interceptação de fuzis e drogas por terra, portos e espaço aéreo; <b>TREVA</b>: 5 presídios de segurança máxima + 500 mil vagas para cortar o comando das facções de dentro; “acabar com a cocaína made in Brazil”; consórcios e convênios com estados e municípios (inteligência, armamentos, retomada de territórios, valorização do policial) (<button type="button" class="pageref" data-cand="flavio" data-page="13" title="Abrir o documento completo nesta página">pág. 13–15</button>).</p>
       <p class="how"><span class="chip chip-partial">parcial</span> presídios, vagas e ações com arranjo nomeado: “em parceria com os governos estaduais” (pág. 14) e “consórcios e convênios” com estados e municípios (pág. 13); o restante (narcoterrorismo, “paredão” nas fronteiras, TREVA) só declara a intenção (<button type="button" class="pageref" data-cand="flavio" data-page="13" title="Abrir o documento completo nesta página">pág. 13–15</button>).</p>
       <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="13–15" data-tema="Facções e crime organizado">Ver o texto exato na proposta</button></div>
     </article>
-  </div>
-  <h3>Bets e lavagem de dinheiro <span class="theme-note">mapa completo: Lula toca o tema 2 vezes; Flávio, 3, nenhum capítulo robusto</span></h3>
-  <div class="grid2">
 <article class="card lula">
       <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what">Trata apostas como <b>proteção</b>, em exatamente 2 pontos: (1) no bloco de saúde mental (CAPS/atenção psicossocial), ampliar profissionais e estratégias para pessoas com problemas relacionados a jogos de apostas; (2) manter os mecanismos de controle de gastos excessivos em apostas on-line e aprimorar as regras de oferta e responsabilidade no crédito. <b>Não há</b> proposta sobre as empresas de bets, publicidade ou jogos ilegais, e a palavra “lavagem” não aparece uma vez no plano; o dinheiro do crime é atacado pela “asfixia financeira” das facções (<button type="button" class="pageref" data-cand="lula" data-page="27" title="Abrir o documento completo nesta página">pág. 27</button>).</p>
-      <p class="how"><span class="chip chip-partial">parcial</span> “manter os mecanismos de controle de gastos excessivos em apostas on-line” conta como caminho (pág. 49); “ampliar profissionais e estratégias” (pág. 39) e “aprimorar regras de crédito” ficam em “vamos”, nenhuma regra nova de apostas prometida (<button type="button" class="pageref" data-cand="lula" data-page="27" title="Abrir o documento completo nesta página">pág. 27, 39, 49</button>).</p>
-      <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="27, 39, 49" data-tema="Bets e lavagem de dinheiro">Ver o texto exato na proposta</button></div>
+      <p class="what"><b>Lei Antifacção</b> (sancionada em 2026) + “asfixia financeira”: <b>R$ 35,8 bilhões</b> de prejuízo ao crime organizado desde 2023; <b>Programa Brasil Contra o Crime Organizado</b> (maio/2026, R$ 10 bi); medidas, junto aos demais poderes, para <b>barrar candidaturas ligadas ao crime</b> e acelerar punições; tráfico de armas, munições e explosivos; qualificação da investigação de homicídios; <b>FICCOs</b> (forças integradas de combate ao crime organizado) como política de Estado; Forças Armadas nas fronteiras amazônicas; retomada de territórios com presença do Estado (<button type="button" class="pageref" data-cand="lula" data-page="26" title="Abrir o documento completo nesta página">pág. 26–30</button>).</p>
+      <p class="how"><span class="chip chip-ok">ferramenta nomeada</span> em execução (leis sancionadas, programas rodando); PEC da Segurança no Congresso.</p>
+      <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="26–30" data-tema="Facções e crime organizado">Ver o texto exato na proposta</button></div>
     </article>
+  </div>
+  </details>
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Bets e lavagem de dinheiro <span class="theme-note">menções ao tema: Flávio, 3; Lula, 2; nenhum dos dois planos tem capítulo próprio sobre ele</span></h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
+  <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
-      <p class="what">Único a transformar o tema em medidas: (1) <b>proibir o uso de recursos dos programas sociais em apostas</b> (“dinheiro destinado a pôr comida na mesa não pode escoar para a casa de apostas”) + campanhas de conscientização sobre dívida com jogos; (2) ampliar a orientação financeira <b>pela rede da CAIXA</b> contra o impacto das bets na renda familiar; (3) na segurança, <b>“seguir o dinheiro do crime”</b>: bloquear ativos e desarticular a lavagem das facções, a única menção à lavagem em todo o plano (<button type="button" class="pageref" data-cand="flavio" data-page="13" title="Abrir o documento completo nesta página">pág. 13</button>).</p>
+      <p class="what">Medidas sobre o tema: (1) <b>proibir o uso de recursos dos programas sociais em apostas</b> (“dinheiro destinado a pôr comida na mesa não pode escoar para a casa de apostas”) + campanhas de conscientização sobre dívida com jogos; (2) ampliar a orientação financeira <b>pela rede da CAIXA</b> contra o impacto das bets na renda familiar; (3) na segurança, <b>“seguir o dinheiro do crime”</b>: bloquear ativos e desarticular a lavagem das facções, única menção do plano à lavagem (<button type="button" class="pageref" data-cand="flavio" data-page="13" title="Abrir o documento completo nesta página">pág. 13</button>).</p>
       <p class="how"><span class="chip chip-partial">parcial</span> “proibir o uso dos recursos dos programas sociais para apostas” e campanhas ficam em “vamos”, sem instrumento (pág. 33); orientação financeira “pela rede da CAIXA”: parceiro citado sem instrumento legal (pág. 33); “seguir o dinheiro do crime” na segurança (pág. 13) (<button type="button" class="pageref" data-cand="flavio" data-page="13" title="Abrir o documento completo nesta página">pág. 13, 19, 33</button>).</p>
       <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="13, 19, 33" data-tema="Bets e lavagem de dinheiro">Ver o texto exato na proposta</button></div>
     </article>
+<article class="card lula">
+      <header><span class="name">Lula</span><span class="party">PT</span></header>
+      <p class="what">Trata apostas como <b>proteção</b>, em 2 pontos: (1) no bloco de saúde mental (CAPS/atenção psicossocial), ampliar profissionais e estratégias para pessoas com problemas relacionados a jogos de apostas; (2) manter os mecanismos de controle de gastos excessivos em apostas on-line e aprimorar as regras de oferta e responsabilidade no crédito. O plano não traz proposta sobre as empresas de bets, publicidade ou jogos ilegais nem menciona lavagem de dinheiro; o dinheiro do crime é atacado pela “asfixia financeira” das facções (<button type="button" class="pageref" data-cand="lula" data-page="27" title="Abrir o documento completo nesta página">pág. 27</button>).</p>
+      <p class="how"><span class="chip chip-partial">parcial</span> “manter os mecanismos de controle de gastos excessivos em apostas on-line” conta como caminho (pág. 49); “ampliar profissionais e estratégias” (pág. 39) e “aprimorar regras de crédito” ficam em “vamos”, nenhuma regra nova de apostas prometida (<button type="button" class="pageref" data-cand="lula" data-page="27" title="Abrir o documento completo nesta página">pág. 27, 39, 49</button>).</p>
+      <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="27, 39, 49" data-tema="Bets e lavagem de dinheiro">Ver o texto exato na proposta</button></div>
+    </article>
   </div>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gl"><b>Lula</b></span>, 2 caminhos explícitos (segurança pública: PEC já enviada; facções: leis sancionadas e programas rodando) e 1 parcial (bets). <span class="gb"><b>Flávio Bolsonaro</b></span>, 3 parciais: parcerias e convênios com estados e municípios nomeados; o restante (narcoterrorismo, fronteiras, TREVA, Muralha) fica em “vamos”.</div>
+  </details>
+    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Flávio Bolsonaro</b></span>, ferramenta nomeada em 0, parcial em 3 (parcerias e convênios com estados e municípios nomeados; o restante, narcoterrorismo, fronteiras, TREVA, Muralha, fica em “vamos”), só intenção em 0 (de 3). <span class="gl"><b>Lula</b></span>, ferramenta nomeada em 2 (segurança pública: PEC já enviada; facções: leis sancionadas e programas em execução), parcial em 1 (bets), só intenção em 0 (de 3).</div>
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-seguranca" data-share-placement="card" data-share-anchor="cap-seguranca" data-share-name="o dado de segurança"
+         data-share-text="📊 Planos 2026 (TSE), segurança e crime organizado (3 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 2; algum caminho 3 × 3; só intenção 0 × 0. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
   </section>
 
   <section class="chap" id="cap-servicos" data-track-section="cap-servicos" data-track-name="Serviços públicos">
     <div class="chap-hd">
       <div class="kicker">E os serviços públicos?</div>
-      <h2>Saúde, educação, universidades, mulheres e cultura: caminho explícito em 4 de 5 temas no plano de <span class="gl">Lula</span>; no de <span class="gb">Flávio Bolsonaro</span>, 3 de 5 sem caminho</h2>
-      <div class="answer"><span>Mais caminhos explícitos:</span> <span class="chipw w2">Lula (4 de 5)</span></div>
+      <h2>Saúde, educação, universidades, mulheres e cultura: ferramenta nomeada 0 × 4 de 5 · só intenção 3 × 0</h2>
+      <div class="answer"><span class="selo-n">Ferramenta nomeada: Flávio 0 × Lula 4 de 5</span> <span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></div>
     </div>
-    <p class="lead">O que esta seção mostra: o que cada plano promete para saúde, escola, universidade, mulheres e cultura, e se diz como vai fazer. Por que importa para você: são os serviços públicos que você e sua família usam no dia a dia.</p>
-    <figure class="card"><div class="capviz" data-scope="cap-servicos"></div></figure>
+    <p class="lead"><b>O que isto mostra:</b> o que cada plano promete para os serviços públicos e se diz como. <b>Por que importa para você:</b> são os serviços que você e sua família usam todo dia.</p>
+    <figure class="card cv"><div class="capviz" data-scope="cap-servicos"></div></figure>
   <!-- SAÚDE -->
-  <h3>Saúde</h3>
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Saúde</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
-    <article class="card lula">
-      <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what">Reduzir filas (programa “Agora tem Especialistas”, mutirões e carretas); manter a Farmácia Popular 100% gratuita; ampliar Mais Médicos e vacinação.</p>
-      <p class="how"><span class="chip chip-ok">caminho explícito</span> ampliação de programas existentes + parcerias e orçamento (<button type="button" class="pageref" data-cand="lula" data-page="35" title="Abrir o documento completo nesta página">pág. 35–38</button>).</p>
-    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="35–38" data-tema="Saúde">Ver o texto exato na proposta</button></div></article>
-    <article class="card flavio">
+<article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
       <p class="what">Prontuário eletrônico único no CPF; SUS digital e telessaúde; “remédio em casa”; corrigir a tabela do SUS; usar horários ociosos da rede privada para exames.</p>
       <p class="how"><span class="chip chip-partial">parcial</span> continuidade do Conecte SUS/prontuário único (pág. 25–26); correção da tabela SUS: “a lei de reajuste já existe”, presa ao orçamento (pág. 37); telessaúde e entrega de remédio em domicílio ficam em “vamos” (<button type="button" class="pageref" data-cand="flavio" data-page="25" title="Abrir o documento completo nesta página">pág. 25–26, 37–38</button>).</p>
     <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="25–26, 37–38" data-tema="Saúde">Ver o texto exato na proposta</button></div></article>
-  </div>
-  <!-- EDUCAÇÃO -->
-  <h3>Educação e crianças</h3>
-  <div class="grid2">
-    <article class="card lula">
-      <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what">Cumprir o novo plano nacional de educação (2026–2036); meta de 80% das crianças alfabetizadas na idade certa; mais tempo integral; 111 novos institutos federais; manter o Pé-de-Meia.</p>
-      <p class="how"><span class="chip chip-ok">caminho explícito</span> metas pactuadas com estados e municípios; Fundeb, PAC e programas existentes (<button type="button" class="pageref" data-cand="lula" data-page="31" title="Abrir o documento completo nesta página">pág. 31–33</button>).</p>
-    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="31–33" data-tema="Educação e crianças">Ver o texto exato na proposta</button></div></article>
-    <article class="card flavio">
-      <header><span class="name">Flávio</span><span class="party">PL</span></header>
-      <p class="what">Alfabetização pelo método fônico; ampliar escolas cívico-militares; tempo integral; “voucher” para creche e escola onde faltar vaga; FIES vira “Empréstimo Contingente à Renda” (só paga quando estiver empregado).</p>
-      <p class="how"><span class="chip chip-warn">sem caminho</span> não diz o instrumento (<button type="button" class="pageref" data-cand="flavio" data-page="21" title="Abrir o documento completo nesta página">pág. 21, 34–38</button>).</p>
-    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="21, 34–38" data-tema="Educação e crianças">Ver o texto exato na proposta</button></div></article>
-  </div>
-  <h3>Universidades: ensino público × privado</h3>
-  <div class="grid2">
 <article class="card lula">
       <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what"><b>Público:</b> expandir a rede federal, 10 novos campi + 367 obras em universidades (Novo PAC); cotas mantidas/aperfeiçoadas (45,5% dos graduandos são pretos, pardos ou indígenas; 3 em 4 vêm da escola pública; quilombolas incluídos); assistência estudantil (alimentação e moradia); cursinhos populares; Universidade Indígena e unidade do ITA no Ceará. <b>Privado:</b> ProUni em recorde de bolsas; dívidas do FIES renegociadas duas vezes; bolsas reajustadas após década congeladas (<button type="button" class="pageref" data-cand="lula" data-page="8" title="Abrir o documento completo nesta página">pág. 8</button>).</p>
-      <p class="how"><span class="chip chip-ok">caminho explícito</span> orçamento restaurado + PAC + programas existentes (cotas, ProUni, FIES) (<button type="button" class="pageref" data-cand="lula" data-page="8" title="Abrir o documento completo nesta página">pág. 8</button>).</p>
-      <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="8" data-tema="Universidades: público x privado">Ver o texto exato na proposta</button></div>
-    </article>
+      <p class="what">Reduzir filas (programa “Agora tem Especialistas”, mutirões e carretas); manter a Farmácia Popular 100% gratuita; ampliar Mais Médicos e vacinação.</p>
+      <p class="how"><span class="chip chip-ok">ferramenta nomeada</span> ampliação de programas existentes + parcerias e orçamento (<button type="button" class="pageref" data-cand="lula" data-page="35" title="Abrir o documento completo nesta página">pág. 35–38</button>).</p>
+    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="35–38" data-tema="Saúde">Ver o texto exato na proposta</button></div></article>
+  </div>
+  </details>
+  <!-- EDUCAÇÃO -->
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Educação e crianças</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+  <div class="grid2">
+<article class="card flavio">
+      <header><span class="name">Flávio</span><span class="party">PL</span></header>
+      <p class="what">Alfabetização pelo método fônico; ampliar escolas cívico-militares; tempo integral; “voucher” para creche e escola onde faltar vaga; FIES vira “Empréstimo Contingente à Renda” (só paga quando estiver empregado).</p>
+      <p class="how"><span class="chip chip-warn">só intenção</span> não diz o instrumento (<button type="button" class="pageref" data-cand="flavio" data-page="21" title="Abrir o documento completo nesta página">pág. 21, 34–38</button>).</p>
+    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="21, 34–38" data-tema="Educação e crianças">Ver o texto exato na proposta</button></div></article>
+<article class="card lula">
+      <header><span class="name">Lula</span><span class="party">PT</span></header>
+      <p class="what">Cumprir o novo plano nacional de educação (2026–2036); meta de 80% das crianças alfabetizadas na idade certa; mais tempo integral; 111 novos institutos federais; manter o Pé-de-Meia.</p>
+      <p class="how"><span class="chip chip-ok">ferramenta nomeada</span> metas pactuadas com estados e municípios; Fundeb, PAC e programas existentes (<button type="button" class="pageref" data-cand="lula" data-page="31" title="Abrir o documento completo nesta página">pág. 31–33</button>).</p>
+    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="31–33" data-tema="Educação e crianças">Ver o texto exato na proposta</button></div></article>
+  </div>
+  </details>
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Universidades: ensino público × privado</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+  <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
       <p class="what"><b>Mudar o comando:</b> unificar ciência e ensino superior sob o Ministério da Ciência e Tecnologia; CAPES e CNPq priorizando “impacto produtivo”, “pesquisa que vira produto, não fica na estante”; pós lato sensu (cursos de especialização) conectando empresas e universidades (instituições recebem recursos por formar quem o mercado precisa); setor produtivo poderá custear bolsas de formação técnica. <b>Financiamento estudantil:</b> trocar por <b>Empréstimo Contingente à Renda</b>, paga só empregado, parcela proporcional, prazo maior (diz que o modelo atual “afasta o jovem de baixa renda”) (<button type="button" class="pageref" data-cand="flavio" data-page="37" title="Abrir o documento completo nesta página">pág. 37</button>).</p>
-      <p class="how"><span class="chip chip-warn">sem caminho</span> mudanças anunciadas sem instrumento (“vamos transferir a governança”; “vamos adotar o Empréstimo…”) (<button type="button" class="pageref" data-cand="flavio" data-page="36" title="Abrir o documento completo nesta página">pág. 36</button>).</p>
+      <p class="how"><span class="chip chip-warn">só intenção</span> mudanças anunciadas sem instrumento (“vamos transferir a governança”; “vamos adotar o Empréstimo…”) (<button type="button" class="pageref" data-cand="flavio" data-page="36" title="Abrir o documento completo nesta página">pág. 36</button>).</p>
       <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="36–37" data-tema="Universidades: público x privado">Ver o texto exato na proposta</button></div>
     </article>
-  </div>
-  <!-- MULHERES -->
-  <h3>Mulheres</h3>
-  <div class="grid2">
-    <article class="card lula">
+<article class="card lula">
       <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what">Concluir 30 Casas da Mulher Brasileira e 15 Centros de Referência; Salas Lilás; igualdade salarial com metas progressivas.</p>
-      <p class="how"><span class="chip chip-ok">caminho explícito</span> continuidade do Pacto de Enfrentamento ao Feminicídio, dez leis e cinco decretos já editados no mandato, com parceria de estados (pág. 21); igualdade salarial: fortalecer a implementação da Lei de 2023, com Planos de Ação obrigatórios e metas progressivas (pág. 75) (<button type="button" class="pageref" data-cand="lula" data-page="21" title="Abrir o documento completo nesta página">pág. 21, 75</button>).</p>
-    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="21, 75" data-tema="Mulheres">Ver o texto exato na proposta</button></div></article>
-    <article class="card flavio">
+      <p class="what"><b>Público:</b> expandir a rede federal, 10 novos campi + 367 obras em universidades (Novo PAC); cotas mantidas/aperfeiçoadas (45,5% dos graduandos são pretos, pardos ou indígenas; 3 em 4 vêm da escola pública; quilombolas incluídos); assistência estudantil (alimentação e moradia); cursinhos populares; Universidade Indígena e unidade do ITA no Ceará. <b>Privado:</b> ProUni em recorde de bolsas; dívidas do FIES renegociadas duas vezes; bolsas reajustadas após década congeladas (<button type="button" class="pageref" data-cand="lula" data-page="8" title="Abrir o documento completo nesta página">pág. 8</button>).</p>
+      <p class="how"><span class="chip chip-ok">ferramenta nomeada</span> orçamento restaurado + PAC + programas existentes (cotas, ProUni, FIES) (<button type="button" class="pageref" data-cand="lula" data-page="8" title="Abrir o documento completo nesta página">pág. 8</button>).</p>
+      <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="8" data-tema="Universidades: público x privado">Ver o texto exato na proposta</button></div>
+    </article>
+  </div>
+  </details>
+  <!-- MULHERES -->
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Mulheres</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+  <div class="grid2">
+<article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
       <p class="what">“Brasil por Elas” (12 medidas): Central da Mulher com aplicativo e assistente virtual “ClarIA”; bônus de internet; denúncia integrada com avaliação de risco; crédito e escritura da casa no nome da mulher; tolerância zero ao feminicídio (tornozeleira no agressor).</p>
       <p class="how"><span class="chip chip-partial">parcial</span> centrais “em parceria com estados e municípios, em imóveis da União” (pág. 17) e Escola Brasil por Elas com Sistema S e parcerias público-privadas (pág. 20); aplicativo/ClarIA, bônus de internet e denúncia com avaliação de risco ficam em “vamos” (<button type="button" class="pageref" data-cand="flavio" data-page="17" title="Abrir o documento completo nesta página">pág. 17–20</button>).</p>
     <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="17–20" data-tema="Mulheres">Ver o texto exato na proposta</button></div></article>
+<article class="card lula">
+      <header><span class="name">Lula</span><span class="party">PT</span></header>
+      <p class="what">Concluir 30 Casas da Mulher Brasileira e 15 Centros de Referência; Salas Lilás; igualdade salarial com metas progressivas.</p>
+      <p class="how"><span class="chip chip-ok">ferramenta nomeada</span> continuidade do Pacto de Enfrentamento ao Feminicídio, dez leis e cinco decretos já editados no mandato, com parceria de estados (pág. 21); igualdade salarial: fortalecer a implementação da Lei de 2023, com Planos de Ação obrigatórios e metas progressivas (pág. 75) (<button type="button" class="pageref" data-cand="lula" data-page="21" title="Abrir o documento completo nesta página">pág. 21, 75</button>).</p>
+    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="21, 75" data-tema="Mulheres">Ver o texto exato na proposta</button></div></article>
   </div>
-  <h3>Cultura como motor: economia e transformação social</h3>
+  </details>
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Cultura como motor: economia e transformação social</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
   <div class="grid2">
+<article class="card flavio">
+      <header><span class="name">Flávio</span><span class="party">PL</span></header>
+      <p class="what">“<b>Menos concentração, mais Brasil na cultura</b>”: aperfeiçoar as leis de incentivo corrigindo distorções, levar recursos a polos regionais e a “artistas de grande mérito artístico, porém de pouca projeção, hoje esquecidos”; preservação do patrimônio histórico (“centros históricos, obras e acervos que contam quem somos, hoje deteriorados”); separar “cultura e entretenimento comercial”; transparência e liberdade de expressão, “sem subordiná-la a agendas políticas” (<button type="button" class="pageref" data-cand="flavio" data-page="41" title="Abrir o documento completo nesta página">pág. 41</button>).</p>
+      <p class="how"><span class="chip chip-warn">só intenção</span> “aperfeiçoaremos as leis de incentivo”, sem dizer como nem quanto.</p>
+      <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="41" data-tema="Cultura: economia e transformação">Ver o texto exato na proposta</button></div>
+    </article>
 <article class="card lula">
       <header><span class="name">Lula</span><span class="party">PT</span></header>
       <p class="what">Cultura como “fonte de riqueza simbólica, social e <b>econômica</b>” que “impulsiona a economia e promove o desenvolvimento territorial”: MinC recriado; Lei do Sistema Nacional de Cultura aprovada; fomento recorde (Aldir Blanc e Rouanet aperfeiçoadas; Cultura Viva recuperado, 16 mil Pontos); 144 obras de restauração + 105 projetos (PAC); economia criativa com crédito e <b>Marco Legal dos Games</b> (games = cultura, acesso à Rouanet); Tela Brasil; regulamentação do streaming e lei de direito autoral digital, “quem cria não pode ser o único a não ganhar” (<button type="button" class="pageref" data-cand="lula" data-page="42" title="Abrir o documento completo nesta página">pág. 42</button>).</p>
       <p class="how"><span class="chip chip-partial">parcial</span> leis aprovadas e editais em curso (MinC, Sistema Nacional de Cultura, Aldir Blanc/Rouanet, Cultura Viva, pág. 40–41; Marco Legal dos Games, Tela Brasil, pág. 42); streaming e direito autoral digital ficam em “trabalharemos pela aprovação” (pág. 42) (<button type="button" class="pageref" data-cand="lula" data-page="40" title="Abrir o documento completo nesta página">pág. 40–44</button>).</p>
       <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="40–44" data-tema="Cultura: economia e transformação">Ver o texto exato na proposta</button></div>
     </article>
-<article class="card flavio">
-      <header><span class="name">Flávio</span><span class="party">PL</span></header>
-      <p class="what">“<b>Menos concentração, mais Brasil na cultura</b>”: aperfeiçoar as leis de incentivo corrigindo distorções, levar recursos a polos regionais e a “artistas de grande mérito artístico, porém de pouca projeção, hoje esquecidos”; preservação do patrimônio histórico (“centros históricos, obras e acervos que contam quem somos, hoje deteriorados”); separar “cultura e entretenimento comercial”; transparência e liberdade de expressão, “sem subordiná-la a agendas políticas” (<button type="button" class="pageref" data-cand="flavio" data-page="41" title="Abrir o documento completo nesta página">pág. 41</button>).</p>
-      <p class="how"><span class="chip chip-warn">sem caminho</span> “aperfeiçoaremos as leis de incentivo”, sem dizer como nem quanto.</p>
-      <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="41" data-tema="Cultura: economia e transformação">Ver o texto exato na proposta</button></div>
-    </article>
   </div>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gl"><b>Lula</b></span>, 4 caminhos explícitos (saúde, educação, universidades, mulheres) e 1 parcial (cultura). <span class="gb"><b>Flávio Bolsonaro</b></span>, 2 parciais (saúde, mulheres) e 3 sem caminho (educação, universidades, cultura).</div>
+  </details>
+    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Flávio Bolsonaro</b></span>, ferramenta nomeada em 0, parcial em 2 (saúde, mulheres), só intenção em 3 (educação, universidades, cultura) (de 5). <span class="gl"><b>Lula</b></span>, ferramenta nomeada em 4 (saúde, educação, universidades, mulheres), parcial em 1 (cultura), só intenção em 0 (de 5).</div>
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-servicos" data-share-placement="card" data-share-anchor="cap-servicos" data-share-name="o dado de serviços públicos"
+         data-share-text="📊 Planos 2026 (TSE), saúde, educação, universidades, mulheres e cultura (5 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 4; algum caminho 2 × 5; só intenção 3 × 0. Programas em execução contam como caminho."></div></div>
   </section>
 
   <section class="chap" id="cap-economia" data-track-section="cap-economia" data-track-name="Economia">
     <div class="chap-hd">
       <div class="kicker">E a economia e o crescimento?</div>
-      <h2>Economia e crescimento: <span class="gl">Lula</span> nomeia o instrumento em 2 de 4 temas; <span class="gb">Flávio Bolsonaro</span> tem aqui o seu único caminho explícito (infraestrutura)</h2>
-      <div class="answer"><span>Mais caminhos explícitos:</span> <span class="chipw w2">Lula (2 de 4)</span></div>
+      <h2>Economia e crescimento: ferramenta nomeada 1 × 2 de 4 · algum caminho 4 × 3</h2>
+      <div class="answer"><span class="selo-n">Ferramenta nomeada: Flávio 1 × Lula 2 de 4</span> <span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span> <span class="note">Contando parciais: Flávio à frente, 4 × 3.</span></div>
     </div>
-    <p class="lead">O que esta seção mostra: o que cada plano promete para as contas do governo, obras, pequenos negócios e minérios, e se diz como vai fazer. Por que importa para você: essas escolhas afetam emprego, juros e preços nos próximos anos.</p>
-    <figure class="card"><div class="capviz" data-scope="cap-economia"></div></figure>
+    <p class="lead"><b>O que isto mostra:</b> contas do governo, obras, pequenos negócios e minérios: o que cada plano promete e como. <b>Por que importa para você:</b> essas escolhas afetam emprego, juros e preços nos próximos anos.</p>
+    <figure class="card cv"><div class="capviz" data-scope="cap-economia"></div></figure>
   <!-- ECONOMIA -->
-  <h3>Economia e contas públicas</h3>
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Economia e contas públicas</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
-    <article class="card lula">
-      <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what">Manter o arcabouço fiscal e buscar juros em queda; seguir a “neoindustrialização” (Plano Mais Produção, R$ 860 bi em financiamentos no ciclo 2023–26) e o novo ciclo de PAC (obras, logística, concessões).</p>
-      <p class="how"><span class="chip chip-ok">caminho explícito</span> por continuidade e orçamento: são programas existentes; crédito público, concessões e leilões (<button type="button" class="pageref" data-cand="lula" data-page="49" title="Abrir o documento completo nesta página">pág. 49–54</button>).</p>
-    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="49–54" data-tema="Economia e contas públicas">Ver o texto exato na proposta</button></div></article>
-    <article class="card flavio">
+<article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
       <p class="what">Reformular as regras fiscais (dívida em queda, superávit primário; limitar crédito subsidiado do Tesouro); <b>“Tesouraço”</b>: corte de no mínimo 10 ministérios, comissionados e supersalários; retomar desestatizações.</p>
       <p class="how"><span class="chip chip-partial">parcial</span> desestatização caso a caso com o “Programa Nacional de Desestatização” (pág. 70) e “revogaço regulatório” (pág. 69) têm veículo; “reforma administrativa já em discussão” (pág. 69); regras fiscais e tributárias ficam em “apresentaremos/faremos” (<button type="button" class="pageref" data-cand="flavio" data-page="69" title="Abrir o documento completo nesta página">pág. 69–71</button>).</p>
     <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="69–71" data-tema="Economia e contas públicas">Ver o texto exato na proposta</button></div></article>
-  </div>
-  <!-- INFRA -->
-  <h3>Infraestrutura e crescimento</h3>
-  <div class="grid2">
-    <article class="card lula">
-      <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what">Seguir o novo ciclo de PAC, obras de logística e infraestrutura urbana e social.</p>
-      <p class="how"><span class="chip chip-ok">caminho explícito</span> orçamento público, concessões e leilões (<button type="button" class="pageref" data-cand="lula" data-page="52" title="Abrir o documento completo nesta página">pág. 52–54</button>).</p>
-    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="52–54" data-tema="Infraestrutura e crescimento">Ver o texto exato na proposta</button></div></article>
-    <article class="card flavio">
-      <header><span class="name">Flávio</span><span class="party">PL</span></header>
-      <p class="what">Investir R$ 900 bi em 4 anos (rodovias, ferrovias, portos, aeroportos, hidrovias); crescer 4% ao ano.</p>
-      <p class="how"><span class="chip chip-ok">caminho explícito</span> PPPs, concessões e fundo lastreado na securitização de ativos e imóveis da União (<button type="button" class="pageref" data-cand="flavio" data-page="49" title="Abrir o documento completo nesta página">pág. 49–51</button>).</p>
-    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="49–51" data-tema="Infraestrutura e crescimento">Ver o texto exato na proposta</button></div></article>
-  </div>
-  <h3>Micro e pequenos negócios</h3>
-  <div class="grid2">
 <article class="card lula">
       <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what">“O Brasil é um país de pequenos negócios”: crédito já rodando e a ampliar, <b>Pronampe: 1,6 milhão de operações e Procred 360: 211 mil, mobilizando R$ 130 bilhões</b>; Novo Desenrola: 219 mil operações; fundos garantidores e fundos de participação com bancos públicos; simplificar o ambiente de negócios, ampliar compras governamentais e “tratamento tributário justo na reforma”; Brasil Mais Produtivo para digitalizar MPEs (micro e pequenas empresas).</p>
-      <p class="how"><span class="chip chip-partial">parcial</span> programas e fundos em execução (Pronampe/Procred 360, fundos garantidores, fundos de participação, pág. 57–58); “simplificar o ambiente de negócios” e ampliar compras governamentais ficam em “vamos”, sem instrumento (pág. 57) (<button type="button" class="pageref" data-cand="lula" data-page="57" title="Abrir o documento completo nesta página">pág. 57–58</button>).</p>
-      <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="57–58" data-tema="Micro e pequenos negócios">Ver o texto exato na proposta</button></div>
-    </article>
+      <p class="what">Manter o arcabouço fiscal e buscar juros em queda; seguir a “neoindustrialização” (Plano Mais Produção, R$ 860 bi em financiamentos no ciclo 2023–26) e o novo ciclo de PAC (obras, logística, concessões).</p>
+      <p class="how"><span class="chip chip-ok">ferramenta nomeada</span> por continuidade e orçamento: são programas existentes; crédito público, concessões e leilões (<button type="button" class="pageref" data-cand="lula" data-page="49" title="Abrir o documento completo nesta página">pág. 49–54</button>).</p>
+    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="49–54" data-tema="Economia e contas públicas">Ver o texto exato na proposta</button></div></article>
+  </div>
+  </details>
+  <!-- INFRA -->
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Infraestrutura e crescimento</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
+  <div class="grid2">
+<article class="card flavio">
+      <header><span class="name">Flávio</span><span class="party">PL</span></header>
+      <p class="what">Investir R$ 900 bi em 4 anos (rodovias, ferrovias, portos, aeroportos, hidrovias); crescer 4% ao ano.</p>
+      <p class="how"><span class="chip chip-ok">ferramenta nomeada</span> PPPs, concessões e fundo lastreado na securitização de ativos e imóveis da União (<button type="button" class="pageref" data-cand="flavio" data-page="49" title="Abrir o documento completo nesta página">pág. 49–51</button>).</p>
+    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="49–51" data-tema="Infraestrutura e crescimento">Ver o texto exato na proposta</button></div></article>
+<article class="card lula">
+      <header><span class="name">Lula</span><span class="party">PT</span></header>
+      <p class="what">Seguir o novo ciclo de PAC, obras de logística e infraestrutura urbana e social.</p>
+      <p class="how"><span class="chip chip-ok">ferramenta nomeada</span> orçamento público, concessões e leilões (<button type="button" class="pageref" data-cand="lula" data-page="52" title="Abrir o documento completo nesta página">pág. 52–54</button>).</p>
+    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="52–54" data-tema="Infraestrutura e crescimento">Ver o texto exato na proposta</button></div></article>
+  </div>
+  </details>
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Micro e pequenos negócios</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-partial sm">parcial</span></span></span></summary>
+  <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
       <p class="what">“<b>Minha Primeira Empresa</b>”: menos burocracia para abrir e formalizar + capacitação pelo Sistema S + esteira de crédito e serviços da CAIXA; crédito para empreender e internacionalização de pequenos negócios; CAIXA como plataforma única (crédito, orientação, habitação) com IA para achar oportunidades e <b>histórico positivo de crédito</b> (cursos, contas em dia = juros melhores); Lei de Liberdade Econômica em todos os estados e municípios; “revogaço regulatório” (<button type="button" class="pageref" data-cand="flavio" data-page="45" title="Abrir o documento completo nesta página">pág. 45–46</button>).</p>
       <p class="how"><span class="chip chip-partial">parcial</span> parceiros citados (CAIXA, Sistema S, BNDES/Apex) sem instrumento legal junto (pág. 45–46); “fazer a liberdade econômica alcançar todo o país” e o “revogaço regulatório” têm veículo (pág. 27) (<button type="button" class="pageref" data-cand="flavio" data-page="27" title="Abrir o documento completo nesta página">pág. 27, 44–46</button>).</p>
       <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="27, 44–46" data-tema="Micro e pequenos negócios">Ver o texto exato na proposta</button></div>
     </article>
-  </div>
-  <h3>Terras raras e minerais críticos</h3>
-  <div class="grid2">
 <article class="card lula">
       <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what">Promete uma <b>política específica para minerais críticos e terras raras</b>, organizar as cadeias, diferenciar usos tecnológicos e <b>“evitar a simples exportação de matérias-primas estratégicas”</b>; coloca o tema na agenda de soberania tecnológica com IA e inovação; processamento de minerais críticos entre os setores da transição verde (siderurgia verde, fertilizantes, química); urânio aproveitado “de forma responsável”, com competência nuclear preservada (<button type="button" class="pageref" data-cand="lula" data-page="52" title="Abrir o documento completo nesta página">pág. 52</button>).</p>
-      <p class="how"><span class="chip chip-warn">sem caminho</span> “desenvolveremos uma política específica” e “estratégia regional de mapeamento”, sem instrumento citado (pág. 52); processamento de minerais críticos na transição verde (pág. 56); urânio “de forma responsável”, competência nuclear preservada (pág. 68) (<button type="button" class="pageref" data-cand="lula" data-page="50" title="Abrir o documento completo nesta página">pág. 50–52, 56, 68</button>).</p>
-      <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="50–52, 56, 68" data-tema="Terras raras e minerais críticos">Ver o texto exato na proposta</button></div>
+      <p class="what">“O Brasil é um país de pequenos negócios”: crédito já rodando e a ampliar, <b>Pronampe: 1,6 milhão de operações e Procred 360: 211 mil, mobilizando R$ 130 bilhões</b>; Novo Desenrola: 219 mil operações; fundos garantidores e fundos de participação com bancos públicos; simplificar o ambiente de negócios, ampliar compras governamentais e “tratamento tributário justo na reforma”; Brasil Mais Produtivo para digitalizar MPEs (micro e pequenas empresas).</p>
+      <p class="how"><span class="chip chip-partial">parcial</span> programas e fundos em execução (Pronampe/Procred 360, fundos garantidores, fundos de participação, pág. 57–58); “simplificar o ambiente de negócios” e ampliar compras governamentais ficam em “vamos”, sem instrumento (pág. 57) (<button type="button" class="pageref" data-cand="lula" data-page="57" title="Abrir o documento completo nesta página">pág. 57–58</button>).</p>
+      <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="57–58" data-tema="Micro e pequenos negócios">Ver o texto exato na proposta</button></div>
     </article>
+  </div>
+  </details>
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Terras raras e minerais críticos</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span></span></summary>
+  <div class="grid2">
 <article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
       <p class="what">“<b>A riqueza do subsolo virando emprego qualificado aqui dentro</b>”: lista lítio, nióbio, grafite, cobre, níquel, urânio e terras-raras e propõe <b>agregar valor no Brasil</b> “em vez de somente exportar a pedra bruta e comprar de volta o produto acabado”; <b>Estado como regulador e coordenador, não empresário</b>, pilares: marco regulatório claro e estável, licenciamento ágil, atração de capital e tecnologia, verticalização com incentivos, governança e transparência; equacionar garantias de crédito e acelerar direitos minerários; fertilizantes (potássio/fosfato) para o agro (<button type="button" class="pageref" data-cand="flavio" data-page="55" title="Abrir o documento completo nesta página">pág. 55–56</button>).</p>
       <p class="how"><span class="chip chip-partial">parcial</span> define o modelo e o papel do Estado (“seis pilares”, garantias de crédito e aceleração de licenciamento/direitos minerários, pág. 55–56), sem lei ou instrumento legal citado (<button type="button" class="pageref" data-cand="flavio" data-page="54" title="Abrir o documento completo nesta página">pág. 54–56</button>).</p>
       <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="54–56" data-tema="Terras raras e minerais críticos">Ver o texto exato na proposta</button></div>
     </article>
+<article class="card lula">
+      <header><span class="name">Lula</span><span class="party">PT</span></header>
+      <p class="what">Promete uma <b>política específica para minerais críticos e terras raras</b>, organizar as cadeias, diferenciar usos tecnológicos e <b>“evitar a simples exportação de matérias-primas estratégicas”</b>; coloca o tema na agenda de soberania tecnológica com IA e inovação; processamento de minerais críticos entre os setores da transição verde (siderurgia verde, fertilizantes, química); urânio aproveitado “de forma responsável”, com competência nuclear preservada (<button type="button" class="pageref" data-cand="lula" data-page="52" title="Abrir o documento completo nesta página">pág. 52</button>).</p>
+      <p class="how"><span class="chip chip-warn">só intenção</span> “desenvolveremos uma política específica” e “estratégia regional de mapeamento”, sem instrumento citado (pág. 52); processamento de minerais críticos na transição verde (pág. 56); urânio “de forma responsável”, competência nuclear preservada (pág. 68) (<button type="button" class="pageref" data-cand="lula" data-page="50" title="Abrir o documento completo nesta página">pág. 50–52, 56, 68</button>).</p>
+      <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="50–52, 56, 68" data-tema="Terras raras e minerais críticos">Ver o texto exato na proposta</button></div>
+    </article>
   </div>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gl"><b>Lula</b></span>, 2 caminhos explícitos (economia e contas públicas, infraestrutura), 1 parcial (micro e pequenos negócios) e 1 sem caminho (terras raras). <span class="gb"><b>Flávio Bolsonaro</b></span>, 1 caminho explícito (infraestrutura: PPPs, concessões e fundo de securitização) e 3 parciais (economia, micro e pequenos negócios, terras raras).</div>
+  </details>
+    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Flávio Bolsonaro</b></span>, ferramenta nomeada em 1 (infraestrutura: PPPs, concessões e fundo de securitização), parcial em 3 (economia, micro e pequenos negócios, terras raras), só intenção em 0 (de 4). <span class="gl"><b>Lula</b></span>, ferramenta nomeada em 2 (economia e contas públicas, infraestrutura), parcial em 1 (micro e pequenos negócios), só intenção em 1 (terras raras) (de 4).</div>
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-economia" data-share-placement="card" data-share-anchor="cap-economia" data-share-name="o dado de economia"
+         data-share-text="📊 Planos 2026 (TSE), economia e crescimento (4 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 1 × 2; algum caminho 4 × 3; só intenção 0 × 1. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
   </section>
 
   <section class="chap" id="cap-ambiente" data-track-section="cap-ambiente" data-track-name="Ambiente e instituições">
     <div class="chap-hd">
       <div class="kicker">E o meio ambiente e as instituições?</div>
-      <h2>Meio ambiente e instituições: <span class="gl">Lula</span> tem caminho em meio ambiente e não em instituições; <span class="gb">Flávio Bolsonaro</span> fica no parcial nos dois</h2>
-      <div class="answer"><span>Mais caminhos explícitos:</span> <span class="chipw w2">Lula (1 de 2)</span></div>
+      <h2>Meio ambiente e instituições: ferramenta nomeada 0 × 1 de 2 · algum caminho 2 × 1</h2>
+      <div class="answer"><span class="selo-n">Ferramenta nomeada: Flávio 0 × Lula 1 de 2</span> <span class="q-forca q-forca--regua" title="O resultado muda conforme a régua (contando ou não as parciais).">depende da régua</span> <span class="note">Contando parciais: Flávio à frente, 2 × 1.</span></div>
     </div>
-    <p class="lead">O que esta seção mostra: o que cada plano promete para o meio ambiente e para as regras da política e da Justiça, e se diz como vai fazer. Por que importa para você: são decisões que valem por muitos anos, além de um só governo.</p>
-    <figure class="card"><div class="capviz" data-scope="cap-ambiente"></div></figure>
+    <p class="lead"><b>O que isto mostra:</b> o que cada plano promete para o ambiente e as regras da política. <b>Por que importa para você:</b> são decisões que valem por muitos anos.</p>
+    <figure class="card cv"><div class="capviz" data-scope="cap-ambiente"></div></figure>
   <!-- AMBIENTE -->
-  <h3>Meio ambiente</h3>
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Meio ambiente</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-ok sm"><span class="lg">ferramenta </span>nomeada</span></span></span></summary>
   <div class="grid2">
-    <article class="card lula">
-      <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what">Desmatamento líquido zero até 2030; redução de 59% a 67% das emissões líquidas até 2035 (base 2005); regulamentar o mercado de carbono.</p>
-      <p class="how"><span class="chip chip-ok">caminho explícito</span> continuidade de planos e leis existentes: planos de prevenção e controle do desmatamento, Plano Nacional de Manejo Integrado do Fogo, Código Florestal e Lei da Mata Atlântica (pág. 70); regulamentação do SBCE (o mercado regulado de carbono), lei aprovada no mandato (pág. 51) (<button type="button" class="pageref" data-cand="lula" data-page="51" title="Abrir o documento completo nesta página">pág. 51, 69–71</button>).</p>
-    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="51, 69–71" data-tema="Meio ambiente">Ver o texto exato na proposta</button></div></article>
-    <article class="card flavio">
+<article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
       <p class="what">Desmatamento ilegal zero até 2029; mercado regulado de carbono; pagamento por serviços ambientais; autonomia a indígenas e quilombolas sobre produção nas terras.</p>
       <p class="how"><span class="chip chip-partial">parcial</span> mercado regulado de carbono: “consolidar com segurança jurídica” (pág. 57); meta de desmatamento até 2029, pagamento por serviços ambientais e autonomia indígena/quilombola sobre atividades produtivas ficam em “teremos/vamos” (pág. 50, 55, 58) (<button type="button" class="pageref" data-cand="flavio" data-page="50" title="Abrir o documento completo nesta página">pág. 50, 55, 57–59</button>).</p>
     <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="50, 55, 57–59" data-tema="Meio ambiente">Ver o texto exato na proposta</button></div></article>
-  </div>
-  <!-- INSTITUIÇÕES -->
-  <h3>Instituições e democracia</h3>
-  <div class="grid2">
-    <article class="card lula">
+<article class="card lula">
       <header><span class="name">Lula</span><span class="party">PT</span></header>
-      <p class="what">Regulação das redes sociais contra desinformação; reforma política “inadiável”; debate sobre emendas parlamentares com a sociedade.</p>
-      <p class="how"><span class="chip chip-warn">sem caminho</span> o plano não define os instrumentos (<button type="button" class="pageref" data-cand="lula" data-page="15" title="Abrir o documento completo nesta página">pág. 15–17</button>).</p>
-    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="15–17" data-tema="Instituições e democracia">Ver o texto exato na proposta</button></div></article>
-    <article class="card flavio">
+      <p class="what">Desmatamento líquido zero até 2030; redução de 59% a 67% das emissões líquidas até 2035 (base 2005); regulamentar o mercado de carbono.</p>
+      <p class="how"><span class="chip chip-ok">ferramenta nomeada</span> continuidade de planos e leis existentes: planos de prevenção e controle do desmatamento, Plano Nacional de Manejo Integrado do Fogo, Código Florestal e Lei da Mata Atlântica (pág. 70); regulamentação do SBCE (o mercado regulado de carbono), lei aprovada no mandato (pág. 51) (<button type="button" class="pageref" data-cand="lula" data-page="51" title="Abrir o documento completo nesta página">pág. 51, 69–71</button>).</p>
+    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="51, 69–71" data-tema="Meio ambiente">Ver o texto exato na proposta</button></div></article>
+  </div>
+  </details>
+  <!-- INSTITUIÇÕES -->
+  <details class="tema-row">
+    <summary data-track="detalhes_abertos" data-track-label="tema"><h3 class="tr-t">Instituições e democracia</h3><span class="tr-s"><span class="tr-v"><i class="mk mk--b" aria-hidden="true"></i>Flávio <span class="chip chip-partial sm">parcial</span></span><span class="tr-v"><i class="mk mk--l" aria-hidden="true"></i>Lula <span class="chip chip-warn sm"><span class="lg">só </span>intenção</span></span></span></summary>
+  <div class="grid2">
+<article class="card flavio">
       <header><span class="name">Flávio</span><span class="party">PL</span></header>
       <p class="what">Reforma do Judiciário (limitar decisões individuais do STF, quarentena para ministros, impedir parentes); fim da reeleição presidencial, PEC de autoria dele já protocolada no Senado; “Tesouraço na Censura” (revogar atos).</p>
       <p class="how"><span class="chip chip-partial">parcial</span> PEC do fim da reeleição “já protocolada no Senado” (pág. 66) e “revogar todos os atos” do governo atual (pág. 66) têm veículo; a reforma do Judiciário fica em “propomos” (pág. 65–66) (<button type="button" class="pageref" data-cand="flavio" data-page="65" title="Abrir o documento completo nesta página">pág. 65–67</button>).</p>
     <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="flavio" data-spec="65–67" data-tema="Instituições e democracia">Ver o texto exato na proposta</button></div></article>
+<article class="card lula">
+      <header><span class="name">Lula</span><span class="party">PT</span></header>
+      <p class="what">Regulação das redes sociais contra desinformação; reforma política “inadiável”; debate sobre emendas parlamentares com a sociedade.</p>
+      <p class="how"><span class="chip chip-warn">só intenção</span> o plano não define os instrumentos (<button type="button" class="pageref" data-cand="lula" data-page="15" title="Abrir o documento completo nesta página">pág. 15–17</button>).</p>
+    <div class="cardfoot"><button type="button" class="excerpt-btn" data-cand="lula" data-spec="15–17" data-tema="Instituições e democracia">Ver o texto exato na proposta</button></div></article>
   </div>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gl"><b>Lula</b></span>, 1 caminho explícito (meio ambiente: planos e leis existentes, regulamentação do SBCE) e 1 sem caminho (instituições e democracia). <span class="gb"><b>Flávio Bolsonaro</b></span>, 2 parciais (mercado de carbono “com segurança jurídica”; PEC do fim da reeleição já protocolada e revogação de atos).</div>
+  </details>
+    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Flávio Bolsonaro</b></span>, ferramenta nomeada em 0, parcial em 2 (mercado de carbono “com segurança jurídica”; PEC do fim da reeleição já protocolada e revogação de atos), só intenção em 0 (de 2). <span class="gl"><b>Lula</b></span>, ferramenta nomeada em 1 (meio ambiente: planos e leis existentes, regulamentação do SBCE), parcial em 0, só intenção em 1 (instituições e democracia) (de 2).</div>
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-ambiente" data-share-placement="card" data-share-anchor="cap-ambiente" data-share-name="o dado de meio ambiente e instituições"
+         data-share-text="📊 Planos 2026 (TSE), meio ambiente e instituições (2 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 1; algum caminho 2 × 1; só intenção 0 × 1. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
   </section>
   <section class="chap" id="catalogo" data-track-section="catalogo" data-track-name="Catálogo de propostas">
     <div class="chap-hd">
       <div class="kicker">Explore</div>
-      <h2>Catálogo de propostas, todas as 38</h2>
+      <h2>Todas as 38 propostas (19 temas × 2 planos)</h2>
     </div>
-    <p class="lead">Todas as propostas dos dois planos que entram no comparativo (19 de cada lado), com o resumo do que o plano promete, a página do PDF oficial registrado no TSE e o rótulo do “como”. Filtre por candidato, tema ou rótulo; toque em <b>detalhes</b> para ver a proposta completa e como o plano diz que vai fazer, com atalho para o texto exato.</p>
+    <p class="lead"><b>O que isto mostra:</b> cada proposta com o rótulo, a página do plano e o trecho original. <b>Por que importa para você:</b> para ler a promessa inteira, nas palavras do próprio plano (toque em <b>detalhes</b>).</p>
     <div class="filters">
       <div class="f"><label for="f-cand">Candidato</label>
-        <select id="f-cand"><option value="">Todos</option><option value="lula">Lula (PT)</option><option value="flavio">Flávio Bolsonaro (PL)</option></select></div>
+        <select id="f-cand"><option value="">Todos</option><option value="flavio">Flávio Bolsonaro (PL)</option><option value="lula">Lula (PT)</option></select></div>
       <div class="f"><label for="f-tema">Tema</label>
         <select id="f-tema"><option value="">Todos</option></select></div>
       <div class="f"><label for="f-rot">Rótulo do “como”</label>
-        <select id="f-rot"><option value="">Todos</option><option value="ok">Caminho explícito</option><option value="mid">Parcial</option><option value="no">Sem caminho</option></select></div>
+        <select id="f-rot"><option value="">Todos</option><option value="ok">Ferramenta nomeada</option><option value="mid">Parcial</option><option value="no">Só intenção</option></select></div>
       <div class="f"><label for="f-busca">Busca (ignora acentos)</label>
         <input id="f-busca" type="text" placeholder="ex.: desmatamento, salário mínimo…"></div>
       <div class="f"><label>&nbsp;</label>
-        <span class="search-status" id="cat-status">38 de 38 propostas</span></div>
+        <span class="search-status" id="cat-status" aria-live="polite">38 de 38 propostas</span></div>
       <div class="f"><label>&nbsp;</label>
         <button class="ghost-btn" id="f-clear">Limpar filtros</button></div>
     </div>
@@ -636,28 +1044,34 @@ body.modal-open{overflow:hidden}
         <tbody id="cat-body"></tbody>
       </table>
     </div>
-    <p class="note">“Sem caminho” não significa que a proposta não vai acontecer, significa que o plano não diz como realizá-la. A régua é única para os dois planos (ver “A régua” e o “Método”).</p>
+    <button type="button" class="cat-mais-btn" id="cat-mais" hidden data-track="catalogo_mais" data-track-label="propostas">Mostrar mais 15</button>
+    <p class="note">“Só intenção” não significa que a proposta não vai acontecer, significa que o plano não diz como realizá-la. A régua é única para os dois planos (ver “A régua” e o “Método”).</p>
   </section>
 
   <section class="chap apx" id="metodo" data-track-section="metodo" data-track-name="Método">
     <div class="chap-hd">
       <div class="kicker">De onde vem cada rótulo?</div>
-      <h2>Os planos na íntegra, método e fontes</h2>
+      <h2>Como classificamos e onde ler os planos inteiros</h2>
     </div>
+    <p class="lead"><b>O que isto mostra:</b> a regra de cada rótulo e os dois planos na íntegra. <b>Por que importa para você:</b> para conferir a classificação de qualquer tema.</p>
     <div class="block-t" style="margin-top:6px">Proposta na íntegra</div>
   <div class="fullbar" id="integra">
-    <button class="fullbtn lula" onclick="openProp('lula')">Ver a proposta do Lula, texto integral (84 páginas)</button>
-    <button class="fullbtn flavio" onclick="openProp('flavio')">Ver a proposta do Flávio, texto integral (76 páginas)</button>
+    <button class="fullbtn flavio" onclick="openProp('flavio')">Plano de Flávio, inteiro (76 págs.)</button>
+    <button class="fullbtn lula" onclick="openProp('lula')">Plano de Lula, inteiro (84 págs.)</button>
   </div>
   <p class="fullhint">O documento completo, como registrado no TSE, palavras exatas do PDF (só quebras de linha ajustadas). Dica: “pág. N” abre o documento completo naquela página; e o botão “Ver o texto exato na proposta”, em cada cartão, mostra o recorte fiel das páginas citadas.</p>
-    <div class="block-t">Método e fontes</div>
+  <details class="q-mais">
+    <summary data-track="detalhes_abertos" data-track-label="metodo-regras"><span class="ao-abrir">Método e fontes: as regras, item a item</span><span class="ao-fechar">Fechar</span></summary>
+    <div class="q-mais-corpo">
   <div class="rows">
     <div class="row"><b>O que foi analisado:</b> os planos de governo registrados no TSE para o segundo turno das eleições de 2026, os dois candidatos: Lula, arquivo 2026BR280002542548_01.pdf (84 páginas); Flávio Bolsonaro, arquivo 2026BR280002551544_01.pdf (76 páginas), no ZIP “BR – Proposta de governo” do dataset candidatos-2026. Os “pág. N” citados referem-se a esses PDFs, e o texto integral está embutido nos botões “Ver a proposta…” e no “Ver o texto exato na proposta” de cada cartão.</div>
     <div class="row"><b>Fontes (só TSE):</b> Portal de Dados Abertos do TSE, recurso “Proposta de governo” em dadosabertos.tse.jus.br/dataset/candidatos-2026; resultado do 1º turno: “Relatório de Totalização” em dadosabertos.tse.jus.br/dataset/resultados-2026. Nenhuma outra fonte.</div>
-    <div class="row"><b>Rótulos do “como” (regra única):</b> <b>caminho explícito</b> = o plano nomeia o instrumento (lei/PEC já aprovada ou enviada, decreto, programa existente que será mantido, parceria com arranjo, PPP/concessão, fonte de recursos); <b>parcial</b> = instrumento nomeado para parte da medida, ou parceiro citado sem o instrumento legal; <b>sem caminho</b> = só declara a intenção (“vamos”, “propomos”). “Manter programa existente” conta como caminho explícito para os dois candidatos. O rótulo é por cartão, cartão com medidas mistas recebe “parcial”.</div>
+    <div class="row"><b>Rótulos do “como” (regra única):</b> <b>ferramenta nomeada</b> = o plano nomeia o instrumento (lei/PEC já aprovada ou enviada, decreto, programa existente que será mantido, parceria com arranjo, PPP/concessão, fonte de recursos); <b>parcial</b> = instrumento nomeado para parte da medida, ou parceiro citado sem o instrumento legal; <b>só intenção</b> = só declara a intenção (“vamos”, “propomos”). “Manter programa existente” conta como ferramenta nomeada para os dois candidatos, o que favorece quem governa. “Algum caminho” = ferramenta nomeada + parcial. O rótulo é por cartão, cartão com medidas mistas recebe “parcial”.</div>
     <div class="row"><b>Promessa ≠ entrega:</b> tudo aqui é o que os planos PROMETEM ou registram; não é verificação de execução. “Sem caminho” não significa impossível, significa que o plano não diz o instrumento.</div>
     <div class="row"><b>Sem contas:</b> nenhum dos dois planos quantifica custo nem impacto das medidas; onde não há número escrito no plano, esta página não estima valores.</div>
   </div>
+    </div>
+  </details>
   </section>
 
 
@@ -667,7 +1081,7 @@ body.modal-open{overflow:hidden}
       <img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil">
       <p>Análises descritivas com dados públicos oficiais do Brasil, sem juízo político. Tudo com fonte aberta e os arquivos originais disponíveis para download.</p>
     </div>
-    <div class="sf-col"><h4>Quem sou</h4>
+    <div class="sf-col" id="quem-fez"><h4>Quem sou</h4>
       <p>Profissional da área de tecnologia há 16 anos e atuo como Gerente de Desenvolvimento de Software. Lidero o time responsável pela plataformização e disponibilização de dados por diferentes meios em uma Big Tech brasileira, referência no mercado, atuando em um ambiente de altíssima volumetria e escala.</p>
     </div>
     <div class="sf-col-group">
@@ -676,13 +1090,15 @@ body.modal-open{overflow:hidden}
       <a href="/propostas/">Propostas 2026</a>
       <a href="/balanco/">Promessas e Realizações Lula × Bolsonaro</a>
     </div>
-    <div class="sf-col"><h4>Dados</h4>
-      <a href="/fontes/">Todas as fontes (32 arquivos)</a>
+    <div class="sf-col"><h4>Método e dados</h4>
+      <a href="/sobre/">Sobre e método</a>
+      <a href="#metodo">Como calculamos</a>
+      <a href="/fontes/">Dados abertos (50 arquivos)</a>
       <a href="/dados/SHA256SUMS.txt">Checksums (SHA-256)</a>
     </div>
     </div>
 </div>
-  <div class="sf-base">© 2026 Bora pros dados Brasil · dados públicos oficiais · <a href="/dados/SHA256SUMS.txt">integridade dos arquivos (SHA-256)</a></div>
+  <div class="sf-base">© 2026 Bora pros dados Brasil · dados públicos oficiais · atualizado em <time datetime="__UPDATED_ISO__">__UPDATED__</time> · <a href="/dados/SHA256SUMS.txt">integridade dos arquivos (SHA-256)</a></div>
 </footer>
 </div>
 
@@ -738,28 +1154,30 @@ body.modal-open{overflow:hidden}
   window.addEventListener('scroll', on, {passive:true}); on();
 
   /* visuais: contam os rótulos dos cartões que estão na página */
-  var LAB = [ {k:'chip-ok', l:'caminho explícito', cor:'#7fb99b'}, {k:'chip-partial', l:'parcial', cor:'#e3b878'}, {k:'chip-warn', l:'sem caminho', cor:'#c3c3ca'} ];
+  var LAB = [ {k:'chip-ok', l:'ferramenta nomeada', seg:'cheio'}, {k:'chip-partial', l:'parcial', seg:'claro'}, {k:'chip-warn', l:'só intenção', seg:'vazio'} ];
   var CAPS = ['cap-bolso','cap-seguranca','cap-servicos','cap-economia','cap-ambiente'];
   function labelOf(card){ var c = card.querySelector('.how .chip'); if (!c) return null; for (var i=0;i<LAB.length;i++) if (c.classList.contains(LAB[i].k)) return LAB[i].k; return null; }
   function cardsIn(root, who){ return Array.prototype.slice.call(root.querySelectorAll('article.card.' + who)); }
   function count(cards){ var c = {}; LAB.forEach(function(x){ c[x.k] = 0; }); cards.forEach(function(cd){ var l = labelOf(cd); if (l) c[l]++; }); return c; }
-  function bar100(c, n){
+  function bar100(c, n, lado){
     if (!n) return '<div class="sbar"></div>';
-    return '<div class="sbar">' + LAB.map(function(x){ if (!c[x.k]) return ''; var w = c[x.k]/n*100;
-      return '<i title="' + x.l + ': ' + c[x.k] + ' de ' + n + '" style="width:' + w + '%;background:' + x.cor + '">' + (w >= 9 ? c[x.k] : '') + '</i>'; }).join('') + '</div>';
+    var desc = LAB.filter(function(x){ return c[x.k]; }).map(function(x){ return x.l + ' ' + c[x.k]; }).join(', ');
+    return '<div class="sbar sbar--' + lado + '" role="img" aria-label="' + desc + ' (de ' + n + ')">' + LAB.map(function(x){ if (!c[x.k]) return '';
+      return '<i class="seg seg--' + x.seg + '" title="' + x.l + ': ' + c[x.k] + ' de ' + n + '" style="flex:' + c[x.k] + ' 1 0"><span>' + c[x.k] + '</span></i>';
+    }).join('') + '</div>';
   }
   function txt(c){ return LAB.filter(function(x){ return c[x.k]; }).map(function(x){ return c[x.k] + ' ' + x.l; }).join(' · '); }
-  var WHO = [ {k:'flavio', nome:'Flávio Bolsonaro', cls:'gb', party:'PL'}, {k:'lula', nome:'Lula', cls:'gl', party:'PT'} ];
+  var WHO = [ {k:'flavio', nome:'Flávio Bolsonaro', cls:'gb', party:'PL', lado:'b'}, {k:'lula', nome:'Lula', cls:'gl', party:'PT', lado:'l'} ];
   Array.prototype.forEach.call(document.querySelectorAll('.capviz'), function(box){
     var scope = box.getAttribute('data-scope');
     var roots = scope === 'all' ? CAPS.map(function(id){ return document.getElementById(id); }) : [document.getElementById(scope)];
-    var html = scope === 'all' ? '' : '<h3 class="figt" style="margin-top:0">O “como” nos temas desta seção</h3>';
+    var html = scope === 'all' ? '' : '<h3 class="figt" style="margin-top:0">O “como” nos temas desta seção, por plano</h3>';
     WHO.forEach(function(w){
       var cards = []; roots.forEach(function(r){ cards = cards.concat(cardsIn(r, w.k)); });
       var c = count(cards);
-      html += '<div class="vrow"><div class="vname ' + w.cls + '">' + w.nome + '<small>' + cards.length + ' tema' + (cards.length===1?'':'s') + ' · ' + w.party + '</small></div>' + bar100(c, cards.length) + '<div class="vtxt">' + txt(c) + '</div></div>';
+      html += '<div class="vrow"><div class="vname ' + w.cls + '"><i class="mk mk--' + w.lado + '" aria-hidden="true"></i>' + w.nome + '<small>· ' + cards.length + ' tema' + (cards.length===1?'':'s') + '</small></div>' + bar100(c, cards.length, w.lado) + (scope === 'all' ? '<div class="vtxt">' + txt(c) + '</div>' : '') + '</div>';
     });
-    html += '<p class="note" style="margin-top:8px">Verde = caminho explícito · âmbar = parcial · cinza = sem caminho. Contagem dos rótulos dos cartões desta página.</p>';
+    if (scope === 'all') html += '<p class="seg-leg"><span><i class="sw sw--cheio" aria-hidden="true"></i>ferramenta nomeada</span><span><i class="sw sw--claro" aria-hidden="true"></i>parcial</span><span><i class="sw sw--vazio" aria-hidden="true"></i>só intenção</span></p>';
     box.innerHTML = html;
   });
 })();
@@ -921,13 +1339,13 @@ body.modal-open{overflow:hidden}
   sIn.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); findNext(); } });
 })();
 </script>
-<script id="data-catalogo" type="application/json">[{"id":"L01","cand":"lula","tema":"bolso","sub":"Impostos e custo de vida","what":"Cesta básica isenta e cashback de imposto para os mais pobres; isenção de IR até R$ 5 mil, registrada como feita no mandato, sem promessa explícita de manutenção; Imposto Seletivo sobre produtos nocivos; Gás do Povo (recarga gratuita do botijão). Direção declarada: “colocar o pobre no orçamento e o rico no Imposto de Renda”.","how":"cesta e cashback: implementação da reforma já aprovada (pág. 11); IR até R$ 5 mil: registrado como feito (pág. 19); Imposto Seletivo: regulamentação em curso (pág. 59); Gás do Povo: programa em execução (pág. 66) (pág. 11, 19, 59, 66).","rot":"ok","pags":"11, 19, 59, 66","page":11,"spec":"11, 19, 59, 66"},{"id":"F01","cand":"flavio","tema":"bolso","sub":"Impostos e custo de vida","what":"Corrigir a reforma tributária e reduzir o IVA (diz que hoje ficaria num dos maiores do mundo, ~30%); “menos imposto no que você consome”; cortar imposto de energia e combustíveis; comida mais barata via logística.","how":"“revisar e redimensionar a reforma”, reduzir o IVA, cortar imposto de energia e combustíveis e baratear comida via logística, sem instrumento nomeado e sem quanto (pág. 30–32).","rot":"no","pags":"30–32","page":30,"spec":"30–32"},{"id":"L02","cand":"lula","tema":"bolso","sub":"Trabalho","what":"Continuar a política de valorização do salário mínimo; fim da escala 6x1, jornada de 40h sem reduzir salário; proteção aos trabalhadores de plataformas digitais e do transporte por aplicativos.","how":"no 6x1: o texto já foi aprovado na Câmara e o plano promete atuação no Senado (pág. 75); o mínimo segue a política de valorização (pág. 74); a proteção a plataformas fica em “consolidar um sistema… que normatize”, sem instrumento nomeado (pág. 74–77).","rot":"mid","pags":"74–77","page":74,"spec":"74–77"},{"id":"F02","cand":"flavio","tema":"bolso","sub":"Trabalho","what":"Baratear o custo de contratar (sem tirar direitos); contratos mais baratos para jovens (18–24) e 50+ desempregados; jornada “negociado sobre o legislado”; banco nacional de vagas.","how":"não diz o instrumento (pág. 43–44).","rot":"no","pags":"43–44","page":43,"spec":"43–44"},{"id":"L03","cand":"lula","tema":"bolso","sub":"Melhorias para o trabalhador","what":"Além de mínimo e 6x1: reconstruir o Sistema Público de Emprego e expandir a Plataforma Nacional de Empregabilidade com IA na rede SINE (vagas + cursos + certificações); qualificação contínua e requalificação de categorias afetadas por tecnologia; combater fraudes em terceirizações e a precarização; fortalecer negociação coletiva e atualizar o sistema sindical; ampliar acesso à Previdência; apoio a autônomos, crédito produtivo, Contrata+ Brasil (compras públicas) e linhas para motoristas de app comprarem o veículo (pág. 74–77).","how":"SINE/Plataforma Nacional de Empregabilidade e crédito produtivo/Contrata+ Brasil em expansão, programas existentes (pág. 74, 76); mudanças na legislação trabalhista/sindical e a regulação do trabalho por plataforma ficam em “vamos” (pág. 74–77).","rot":"mid","pags":"74–77","page":74,"spec":"74–77"},{"id":"F03","cand":"flavio","tema":"bolso","sub":"Melhorias para o trabalhador","what":"Para quem trabalha: reduzir o custo da contratação “sem retirar direitos” (hoje o trabalhador formal custa quase 2x o salário) para ampliar a carteira assinada; contratos mais baratos para jovens 18–24 (primeiro emprego) e 50+; “negociado sobre o legislado”; banco nacional de vagas conectado ao RH das empresas; trilha de qualificação; volta sem fila ao benefício após o seguro-desemprego, “para que ninguém tenha medo de tentar um emprego”; prioridade a beneficiários de programas em primeiro emprego, qualificação e intermediação (pág. 43–45).","how":"tudo anunciado sem instrumento (“vamos reduzir gradualmente”, “vamos modernizar”).","rot":"no","pags":"43–45","page":43,"spec":"43–45"},{"id":"L04","cand":"lula","tema":"bolso","sub":"Renda e área social","what":"Manter e ampliar o Bolsa Família e a rede do SUAS; Política Nacional de Cuidados (cozinhas solidárias, restaurantes populares); titulação de territórios quilombolas e demarcação de terras indígenas.","how":"Bolsa Família e SUAS: continuidade e ampliação de programas existentes (pág. 19, 25); titulação e demarcação: continuidade de processos, 65 titulações, 21 portarias declaratórias e decretos de desapropriação no mandato (pág. 20); a Política Nacional de Cuidados fica em “serão fortalecidas / fomentaremos” (pág. 19–26).","rot":"mid","pags":"19–26","page":19,"spec":"19–26"},{"id":"F04","cand":"flavio","tema":"bolso","sub":"Renda e área social","what":"Manter os programas sociais, “Quem depende hoje da ajuda do Estado para pôr comida na mesa não vai ter essa ajuda tirada. Ponto.”, com combate a fraudes; prioridade de emprego a beneficiários; volta rápida ao benefício depois do seguro-desemprego.","how":"“manter os programas sociais existentes” conta como caminho, programa existente mantido (pág. 42); “aperfeiçoamento da gestão, combate às fraudes”, prioridade de emprego e retorno sem fila ao benefício ficam em “vamos” (pág. 42–43).","rot":"mid","pags":"42–43","page":42,"spec":"42–43"},{"id":"L05","cand":"lula","tema":"bolso","sub":"Casa própria","what":"Seguir o Minha Casa Minha Vida (meta corrente: 3 milhões de moradias) e o Periferia Viva.","how":"orçamento federal, crédito imobiliário e novas seleções (pág. 45–46).","rot":"ok","pags":"45–46","page":45,"spec":"45–46"},{"id":"F05","cand":"flavio","tema":"bolso","sub":"Casa própria","what":"Retomar o Casa Verde e Amarela (meta de 2,5 milhões); recuperar áreas dominadas por facções; dar escritura (de preferência no nome da mulher).","how":"retomada de programa existente: Casa Verde e Amarela com meta de 2,5 milhões e PPPs que integram moradia e infraestrutura (pág. 47); escritura via regularização fundiária (pág. 47); “retomar as áreas sob domínio de facções” fica em “vamos” (pág. 47).","rot":"mid","pags":"47","page":47,"spec":"47"},{"id":"L06","cand":"lula","tema":"seguranca","sub":"Segurança pública","what":"Criar o Ministério da Segurança Pública; manter a Lei Antifacção (2026) e o programa de R$ 10 bi contra o crime organizado; ampliar câmeras corporais com padrão nacional.","how":"A PEC da Segurança Pública já foi enviada ao Congresso, o ministério só vem “uma vez aprovada a PEC” (pág. 27–30).","rot":"ok","pags":"27–30","page":27,"spec":"27–30"},{"id":"F06","cand":"flavio","tema":"seguranca","sub":"Segurança pública","what":"Tratar PCC, CV e milícias como “organizações narcoterroristas”; tropa de elite nas fronteiras; 5 presídios de segurança máxima modelo El Salvador (o complexo “TREVA”) + meio milhão de vagas em 4 anos; maioridade penal de 18→16 (e punir 14+ em crimes graves); castração química para estupradores; tolerância zero ao feminicídio; +1 milhão de câmeras de reconhecimento facial (“Muralha Brasileira”). O texto diz até que “bandido armado com fuzil na mão vai ser abatido”.","how":"parte tem arranjo nomeado: segurança máxima “em parceria com os governos estaduais” (pág. 14) e “consórcios e convênios” com estados e municípios (pág. 13); no restante, narcoterrorismo, tropas de fronteira, TREVA, Muralha, maioridade penal e castração química (“apoiar e sancionar”), só “vamos” (pág. 13–15).","rot":"mid","pags":"13–15","page":13,"spec":"13–15"},{"id":"L07","cand":"lula","tema":"seguranca","sub":"Facções e crime organizado","what":"Lei Antifacção (sancionada em 2026) + “asfixia financeira”: R$ 35,8 bilhões de prejuízo ao crime organizado desde 2023; Programa Brasil Contra o Crime Organizado (maio/2026, R$ 10 bi); medidas, junto aos demais poderes, para barrar candidaturas ligadas ao crime e acelerar punições; tráfico de armas, munições e explosivos; qualificação da investigação de homicídios; FICCOs como política de Estado; Forças Armadas nas fronteiras amazônicas; retomada de territórios com presença do Estado (pág. 26–30).","how":"em execução (leis sancionadas, programas rodando); PEC da Segurança no Congresso.","rot":"ok","pags":"26–30","page":26,"spec":"26–30"},{"id":"F07","cand":"flavio","tema":"seguranca","sub":"Facções e crime organizado","what":"Declarar PCC, CV e milícias “organizações narcoterroristas”; “seguir o dinheiro” (bloqueio de ativos e lavagem); Sistema Nacional de Fronteira, “paredão” com tropa de elite das Forças Armadas (hoje: 1 policial a cada 100 km de fronteira), com interceptação de fuzis e drogas por terra, portos e espaço aéreo; TREVA: 5 presídios de segurança máxima + 500 mil vagas para cortar o comando das facções de dentro; “acabar com a cocaína made in Brazil”; consórcios e convênios com estados e municípios (inteligência, armamentos, retomada de territórios, valorização do policial) (pág. 13–15).","how":"presídios, vagas e ações com arranjo nomeado: “em parceria com os governos estaduais” (pág. 14) e “consórcios e convênios” com estados e municípios (pág. 13); o restante (narcoterrorismo, “paredão” nas fronteiras, TREVA) só declara a intenção (pág. 13–15).","rot":"mid","pags":"13–15","page":13,"spec":"13–15"},{"id":"L08","cand":"lula","tema":"seguranca","sub":"Bets e lavagem de dinheiro","what":"Trata apostas como proteção, em exatamente 2 pontos: (1) no bloco de saúde mental (CAPS/atenção psicossocial), ampliar profissionais e estratégias para pessoas com problemas relacionados a jogos de apostas; (2) manter os mecanismos de controle de gastos excessivos em apostas on-line e aprimorar as regras de oferta e responsabilidade no crédito. Não há proposta sobre as empresas de bets, publicidade ou jogos ilegais, e a palavra “lavagem” não aparece uma vez no plano; o dinheiro do crime é atacado pela “asfixia financeira” das facções (pág. 27).","how":"“manter os mecanismos de controle de gastos excessivos em apostas on-line” conta como caminho (pág. 49); “ampliar profissionais e estratégias” (pág. 39) e “aprimorar regras de crédito” ficam em “vamos”, nenhuma regra nova de apostas prometida (pág. 27, 39, 49).","rot":"mid","pags":"27, 39, 49","page":27,"spec":"27, 39, 49"},{"id":"F08","cand":"flavio","tema":"seguranca","sub":"Bets e lavagem de dinheiro","what":"Único a transformar o tema em medidas: (1) proibir o uso de recursos dos programas sociais em apostas (“dinheiro destinado a pôr comida na mesa não pode escoar para a casa de apostas”) + campanhas de conscientização sobre dívida com jogos; (2) ampliar a orientação financeira pela rede da CAIXA contra o impacto das bets na renda familiar; (3) na segurança, “seguir o dinheiro do crime”: bloquear ativos e desarticular a lavagem das facções, a única menção à lavagem em todo o plano (pág. 13).","how":"“proibir o uso dos recursos dos programas sociais para apostas” e campanhas ficam em “vamos”, sem instrumento (pág. 33); orientação financeira “pela rede da CAIXA”: parceiro citado sem instrumento legal (pág. 33); “seguir o dinheiro do crime” na segurança (pág. 13) (pág. 13, 19, 33).","rot":"mid","pags":"13, 19, 33","page":13,"spec":"13, 19, 33"},{"id":"L09","cand":"lula","tema":"servicos","sub":"Saúde","what":"Reduzir filas (programa “Agora tem Especialistas”, mutirões e carretas); manter a Farmácia Popular 100% gratuita; ampliar Mais Médicos e vacinação.","how":"ampliação de programas existentes + parcerias e orçamento (pág. 35–38).","rot":"ok","pags":"35–38","page":35,"spec":"35–38"},{"id":"F09","cand":"flavio","tema":"servicos","sub":"Saúde","what":"Prontuário eletrônico único no CPF; SUS digital e telessaúde; “remédio em casa”; corrigir a tabela do SUS; usar horários ociosos da rede privada para exames.","how":"continuidade do Conecte SUS/prontuário único (pág. 25–26); correção da tabela SUS: “a lei de reajuste já existe”, presa ao orçamento (pág. 37); telessaúde e entrega de remédio em domicílio ficam em “vamos” (pág. 25–26, 37–38).","rot":"mid","pags":"25–26, 37–38","page":25,"spec":"25–26, 37–38"},{"id":"L10","cand":"lula","tema":"servicos","sub":"Educação e crianças","what":"Cumprir o novo plano nacional de educação (2026–2036); meta de 80% das crianças alfabetizadas na idade certa; mais tempo integral; 111 novos institutos federais; manter o Pé-de-Meia.","how":"metas pactuadas com estados e municípios; Fundeb, PAC e programas existentes (pág. 31–33).","rot":"ok","pags":"31–33","page":31,"spec":"31–33"},{"id":"F10","cand":"flavio","tema":"servicos","sub":"Educação e crianças","what":"Alfabetização pelo método fônico; ampliar escolas cívico-militares; tempo integral; “voucher” para creche e escola onde faltar vaga; FIES vira “Empréstimo Contingente à Renda” (só paga quando estiver empregado).","how":"não diz o instrumento (pág. 21, 34–38).","rot":"no","pags":"21, 34–38","page":21,"spec":"21, 34–38"},{"id":"L11","cand":"lula","tema":"servicos","sub":"Universidades: ensino público × privado","what":"Público: expandir a rede federal, 10 novos campi + 367 obras em universidades (Novo PAC); cotas mantidas/aperfeiçoadas (45,5% dos graduandos são pretos, pardos ou indígenas; 3 em 4 vêm da escola pública; quilombolas incluídos); assistência estudantil (alimentação e moradia); cursinhos populares; Universidade Indígena e unidade do ITA no Ceará. Privado: ProUni em recorde de bolsas; dívidas do FIES renegociadas duas vezes; bolsas reajustadas após década congeladas (pág. 33).","how":"orçamento restaurado + PAC + programas existentes (cotas, ProUni, FIES) (pág. 19–20) e (pág. 24).","rot":"ok","pags":"8","page":8,"spec":"8"},{"id":"F11","cand":"flavio","tema":"servicos","sub":"Universidades: ensino público × privado","what":"Mudar o comando: unificar ciência e ensino superior sob o Ministério da Ciência e Tecnologia; CAPES e CNPq priorizando “impacto produtivo”, “pesquisa que vira produto, não fica na estante”; pós lato sensu conectando empresas e universidades (instituições recebem recursos por formar quem o mercado precisa); setor produtivo poderá custear bolsas de formação técnica. Financiamento estudantil: trocar por Empréstimo Contingente à Renda, paga só empregado, parcela proporcional, prazo maior (diz que o modelo atual “afasta o jovem de baixa renda”) (pág. 37).","how":"mudanças anunciadas sem instrumento (“vamos transferir a governança”; “vamos adotar o Empréstimo…”) (pág. 36).","rot":"no","pags":"36","page":36,"spec":"36–37"},{"id":"L12","cand":"lula","tema":"servicos","sub":"Mulheres","what":"Concluir 30 Casas da Mulher Brasileira e 15 Centros de Referência; Salas Lilás; igualdade salarial com metas progressivas.","how":"continuidade do Pacto de Enfrentamento ao Feminicídio, dez leis e cinco decretos já editados no mandato, com parceria de estados (pág. 21); igualdade salarial: fortalecer a implementação da Lei de 2023, com Planos de Ação obrigatórios e metas progressivas (pág. 75) (pág. 21, 75).","rot":"ok","pags":"21, 75","page":21,"spec":"21, 75"},{"id":"F12","cand":"flavio","tema":"servicos","sub":"Mulheres","what":"“Brasil por Elas” (12 medidas): Central da Mulher com aplicativo e assistente virtual “ClarIA”; bônus de internet; denúncia integrada com avaliação de risco; crédito e escritura da casa no nome da mulher; tolerância zero ao feminicídio (tornozeleira no agressor).","how":"centrais “em parceria com estados e municípios, em imóveis da União” (pág. 17) e Escola Brasil por Elas com Sistema S e parcerias público-privadas (pág. 20); aplicativo/ClarIA, bônus de internet e denúncia com avaliação de risco ficam em “vamos” (pág. 17–20).","rot":"mid","pags":"17–20","page":17,"spec":"17–20"},{"id":"L13","cand":"lula","tema":"servicos","sub":"Cultura como motor: economia e transformação social","what":"Cultura como “fonte de riqueza simbólica, social e econômica” que “impulsiona a economia e promove o desenvolvimento territorial”: MinC recriado; Lei do Sistema Nacional de Cultura aprovada; fomento recorde (Aldir Blanc e Rouanet aperfeiçoadas; Cultura Viva recuperado, 16 mil Pontos); 144 obras de restauração + 105 projetos (PAC); economia criativa com crédito e Marco Legal dos Games (games = cultura, acesso à Rouanet); Tela Brasil; regulamentação do streaming e lei de direito autoral digital, “quem cria não pode ser o único a não ganhar” (pág. 42).","how":"leis aprovadas e editais em curso (MinC, Sistema Nacional de Cultura, Aldir Blanc/Rouanet, Cultura Viva, pág. 40–41; Marco Legal dos Games, Tela Brasil, pág. 42); streaming e direito autoral digital ficam em “trabalharemos pela aprovação” (pág. 42) (pág. 40–44).","rot":"mid","pags":"40–44","page":40,"spec":"40–44"},{"id":"F13","cand":"flavio","tema":"servicos","sub":"Cultura como motor: economia e transformação social","what":"“Menos concentração, mais Brasil na cultura”: aperfeiçoar as leis de incentivo corrigindo distorções, levar recursos a polos regionais e a “artistas de grande mérito artístico, porém de pouca projeção, hoje esquecidos”; preservação do patrimônio histórico (“centros históricos, obras e acervos que contam quem somos, hoje deteriorados”); separar “cultura e entretenimento comercial”; transparência e liberdade de expressão, “sem subordiná-la a agendas políticas” (pág. 41).","how":"“aperfeiçoaremos as leis de incentivo”, sem dizer como nem quanto.","rot":"no","pags":"41","page":41,"spec":"41"},{"id":"L14","cand":"lula","tema":"economia","sub":"Economia e contas públicas","what":"Manter o arcabouço fiscal e buscar juros em queda; seguir a “neoindustrialização” (Plano Mais Produção, R$ 860 bi em financiamentos no ciclo 2023–26) e o novo ciclo de PAC (obras, logística, concessões).","how":"por continuidade e orçamento: são programas existentes; crédito público, concessões e leilões (pág. 49–54).","rot":"ok","pags":"49–54","page":49,"spec":"49–54"},{"id":"F14","cand":"flavio","tema":"economia","sub":"Economia e contas públicas","what":"Reformular as regras fiscais (dívida em queda, superávit primário; limitar crédito subsidiado do Tesouro); “Tesouraço”: corte de no mínimo 10 ministérios, comissionados e supersalários; retomar desestatizações.","how":"desestatização caso a caso com o “Programa Nacional de Desestatização” (pág. 70) e “revogaço regulatório” (pág. 69) têm veículo; “reforma administrativa já em discussão” (pág. 69); regras fiscais e tributárias ficam em “apresentaremos/faremos” (pág. 69–71).","rot":"mid","pags":"69–71","page":69,"spec":"69–71"},{"id":"L15","cand":"lula","tema":"economia","sub":"Infraestrutura e crescimento","what":"Seguir o novo ciclo de PAC, obras de logística e infraestrutura urbana e social.","how":"orçamento público, concessões e leilões (pág. 52–54).","rot":"ok","pags":"52–54","page":52,"spec":"52–54"},{"id":"F15","cand":"flavio","tema":"economia","sub":"Infraestrutura e crescimento","what":"Investir R$ 900 bi em 4 anos (rodovias, ferrovias, portos, aeroportos, hidrovias); crescer 4% ao ano.","how":"PPPs, concessões e fundo lastreado na securitização de ativos e imóveis da União (pág. 49–51).","rot":"ok","pags":"49–51","page":49,"spec":"49–51"},{"id":"L16","cand":"lula","tema":"economia","sub":"Micro e pequenos negócios","what":"“O Brasil é um país de pequenos negócios”: crédito já rodando e a ampliar, Pronampe: 1,6 milhão de operações e Procred 360: 211 mil, mobilizando R$ 130 bilhões; Novo Desenrola: 219 mil operações; fundos garantidores e fundos de participação com bancos públicos; simplificar o ambiente de negócios, ampliar compras governamentais e “tratamento tributário justo na reforma”; Brasil Mais Produtivo para digitalizar MPEs.","how":"programas e fundos em execução (Pronampe/Procred 360, fundos garantidores, fundos de participação, pág. 57–58); “simplificar o ambiente de negócios” e ampliar compras governamentais ficam em “vamos”, sem instrumento (pág. 57) (pág. 57–58).","rot":"mid","pags":"57–58","page":57,"spec":"57–58"},{"id":"F16","cand":"flavio","tema":"economia","sub":"Micro e pequenos negócios","what":"“Minha Primeira Empresa”: menos burocracia para abrir e formalizar + capacitação pelo Sistema S + esteira de crédito e serviços da CAIXA; crédito para empreender e internacionalização de pequenos negócios; CAIXA como plataforma única (crédito, orientação, habitação) com IA para achar oportunidades e histórico positivo de crédito (cursos, contas em dia = juros melhores); Lei de Liberdade Econômica em todos os estados e municípios; “revogaço regulatório” (pág. 45–46).","how":"parceiros citados (CAIXA, Sistema S, BNDES/Apex) sem instrumento legal junto (pág. 45–46); “fazer a liberdade econômica alcançar todo o país” e o “revogaço regulatório” têm veículo (pág. 27) (pág. 27, 44–46).","rot":"mid","pags":"27, 44–46","page":27,"spec":"27, 44–46"},{"id":"L17","cand":"lula","tema":"economia","sub":"Terras raras e minerais críticos","what":"Promete uma política específica para minerais críticos e terras raras, organizar as cadeias, diferenciar usos tecnológicos e “evitar a simples exportação de matérias-primas estratégicas”; coloca o tema na agenda de soberania tecnológica com IA e inovação; processamento de minerais críticos entre os setores da transição verde (siderurgia verde, fertilizantes, química); urânio aproveitado “de forma responsável”, com competência nuclear preservada (pág. 52).","how":"“desenvolveremos uma política específica” e “estratégia regional de mapeamento”, sem instrumento citado (pág. 52); processamento de minerais críticos na transição verde (pág. 56); urânio “de forma responsável”, competência nuclear preservada (pág. 68) (pág. 50–52, 56, 68).","rot":"no","pags":"50–52, 56, 68","page":50,"spec":"50–52, 56, 68"},{"id":"F17","cand":"flavio","tema":"economia","sub":"Terras raras e minerais críticos","what":"“A riqueza do subsolo virando emprego qualificado aqui dentro”: lista lítio, nióbio, grafite, cobre, níquel, urânio e terras-raras e propõe agregar valor no Brasil “em vez de somente exportar a pedra bruta e comprar de volta o produto acabado”; Estado como regulador e coordenador, não empresário, pilares: marco regulatório claro e estável, licenciamento ágil, atração de capital e tecnologia, verticalização com incentivos, governança e transparência; equacionar garantias de crédito e acelerar direitos minerários; fertilizantes (potássio/fosfato) para o agro (pág. 55–56).","how":"define o modelo e o papel do Estado (“seis pilares”, garantias de crédito e aceleração de licenciamento/direitos minerários, pág. 55–56), sem lei ou instrumento legal citado (pág. 54–56).","rot":"mid","pags":"54–56","page":54,"spec":"54–56"},{"id":"L18","cand":"lula","tema":"ambiente","sub":"Meio ambiente","what":"Desmatamento líquido zero até 2030; redução de 59% a 67% das emissões líquidas até 2035 (base 2005); regulamentar o mercado de carbono.","how":"continuidade de planos e leis existentes: planos de prevenção e controle do desmatamento, Plano Nacional de Manejo Integrado do Fogo, Código Florestal e Lei da Mata Atlântica (pág. 70); regulamentação do SBCE, lei aprovada no mandato (pág. 51) (pág. 51, 69–71).","rot":"ok","pags":"51, 69–71","page":51,"spec":"51, 69–71"},{"id":"F18","cand":"flavio","tema":"ambiente","sub":"Meio ambiente","what":"Desmatamento ilegal zero até 2029; mercado regulado de carbono; pagamento por serviços ambientais; autonomia a indígenas e quilombolas sobre produção nas terras.","how":"mercado regulado de carbono: “consolidar com segurança jurídica” (pág. 57); meta de desmatamento até 2029, pagamento por serviços ambientais e autonomia indígena/quilombola sobre atividades produtivas ficam em “teremos/vamos” (pág. 50, 55, 58) (pág. 50, 55, 57–59).","rot":"mid","pags":"50, 55, 57–59","page":50,"spec":"50, 55, 57–59"},{"id":"L19","cand":"lula","tema":"ambiente","sub":"Instituições e democracia","what":"Regulação das redes sociais contra desinformação; reforma política “inadiável”; debate sobre emendas parlamentares com a sociedade.","how":"o plano não define os instrumentos (pág. 15–17).","rot":"no","pags":"15–17","page":15,"spec":"15–17"},{"id":"F19","cand":"flavio","tema":"ambiente","sub":"Instituições e democracia","what":"Reforma do Judiciário (limitar decisões individuais do STF, quarentena para ministros, impedir parentes); fim da reeleição presidencial, PEC de autoria dele já protocolada no Senado; “Tesouraço na Censura” (revogar atos).","how":"PEC do fim da reeleição “já protocolada no Senado” (pág. 66) e “revogar todos os atos” do governo atual (pág. 66) têm veículo; a reforma do Judiciário fica em “propomos” (pág. 65–66) (pág. 65–67).","rot":"mid","pags":"65–67","page":65,"spec":"65–67"}]</script>
+<script id="data-catalogo" type="application/json">[{"id":"F01","cand":"flavio","tema":"bolso","sub":"Impostos e custo de vida","what":"Corrigir a reforma tributária e reduzir o IVA (diz que hoje ficaria num dos maiores do mundo, ~30%); “menos imposto no que você consome”; cortar imposto de energia e combustíveis; comida mais barata via logística.","how":"“revisar e redimensionar a reforma”, reduzir o IVA, cortar imposto de energia e combustíveis e baratear comida via logística, sem instrumento nomeado e sem quanto (pág. 30–32).","rot":"no","pags":"30–32","page":30,"spec":"30–32"},{"id":"F02","cand":"flavio","tema":"bolso","sub":"Trabalho","what":"Baratear o custo de contratar (sem tirar direitos); contratos mais baratos para jovens (18–24) e 50+ desempregados; jornada “negociado sobre o legislado”; banco nacional de vagas.","how":"não diz o instrumento (pág. 43–44).","rot":"no","pags":"43–44","page":43,"spec":"43–44"},{"id":"F03","cand":"flavio","tema":"bolso","sub":"Melhorias para o trabalhador","what":"Para quem trabalha: reduzir o custo da contratação “sem retirar direitos” (hoje o trabalhador formal custa quase 2x o salário) para ampliar a carteira assinada; contratos mais baratos para jovens 18–24 (primeiro emprego) e 50+; “negociado sobre o legislado”; banco nacional de vagas conectado ao RH das empresas; trilha de qualificação; volta sem fila ao benefício após o seguro-desemprego, “para que ninguém tenha medo de tentar um emprego”; prioridade a beneficiários de programas em primeiro emprego, qualificação e intermediação (pág. 43–45).","how":"tudo anunciado sem instrumento (“vamos reduzir gradualmente”, “vamos modernizar”).","rot":"no","pags":"43–45","page":43,"spec":"43–45"},{"id":"F04","cand":"flavio","tema":"bolso","sub":"Renda e área social","what":"Manter os programas sociais, “Quem depende hoje da ajuda do Estado para pôr comida na mesa não vai ter essa ajuda tirada. Ponto.”, com combate a fraudes; prioridade de emprego a beneficiários; volta rápida ao benefício depois do seguro-desemprego.","how":"“manter os programas sociais existentes” conta como caminho, programa existente mantido (pág. 42); “aperfeiçoamento da gestão, combate às fraudes”, prioridade de emprego e retorno sem fila ao benefício ficam em “vamos” (pág. 42–43).","rot":"mid","pags":"42–43","page":42,"spec":"42–43"},{"id":"F05","cand":"flavio","tema":"bolso","sub":"Casa própria","what":"Retomar o Casa Verde e Amarela (meta de 2,5 milhões); recuperar áreas dominadas por facções; dar escritura (de preferência no nome da mulher).","how":"retomada de programa existente: Casa Verde e Amarela com meta de 2,5 milhões e PPPs que integram moradia e infraestrutura (pág. 47); escritura via regularização fundiária (pág. 47); “retomar as áreas sob domínio de facções” fica em “vamos” (pág. 47).","rot":"mid","pags":"47","page":47,"spec":"47"},{"id":"L01","cand":"lula","tema":"bolso","sub":"Impostos e custo de vida","what":"Cesta básica isenta e cashback de imposto para os mais pobres; isenção de IR até R$ 5 mil, registrada como feita no mandato, sem promessa explícita de manutenção; Imposto Seletivo sobre produtos nocivos; Gás do Povo (recarga gratuita do botijão). Direção declarada: “colocar o pobre no orçamento e o rico no Imposto de Renda”.","how":"cesta e cashback: implementação da reforma já aprovada (pág. 11); IR até R$ 5 mil: registrado como feito (pág. 19); Imposto Seletivo: regulamentação em curso (pág. 59); Gás do Povo: programa em execução (pág. 66) (pág. 11, 19, 59, 66).","rot":"ok","pags":"11, 19, 59, 66","page":11,"spec":"11, 19, 59, 66"},{"id":"L02","cand":"lula","tema":"bolso","sub":"Trabalho","what":"Continuar a política de valorização do salário mínimo; fim da escala 6x1, jornada de 40h sem reduzir salário; proteção aos trabalhadores de plataformas digitais e do transporte por aplicativos.","how":"no 6x1: o texto já foi aprovado na Câmara e o plano promete atuação no Senado (pág. 75); o mínimo segue a política de valorização (pág. 74); a proteção a plataformas fica em “consolidar um sistema… que normatize”, sem instrumento nomeado (pág. 74–77).","rot":"mid","pags":"74–77","page":74,"spec":"74–77"},{"id":"L03","cand":"lula","tema":"bolso","sub":"Melhorias para o trabalhador","what":"Além de mínimo e 6x1: reconstruir o Sistema Público de Emprego e expandir a Plataforma Nacional de Empregabilidade com IA na rede SINE (vagas + cursos + certificações); qualificação contínua e requalificação de categorias afetadas por tecnologia; combater fraudes em terceirizações e a precarização; fortalecer negociação coletiva e atualizar o sistema sindical; ampliar acesso à Previdência; apoio a autônomos, crédito produtivo, Contrata+ Brasil (compras públicas) e linhas para motoristas de app comprarem o veículo (pág. 74–77).","how":"SINE/Plataforma Nacional de Empregabilidade e crédito produtivo/Contrata+ Brasil em expansão, programas existentes (pág. 74, 76); mudanças na legislação trabalhista/sindical e a regulação do trabalho por plataforma ficam em “vamos” (pág. 74–77).","rot":"mid","pags":"74–77","page":74,"spec":"74–77"},{"id":"L04","cand":"lula","tema":"bolso","sub":"Renda e área social","what":"Manter e ampliar o Bolsa Família e a rede do SUAS; Política Nacional de Cuidados (cozinhas solidárias, restaurantes populares); titulação de territórios quilombolas e demarcação de terras indígenas.","how":"Bolsa Família e SUAS: continuidade e ampliação de programas existentes (pág. 19, 25); titulação e demarcação: continuidade de processos, 65 titulações, 21 portarias declaratórias e decretos de desapropriação no mandato (pág. 20); a Política Nacional de Cuidados fica em “serão fortalecidas / fomentaremos” (pág. 19–26).","rot":"mid","pags":"19–26","page":19,"spec":"19–26"},{"id":"L05","cand":"lula","tema":"bolso","sub":"Casa própria","what":"Seguir o Minha Casa Minha Vida (meta corrente: 3 milhões de moradias) e o Periferia Viva.","how":"orçamento federal, crédito imobiliário e novas seleções (pág. 45–46).","rot":"ok","pags":"45–46","page":45,"spec":"45–46"},{"id":"F06","cand":"flavio","tema":"seguranca","sub":"Segurança pública","what":"Tratar PCC, CV e milícias como “organizações narcoterroristas”; tropa de elite nas fronteiras; 5 presídios de segurança máxima modelo El Salvador (o complexo “TREVA”) + meio milhão de vagas em 4 anos; maioridade penal de 18→16 (e punir 14+ em crimes graves); castração química para estupradores; tolerância zero ao feminicídio; +1 milhão de câmeras de reconhecimento facial (“Muralha Brasileira”). O texto diz que “bandido armado com fuzil na mão vai ser abatido”.","how":"parte tem arranjo nomeado: segurança máxima “em parceria com os governos estaduais” (pág. 14) e “consórcios e convênios” com estados e municípios (pág. 13); no restante, narcoterrorismo, tropas de fronteira, TREVA, Muralha, maioridade penal e castração química (“apoiar e sancionar”), só “vamos” (pág. 13–15).","rot":"mid","pags":"13–15","page":13,"spec":"13–15"},{"id":"F07","cand":"flavio","tema":"seguranca","sub":"Facções e crime organizado","what":"Declarar PCC, CV e milícias “organizações narcoterroristas”; “seguir o dinheiro” (bloqueio de ativos e lavagem); Sistema Nacional de Fronteira, “paredão” com tropa de elite das Forças Armadas (hoje: 1 policial a cada 100 km de fronteira), com interceptação de fuzis e drogas por terra, portos e espaço aéreo; TREVA: 5 presídios de segurança máxima + 500 mil vagas para cortar o comando das facções de dentro; “acabar com a cocaína made in Brazil”; consórcios e convênios com estados e municípios (inteligência, armamentos, retomada de territórios, valorização do policial) (pág. 13–15).","how":"presídios, vagas e ações com arranjo nomeado: “em parceria com os governos estaduais” (pág. 14) e “consórcios e convênios” com estados e municípios (pág. 13); o restante (narcoterrorismo, “paredão” nas fronteiras, TREVA) só declara a intenção (pág. 13–15).","rot":"mid","pags":"13–15","page":13,"spec":"13–15"},{"id":"F08","cand":"flavio","tema":"seguranca","sub":"Bets e lavagem de dinheiro","what":"Medidas sobre o tema: (1) proibir o uso de recursos dos programas sociais em apostas (“dinheiro destinado a pôr comida na mesa não pode escoar para a casa de apostas”) + campanhas de conscientização sobre dívida com jogos; (2) ampliar a orientação financeira pela rede da CAIXA contra o impacto das bets na renda familiar; (3) na segurança, “seguir o dinheiro do crime”: bloquear ativos e desarticular a lavagem das facções, única menção do plano à lavagem (pág. 13).","how":"“proibir o uso dos recursos dos programas sociais para apostas” e campanhas ficam em “vamos”, sem instrumento (pág. 33); orientação financeira “pela rede da CAIXA”: parceiro citado sem instrumento legal (pág. 33); “seguir o dinheiro do crime” na segurança (pág. 13) (pág. 13, 19, 33).","rot":"mid","pags":"13, 19, 33","page":13,"spec":"13, 19, 33"},{"id":"L06","cand":"lula","tema":"seguranca","sub":"Segurança pública","what":"Criar o Ministério da Segurança Pública; manter a Lei Antifacção (2026) e o programa de R$ 10 bi contra o crime organizado; ampliar câmeras corporais com padrão nacional.","how":"A PEC da Segurança Pública já foi enviada ao Congresso, o ministério só vem “uma vez aprovada a PEC” (pág. 27–30).","rot":"ok","pags":"27–30","page":27,"spec":"27–30"},{"id":"L07","cand":"lula","tema":"seguranca","sub":"Facções e crime organizado","what":"Lei Antifacção (sancionada em 2026) + “asfixia financeira”: R$ 35,8 bilhões de prejuízo ao crime organizado desde 2023; Programa Brasil Contra o Crime Organizado (maio/2026, R$ 10 bi); medidas, junto aos demais poderes, para barrar candidaturas ligadas ao crime e acelerar punições; tráfico de armas, munições e explosivos; qualificação da investigação de homicídios; FICCOs como política de Estado; Forças Armadas nas fronteiras amazônicas; retomada de territórios com presença do Estado (pág. 26–30).","how":"em execução (leis sancionadas, programas rodando); PEC da Segurança no Congresso.","rot":"ok","pags":"26–30","page":26,"spec":"26–30"},{"id":"L08","cand":"lula","tema":"seguranca","sub":"Bets e lavagem de dinheiro","what":"Trata apostas como proteção, em 2 pontos: (1) no bloco de saúde mental (CAPS/atenção psicossocial), ampliar profissionais e estratégias para pessoas com problemas relacionados a jogos de apostas; (2) manter os mecanismos de controle de gastos excessivos em apostas on-line e aprimorar as regras de oferta e responsabilidade no crédito. O plano não traz proposta sobre as empresas de bets, publicidade ou jogos ilegais nem menciona lavagem de dinheiro; o dinheiro do crime é atacado pela “asfixia financeira” das facções (pág. 27).","how":"“manter os mecanismos de controle de gastos excessivos em apostas on-line” conta como caminho (pág. 49); “ampliar profissionais e estratégias” (pág. 39) e “aprimorar regras de crédito” ficam em “vamos”, nenhuma regra nova de apostas prometida (pág. 27, 39, 49).","rot":"mid","pags":"27, 39, 49","page":27,"spec":"27, 39, 49"},{"id":"F09","cand":"flavio","tema":"servicos","sub":"Saúde","what":"Prontuário eletrônico único no CPF; SUS digital e telessaúde; “remédio em casa”; corrigir a tabela do SUS; usar horários ociosos da rede privada para exames.","how":"continuidade do Conecte SUS/prontuário único (pág. 25–26); correção da tabela SUS: “a lei de reajuste já existe”, presa ao orçamento (pág. 37); telessaúde e entrega de remédio em domicílio ficam em “vamos” (pág. 25–26, 37–38).","rot":"mid","pags":"25–26, 37–38","page":25,"spec":"25–26, 37–38"},{"id":"F10","cand":"flavio","tema":"servicos","sub":"Educação e crianças","what":"Alfabetização pelo método fônico; ampliar escolas cívico-militares; tempo integral; “voucher” para creche e escola onde faltar vaga; FIES vira “Empréstimo Contingente à Renda” (só paga quando estiver empregado).","how":"não diz o instrumento (pág. 21, 34–38).","rot":"no","pags":"21, 34–38","page":21,"spec":"21, 34–38"},{"id":"F11","cand":"flavio","tema":"servicos","sub":"Universidades: ensino público × privado","what":"Mudar o comando: unificar ciência e ensino superior sob o Ministério da Ciência e Tecnologia; CAPES e CNPq priorizando “impacto produtivo”, “pesquisa que vira produto, não fica na estante”; pós lato sensu conectando empresas e universidades (instituições recebem recursos por formar quem o mercado precisa); setor produtivo poderá custear bolsas de formação técnica. Financiamento estudantil: trocar por Empréstimo Contingente à Renda, paga só empregado, parcela proporcional, prazo maior (diz que o modelo atual “afasta o jovem de baixa renda”) (pág. 37).","how":"mudanças anunciadas sem instrumento (“vamos transferir a governança”; “vamos adotar o Empréstimo…”) (pág. 36).","rot":"no","pags":"36","page":36,"spec":"36–37"},{"id":"F12","cand":"flavio","tema":"servicos","sub":"Mulheres","what":"“Brasil por Elas” (12 medidas): Central da Mulher com aplicativo e assistente virtual “ClarIA”; bônus de internet; denúncia integrada com avaliação de risco; crédito e escritura da casa no nome da mulher; tolerância zero ao feminicídio (tornozeleira no agressor).","how":"centrais “em parceria com estados e municípios, em imóveis da União” (pág. 17) e Escola Brasil por Elas com Sistema S e parcerias público-privadas (pág. 20); aplicativo/ClarIA, bônus de internet e denúncia com avaliação de risco ficam em “vamos” (pág. 17–20).","rot":"mid","pags":"17–20","page":17,"spec":"17–20"},{"id":"F13","cand":"flavio","tema":"servicos","sub":"Cultura como motor: economia e transformação social","what":"“Menos concentração, mais Brasil na cultura”: aperfeiçoar as leis de incentivo corrigindo distorções, levar recursos a polos regionais e a “artistas de grande mérito artístico, porém de pouca projeção, hoje esquecidos”; preservação do patrimônio histórico (“centros históricos, obras e acervos que contam quem somos, hoje deteriorados”); separar “cultura e entretenimento comercial”; transparência e liberdade de expressão, “sem subordiná-la a agendas políticas” (pág. 41).","how":"“aperfeiçoaremos as leis de incentivo”, sem dizer como nem quanto.","rot":"no","pags":"41","page":41,"spec":"41"},{"id":"L09","cand":"lula","tema":"servicos","sub":"Saúde","what":"Reduzir filas (programa “Agora tem Especialistas”, mutirões e carretas); manter a Farmácia Popular 100% gratuita; ampliar Mais Médicos e vacinação.","how":"ampliação de programas existentes + parcerias e orçamento (pág. 35–38).","rot":"ok","pags":"35–38","page":35,"spec":"35–38"},{"id":"L10","cand":"lula","tema":"servicos","sub":"Educação e crianças","what":"Cumprir o novo plano nacional de educação (2026–2036); meta de 80% das crianças alfabetizadas na idade certa; mais tempo integral; 111 novos institutos federais; manter o Pé-de-Meia.","how":"metas pactuadas com estados e municípios; Fundeb, PAC e programas existentes (pág. 31–33).","rot":"ok","pags":"31–33","page":31,"spec":"31–33"},{"id":"L11","cand":"lula","tema":"servicos","sub":"Universidades: ensino público × privado","what":"Público: expandir a rede federal, 10 novos campi + 367 obras em universidades (Novo PAC); cotas mantidas/aperfeiçoadas (45,5% dos graduandos são pretos, pardos ou indígenas; 3 em 4 vêm da escola pública; quilombolas incluídos); assistência estudantil (alimentação e moradia); cursinhos populares; Universidade Indígena e unidade do ITA no Ceará. Privado: ProUni em recorde de bolsas; dívidas do FIES renegociadas duas vezes; bolsas reajustadas após década congeladas (pág. 33).","how":"orçamento restaurado + PAC + programas existentes (cotas, ProUni, FIES) (pág. 19–20) e (pág. 24).","rot":"ok","pags":"8","page":8,"spec":"8"},{"id":"L12","cand":"lula","tema":"servicos","sub":"Mulheres","what":"Concluir 30 Casas da Mulher Brasileira e 15 Centros de Referência; Salas Lilás; igualdade salarial com metas progressivas.","how":"continuidade do Pacto de Enfrentamento ao Feminicídio, dez leis e cinco decretos já editados no mandato, com parceria de estados (pág. 21); igualdade salarial: fortalecer a implementação da Lei de 2023, com Planos de Ação obrigatórios e metas progressivas (pág. 75) (pág. 21, 75).","rot":"ok","pags":"21, 75","page":21,"spec":"21, 75"},{"id":"L13","cand":"lula","tema":"servicos","sub":"Cultura como motor: economia e transformação social","what":"Cultura como “fonte de riqueza simbólica, social e econômica” que “impulsiona a economia e promove o desenvolvimento territorial”: MinC recriado; Lei do Sistema Nacional de Cultura aprovada; fomento recorde (Aldir Blanc e Rouanet aperfeiçoadas; Cultura Viva recuperado, 16 mil Pontos); 144 obras de restauração + 105 projetos (PAC); economia criativa com crédito e Marco Legal dos Games (games = cultura, acesso à Rouanet); Tela Brasil; regulamentação do streaming e lei de direito autoral digital, “quem cria não pode ser o único a não ganhar” (pág. 42).","how":"leis aprovadas e editais em curso (MinC, Sistema Nacional de Cultura, Aldir Blanc/Rouanet, Cultura Viva, pág. 40–41; Marco Legal dos Games, Tela Brasil, pág. 42); streaming e direito autoral digital ficam em “trabalharemos pela aprovação” (pág. 42) (pág. 40–44).","rot":"mid","pags":"40–44","page":40,"spec":"40–44"},{"id":"F14","cand":"flavio","tema":"economia","sub":"Economia e contas públicas","what":"Reformular as regras fiscais (dívida em queda, superávit primário; limitar crédito subsidiado do Tesouro); “Tesouraço”: corte de no mínimo 10 ministérios, comissionados e supersalários; retomar desestatizações.","how":"desestatização caso a caso com o “Programa Nacional de Desestatização” (pág. 70) e “revogaço regulatório” (pág. 69) têm veículo; “reforma administrativa já em discussão” (pág. 69); regras fiscais e tributárias ficam em “apresentaremos/faremos” (pág. 69–71).","rot":"mid","pags":"69–71","page":69,"spec":"69–71"},{"id":"F15","cand":"flavio","tema":"economia","sub":"Infraestrutura e crescimento","what":"Investir R$ 900 bi em 4 anos (rodovias, ferrovias, portos, aeroportos, hidrovias); crescer 4% ao ano.","how":"PPPs, concessões e fundo lastreado na securitização de ativos e imóveis da União (pág. 49–51).","rot":"ok","pags":"49–51","page":49,"spec":"49–51"},{"id":"F16","cand":"flavio","tema":"economia","sub":"Micro e pequenos negócios","what":"“Minha Primeira Empresa”: menos burocracia para abrir e formalizar + capacitação pelo Sistema S + esteira de crédito e serviços da CAIXA; crédito para empreender e internacionalização de pequenos negócios; CAIXA como plataforma única (crédito, orientação, habitação) com IA para achar oportunidades e histórico positivo de crédito (cursos, contas em dia = juros melhores); Lei de Liberdade Econômica em todos os estados e municípios; “revogaço regulatório” (pág. 45–46).","how":"parceiros citados (CAIXA, Sistema S, BNDES/Apex) sem instrumento legal junto (pág. 45–46); “fazer a liberdade econômica alcançar todo o país” e o “revogaço regulatório” têm veículo (pág. 27) (pág. 27, 44–46).","rot":"mid","pags":"27, 44–46","page":27,"spec":"27, 44–46"},{"id":"F17","cand":"flavio","tema":"economia","sub":"Terras raras e minerais críticos","what":"“A riqueza do subsolo virando emprego qualificado aqui dentro”: lista lítio, nióbio, grafite, cobre, níquel, urânio e terras-raras e propõe agregar valor no Brasil “em vez de somente exportar a pedra bruta e comprar de volta o produto acabado”; Estado como regulador e coordenador, não empresário, pilares: marco regulatório claro e estável, licenciamento ágil, atração de capital e tecnologia, verticalização com incentivos, governança e transparência; equacionar garantias de crédito e acelerar direitos minerários; fertilizantes (potássio/fosfato) para o agro (pág. 55–56).","how":"define o modelo e o papel do Estado (“seis pilares”, garantias de crédito e aceleração de licenciamento/direitos minerários, pág. 55–56), sem lei ou instrumento legal citado (pág. 54–56).","rot":"mid","pags":"54–56","page":54,"spec":"54–56"},{"id":"L14","cand":"lula","tema":"economia","sub":"Economia e contas públicas","what":"Manter o arcabouço fiscal e buscar juros em queda; seguir a “neoindustrialização” (Plano Mais Produção, R$ 860 bi em financiamentos no ciclo 2023–26) e o novo ciclo de PAC (obras, logística, concessões).","how":"por continuidade e orçamento: são programas existentes; crédito público, concessões e leilões (pág. 49–54).","rot":"ok","pags":"49–54","page":49,"spec":"49–54"},{"id":"L15","cand":"lula","tema":"economia","sub":"Infraestrutura e crescimento","what":"Seguir o novo ciclo de PAC, obras de logística e infraestrutura urbana e social.","how":"orçamento público, concessões e leilões (pág. 52–54).","rot":"ok","pags":"52–54","page":52,"spec":"52–54"},{"id":"L16","cand":"lula","tema":"economia","sub":"Micro e pequenos negócios","what":"“O Brasil é um país de pequenos negócios”: crédito já rodando e a ampliar, Pronampe: 1,6 milhão de operações e Procred 360: 211 mil, mobilizando R$ 130 bilhões; Novo Desenrola: 219 mil operações; fundos garantidores e fundos de participação com bancos públicos; simplificar o ambiente de negócios, ampliar compras governamentais e “tratamento tributário justo na reforma”; Brasil Mais Produtivo para digitalizar MPEs.","how":"programas e fundos em execução (Pronampe/Procred 360, fundos garantidores, fundos de participação, pág. 57–58); “simplificar o ambiente de negócios” e ampliar compras governamentais ficam em “vamos”, sem instrumento (pág. 57) (pág. 57–58).","rot":"mid","pags":"57–58","page":57,"spec":"57–58"},{"id":"L17","cand":"lula","tema":"economia","sub":"Terras raras e minerais críticos","what":"Promete uma política específica para minerais críticos e terras raras, organizar as cadeias, diferenciar usos tecnológicos e “evitar a simples exportação de matérias-primas estratégicas”; coloca o tema na agenda de soberania tecnológica com IA e inovação; processamento de minerais críticos entre os setores da transição verde (siderurgia verde, fertilizantes, química); urânio aproveitado “de forma responsável”, com competência nuclear preservada (pág. 52).","how":"“desenvolveremos uma política específica” e “estratégia regional de mapeamento”, sem instrumento citado (pág. 52); processamento de minerais críticos na transição verde (pág. 56); urânio “de forma responsável”, competência nuclear preservada (pág. 68) (pág. 50–52, 56, 68).","rot":"no","pags":"50–52, 56, 68","page":50,"spec":"50–52, 56, 68"},{"id":"F18","cand":"flavio","tema":"ambiente","sub":"Meio ambiente","what":"Desmatamento ilegal zero até 2029; mercado regulado de carbono; pagamento por serviços ambientais; autonomia a indígenas e quilombolas sobre produção nas terras.","how":"mercado regulado de carbono: “consolidar com segurança jurídica” (pág. 57); meta de desmatamento até 2029, pagamento por serviços ambientais e autonomia indígena/quilombola sobre atividades produtivas ficam em “teremos/vamos” (pág. 50, 55, 58) (pág. 50, 55, 57–59).","rot":"mid","pags":"50, 55, 57–59","page":50,"spec":"50, 55, 57–59"},{"id":"F19","cand":"flavio","tema":"ambiente","sub":"Instituições e democracia","what":"Reforma do Judiciário (limitar decisões individuais do STF, quarentena para ministros, impedir parentes); fim da reeleição presidencial, PEC de autoria dele já protocolada no Senado; “Tesouraço na Censura” (revogar atos).","how":"PEC do fim da reeleição “já protocolada no Senado” (pág. 66) e “revogar todos os atos” do governo atual (pág. 66) têm veículo; a reforma do Judiciário fica em “propomos” (pág. 65–66) (pág. 65–67).","rot":"mid","pags":"65–67","page":65,"spec":"65–67"},{"id":"L18","cand":"lula","tema":"ambiente","sub":"Meio ambiente","what":"Desmatamento líquido zero até 2030; redução de 59% a 67% das emissões líquidas até 2035 (base 2005); regulamentar o mercado de carbono.","how":"continuidade de planos e leis existentes: planos de prevenção e controle do desmatamento, Plano Nacional de Manejo Integrado do Fogo, Código Florestal e Lei da Mata Atlântica (pág. 70); regulamentação do SBCE, lei aprovada no mandato (pág. 51) (pág. 51, 69–71).","rot":"ok","pags":"51, 69–71","page":51,"spec":"51, 69–71"},{"id":"L19","cand":"lula","tema":"ambiente","sub":"Instituições e democracia","what":"Regulação das redes sociais contra desinformação; reforma política “inadiável”; debate sobre emendas parlamentares com a sociedade.","how":"o plano não define os instrumentos (pág. 15–17).","rot":"no","pags":"15–17","page":15,"spec":"15–17"}]</script>
 
 <script>
 (function(){
   var DATA = JSON.parse(document.getElementById('data-catalogo').textContent);
   var CAND2 = { lula:{nome:'Lula', cls:'lula'}, flavio:{nome:'Flávio', cls:'flavio'} };
-  var ROTS = { ok:'caminho explícito', mid:'parcial', no:'sem caminho' };
+  var ROTS = { ok:'ferramenta nomeada', mid:'parcial', no:'só intenção' };
   var ROTCLS = { ok:'chip-ok', mid:'chip-partial', no:'chip-warn' };
   var TEMAS2 = [ {k:'bolso',l:'Bolso'}, {k:'seguranca',l:'Segurança'}, {k:'servicos',l:'Serviços'}, {k:'economia',l:'Economia'}, {k:'ambiente',l:'Ambiente e instituições'} ];
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -951,8 +1369,9 @@ body.modal-open{overflow:hidden}
         if (hay.indexOf(q) === -1) continue;
       }
       shown += 1;
+      var oculto = CELULAR.matches && shown > limite;
       var snip = it.what.length > 150 ? it.what.slice(0,150) + '…' : it.what;
-      rows.push('<tr>'
+      rows.push('<tr' + (oculto ? ' hidden' : '') + '>'
         + '<td class="who ' + CAND2[it.cand].cls + '">' + esc(CAND2[it.cand].nome) + '</td>'
         + '<td>' + esc(temaLabel(it.tema)) + '</td>'
         + '<td><span class="t">' + esc(it.id) + ' · ' + esc(it.sub) + '</span>'
@@ -962,14 +1381,25 @@ body.modal-open{overflow:hidden}
         + '<td><button class="detail-btn cat-det" type="button" data-id="' + esc(it.id) + '">detalhes</button></td>'
         + '</tr>');
     }
-    catBody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6" class="empty-row">Nenhuma proposta corresponde aos filtros.</td></tr>';
+    catBody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6" class="empty-row">Nenhum item com esses filtros. <button type="button" class="ghost-btn" data-limpar>Limpar filtros</button></td></tr>';
     catStatus.textContent = shown + ' de ' + DATA.length + ' propostas';
+    var falta = CELULAR.matches ? Math.max(0, shown - limite) : 0;
+    catMais.hidden = !falta;
+    catMais.textContent = 'Mostrar mais ' + Math.min(PASSO, falta);
   }
-  fCand.addEventListener('change', renderCat);
-  fTema.addEventListener('change', renderCat);
-  fRot.addEventListener('change', renderCat);
-  fBusca.addEventListener('input', renderCat);
-  document.getElementById('f-clear').addEventListener('click', function(){ fCand.value=''; fTema.value=''; fRot.value=''; fBusca.value=''; renderCat(); });
+  var CELULAR = window.matchMedia ? window.matchMedia('(max-width: 760px)') : { matches: false };
+  var INICIO = 6, PASSO = 15, limite = INICIO;
+  var catMais = document.getElementById('cat-mais');
+  function filtra(){ limite = INICIO; renderCat(); }
+  function limpa(){ fCand.value=''; fTema.value=''; fRot.value=''; fBusca.value=''; filtra(); }
+  fCand.addEventListener('change', filtra);
+  fTema.addEventListener('change', filtra);
+  fRot.addEventListener('change', filtra);
+  fBusca.addEventListener('input', filtra);
+  document.getElementById('f-clear').addEventListener('click', limpa);
+  catBody.addEventListener('click', function(e){ if (e.target.closest && e.target.closest('[data-limpar]')) limpa(); });
+  catMais.addEventListener('click', function(){ limite += PASSO; renderCat(); });
+  if (CELULAR.addEventListener) CELULAR.addEventListener('change', filtra);
   renderCat();
   var mcat = document.getElementById('mcat'), mcatBody = document.getElementById('mcat-body'),
       mcatTitle = document.getElementById('mcat-title'), mcatSub = document.getElementById('mcat-sub'),

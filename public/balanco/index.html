@@ -37,7 +37,6 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
-a{color:var(--c1)}
 p{margin:.45em 0}
 .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 64px}
 h1{font-size:27px;margin:0 0 4px;letter-spacing:-.02em;line-height:1.2}
@@ -222,142 +221,530 @@ body.modal-open{overflow:hidden}
 .detail-body .srcs li{margin:4px 0;word-break:break-all;font-size:13.5px}
 .foot{margin-top:18px;font-size:12.5px;color:var(--muted);line-height:1.7}
 .apx li,.apx p,.apx .row{overflow-wrap:anywhere}
+/* ==== 15/10/2026 — páginas de análise no celular: resumo, seções simétricas, catálogo em cards ====
+   Cores dos lados vêm do site.css (--gb/--gl e tons de texto --gb-txt/--gl-txt). Status (categorias)
+   NUNCA usa verde/vermelho/ciano: cor do lado cheia = melhor categoria, cor clara = parcial,
+   listrado = em andamento, cinza = não cumprida, vazado = sem evidência; nos selos, ícone + texto. */
+a{color:#02522b}
+.pg-hero .sub{color:#3f3f46;font-size:15.5px;max-width:72ch}
+.pg-hero h1{margin-bottom:6px}
+.selo-lado{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;padding:4px 11px;border-radius:999px}
+.selo-lado.w1{background:var(--gb-tint);color:var(--gb-txt)}
+.selo-lado.w2{background:var(--gl-tint);color:var(--gl-txt)}
+.selo-n{display:inline-flex;align-items:center;font-size:13.5px;font-weight:700;color:#18181b;padding:4px 11px;border-radius:999px;border:1px solid #d4d4d8;background:#fff}
+.answer{gap:6px 8px;font-size:13.5px}
+.h2-sub{margin:-2px 0 8px;font-size:14.5px;color:#3f3f46;font-variant-numeric:tabular-nums}
+.chap .lead b{color:#18181b}
+.chap-hd h2 .x{color:#71717a;font-weight:600}
+/* saldo da seção: neutro (antes era índigo, perto do roxo de um dos lados) */
+.saldo{background:#f4f4f5;border:1px solid #e4e4e7;border-left:4px solid #52525b;color:#27272a}
+.saldo>b:first-child{color:#18181b}
+.saldo .gb b,.saldo .gl b{color:inherit}
+.saldo .gb b::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gb);margin-right:5px;vertical-align:1px}
+.saldo .gl b::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--gl);margin-right:5px;vertical-align:1px}
+.sec-acoes{display:flex;justify-content:flex-end;margin:-4px 0 0}
+.sec-acoes .share--mini{margin:0}
+
+/* selos de categoria: ícone + texto, neutros e iguais para os dois lados */
+.chip{background:#f4f4f5;color:#18181b;border:1.5px solid transparent;font-weight:700;letter-spacing:.01em}
+.chip::before{margin-right:5px;font-weight:800}
+.chip-ok{background:#27272a;color:#fff}
+.chip-ok::before{content:"✓"}
+.chip-mid,.chip-partial{background:#e4e4e7;color:#18181b}
+.chip-mid::before,.chip-partial::before{content:"◐"}
+.chip-run{background:repeating-linear-gradient(45deg,#e4e4e7 0 4px,#fff 4px 8px);border-color:#a1a1aa;color:#18181b}
+.chip-run::before{content:"↻"}
+.chip-no{background:#fff;border-color:#52525b;color:#27272a}
+.chip-no::before{content:"✕"}
+.chip-na{background:transparent;border:1.5px dashed #a1a1aa;color:#3f3f46}
+.chip-na::before{content:"?"}
+.chip-warn{background:transparent;border:1.5px dashed #71717a;color:#27272a}
+.chip-warn::before{content:"○"}
+.pg-prop .chip-ok::before{content:"●"}
+.chip.sm{font-size:12px;padding:2px 9px}
+.legend .chip{min-width:0}
+
+/* barras 100% por lado (mesma codificação do gráfico) */
+.sbar{display:flex;gap:2px;height:24px;border:0;border-radius:6px;background:transparent;overflow:hidden}
+.sbar i{display:flex;align-items:center;justify-content:center;min-width:0;height:100%;font-style:normal;font-size:12px;font-weight:800;overflow:hidden;white-space:nowrap;border-radius:0}
+.sbar i:first-child{border-radius:5px 0 0 5px}
+.sbar i:last-child{border-radius:0 5px 5px 0}
+.sbar i:only-child{border-radius:5px}
+.sbar i span{padding:0 4px;border-radius:3px;line-height:16px}
+.sbar--b .seg--cheio{background:var(--gb);color:#fff}
+.sbar--l .seg--cheio{background:var(--gl);color:#fff}
+.sbar--b .seg--claro{background:var(--gb-claro);color:#18181b}
+.sbar--l .seg--claro{background:var(--gl-claro);color:#18181b}
+.sbar--b .seg--listrado{background:repeating-linear-gradient(45deg,var(--gb-claro) 0 3px,#fff 3px 6px)}
+.sbar--l .seg--listrado{background:repeating-linear-gradient(45deg,var(--gl-claro) 0 3px,#fff 3px 6px)}
+.seg--listrado span,.seg--vazio span{background:#fff;color:#18181b}
+.sbar .seg--neutro{background:#52525b;color:#fff}
+.sbar .seg--vazio{background:#fff;outline:1px dashed #71717a;outline-offset:-1px}
+.seg-leg{display:flex;flex-wrap:wrap;gap:4px 14px;margin:10px 0 0;font-size:13px;color:#3f3f46}
+.seg-leg span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:24px;height:12px;border-radius:3px;flex:0 0 auto}
+.sw--cheio{background:linear-gradient(90deg,var(--gb) 50%,var(--gl) 50%)}
+.sw--claro{background:linear-gradient(90deg,var(--gb-claro) 50%,var(--gl-claro) 50%)}
+.sw--listrado{background:repeating-linear-gradient(45deg,var(--gb-claro) 0 3px,#fff 3px 6px);box-shadow:inset -12px 0 0 0 transparent;position:relative}
+.sw--listrado::after{content:"";position:absolute;right:0;top:0;width:12px;height:12px;border-radius:0 3px 3px 0;background:repeating-linear-gradient(45deg,var(--gl-claro) 0 3px,#fff 3px 6px)}
+.sw--neutro{background:#52525b}
+.sw--vazio{background:#fff;outline:1px dashed #71717a;outline-offset:-1px}
+.vrow{grid-template-columns:200px 1fr}
+.vname{display:flex;flex-wrap:wrap;align-items:center;gap:0 6px;color:#18181b}
+.vname small{flex-basis:100%}
+.vtxt{color:#3f3f46}
+
+/* mapa tema a tema (cabe em 390 px: uma linha por lado, empilhadas) */
+.mapa2{display:grid;gap:4px}
+.mt{padding:8px 0;border-bottom:1px solid #e4e4e7}
+.mt:last-child{border-bottom:0}
+.mt-t{margin:0 0 4px;font-size:14px;font-weight:700}
+.mt-r{display:grid;grid-template-columns:96px minmax(0,1fr) 28px;align-items:center;gap:8px;margin:3px 0}
+.mt-n{display:flex;align-items:center;gap:6px;font-size:13px;color:#3f3f46}
+.mt-c{font-size:13px;color:#52525b;text-align:right;font-variant-numeric:tabular-nums}
+.mt-0{font-size:12.5px;color:#71717a}
+.mt-r .sbar{height:18px}
+@media(min-width:900px){.mapa2{grid-template-columns:1fr 1fr;column-gap:28px}.mt:nth-last-child(2){border-bottom:0}}
+
+/* resumo em 1 minuto: blocos de mesmo tamanho */
+.r3{display:grid;grid-template-columns:1fr;gap:10px;margin:4px 0 0}
+@media(min-width:860px){.r3{grid-template-columns:repeat(3,1fr)}}
+.r3-c{border:1px solid var(--linha,#e4e4e7);border-radius:14px;padding:10px 12px 10px;scroll-margin-top:64px;display:flex;flex-direction:column;gap:6px}
+.r3-c:target{outline:2px solid #18181b;outline-offset:2px}
+.r3-q{margin:0;font-size:15px;font-weight:700;line-height:1.35}
+.r3-c .q-vals dd small{display:block;font-size:12.5px;font-weight:500;color:#52525b}
+.r3-pe{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;color:#3f3f46}
+.r-fixa{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:#f4f4f5;font-size:14.5px;line-height:1.5;color:#18181b}
+.r-ress{margin:8px 0 0;padding:10px 12px;border:1.5px solid #52525b;border-radius:12px;font-size:14.5px;line-height:1.5;color:#18181b;background:#fff}
+.r-ress b{font-weight:700}
+.r-sub{margin:16px 0 4px;font-size:15.5px;font-weight:700}
+.r-sub small{font-weight:500;color:#52525b;font-size:13px}
+.q-resumo .q-linhas{margin-top:2px}
+.q-linha-nome a{color:#18181b;text-decoration:underline;text-decoration-color:#d4d4d8;text-underline-offset:3px}
+.r-acoes{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px 12px;margin-top:4px}
+.r-acoes .share{margin:12px 0 0;flex:1 1 280px}
+.dl-img{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:10px 16px;margin-top:12px;border:1px solid #d4d4d8;border-radius:999px;background:#fff;color:#18181b;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.dl-img:hover{border-color:#a1a1aa;background:#fafafa}
+.dl-img[hidden]{display:none}
+/* tabela por seção (propostas): 4 colunas que cabem em 358 px */
+.r-sec{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin-top:4px}
+.r-sec caption{text-align:left;font-size:13px;color:#52525b;padding:0 0 4px}
+.r-sec th,.r-sec td{padding:8px 4px;border-bottom:1px solid #e4e4e7;text-align:center;vertical-align:top;font-size:14.5px}
+.r-sec thead th{font-size:12.5px;font-weight:600;color:#52525b;line-height:1.25;vertical-align:bottom}
+.r-sec tbody th{text-align:left;font-weight:700;font-size:14.5px;line-height:1.35;width:40%}
+.r-sec tbody th a{color:#18181b;text-decoration:underline;text-decoration-color:#d4d4d8;text-underline-offset:3px}
+.r-sec tbody th small{display:block;font-weight:500;color:#52525b;font-size:12.5px}
+.r-sec .q-forca{margin-top:4px}
+.r-sec .mud{display:block;font-weight:500;font-size:12.5px;color:#3f3f46;margin-top:3px}
+.r-sec tr:last-child th,.r-sec tr:last-child td{border-bottom:0}
+.r-sec td b{font-weight:700}
+.vbar-row > span{white-space:nowrap}
+
+/* linhas de tema recolhíveis (seções) */
+.tema-row{border:1px solid #e4e4e7;border-radius:12px;background:#fff;margin:8px 0}
+.tema-row>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) 16px;gap:4px 10px;align-items:center;min-height:56px;padding:9px 14px;border-radius:12px;-webkit-tap-highlight-color:transparent}
+.tema-row>summary::-webkit-details-marker{display:none}
+.tema-row>summary::after{content:"";grid-column:2;grid-row:1 / span 2;width:8px;height:8px;border-right:2px solid #52525b;border-bottom:2px solid #52525b;transform:rotate(45deg);transition:transform .18s ease;justify-self:center}
+.tema-row[open]>summary::after{transform:rotate(-135deg)}
+.tema-row>summary:hover{background:#fafafa}
+.tema-row>summary:focus-visible{outline:3px solid rgba(2,82,43,.45);outline-offset:2px}
+.tr-t{font-size:15.5px;font-weight:700;color:#18181b;line-height:1.3}
+.tr-t .theme-note{display:block;margin:0;font-weight:500}
+.tr-s{grid-column:1;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13.5px;color:#3f3f46}
+.tr-v{display:inline-flex;align-items:center;gap:6px}
+.tema-row>.grid2{padding:2px 12px 12px}
+.tema-row .card{box-shadow:none}
+@media (prefers-reduced-motion:reduce){.tema-row>summary::after{transition:none}}
+
+/* catálogo: tabela no desktop, lista de cards no celular (com e sem JS) */
+.cat-mais-btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin:8px 0 0;border:1px solid #d4d4d8;border-radius:12px;background:#fff;font:inherit;font-size:15px;font-weight:700;color:#18181b;cursor:pointer}
+.cat-mais-btn[hidden]{display:none}
+.cat-mais-btn:hover{background:#fafafa}
+table.cat tr[hidden]{display:none!important}
+table.cat td.who.bolso,table.cat td.who.flavio{color:var(--gb-txt)}
+table.cat td.who.lula{color:var(--gl-txt)}
+table.cat td.who::before{content:"";display:inline-block;width:9px;height:9px;margin-right:6px;vertical-align:0}
+table.cat td.who.bolso::before,table.cat td.who.flavio::before{border-radius:50%;background:var(--gb)}
+table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
+@media (max-width:760px){
+  .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;align-items:end}
+  .filters .f{min-width:0}
+  .filters .f:nth-child(4){grid-column:1 / -1}
+  .filters select,.filters input{width:100%;min-height:44px;font-size:16px}
+  .filters label{font-size:12.5px}
+  .search-status{display:flex;align-items:center;min-height:44px;font-size:14px;color:#3f3f46}
+  .filters .ghost-btn{width:100%;min-height:44px}
+  .tablewrap{overflow:visible;background:transparent;border:0;box-shadow:none}
+  table.cat,table.cat tbody{display:block}
+  table.cat thead{display:none}
+  table.cat tr{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"who chip" "prom prom" "meta pag" "det det";gap:4px 10px;margin:0 0 8px;padding:11px 14px 12px;background:#fff;border:1px solid #e4e4e7;border-left:4px solid #a1a1aa;border-radius:12px}
+  table.cat tr:has(td.who.bolso),table.cat tr:has(td.who.flavio){border-left-color:var(--gb)}
+  table.cat tr:has(td.who.lula){border-left-color:var(--gl)}
+  table.cat td{display:block;padding:0;border:0;min-width:0}
+  table.cat td:nth-child(1){grid-area:who;align-self:center;font-size:14px}
+  table.cat td:nth-child(2){grid-area:meta;font-size:13px;color:#52525b;align-self:center}
+  table.cat td:nth-child(3){grid-area:prom}
+  table.cat td:nth-child(4){grid-area:pag;font-size:13px;color:#52525b;white-space:nowrap;align-self:center;text-align:right}
+  table.cat td:nth-child(4)::before{content:"pág. "}
+  table.cat td:nth-child(5){grid-area:chip;align-self:center;text-align:right}
+  table.cat td:nth-child(6){grid-area:det}
+  table.cat td:nth-child(6):empty{display:none}
+  table.cat td .t{display:block;font-size:15px;line-height:1.35}
+  table.cat td .tr-snip{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13.5px;color:#52525b;margin-top:2px}
+  table.cat .detail-btn{width:100%;min-height:44px;margin-top:4px}
+  table.cat .empty-row{display:block;background:#fff;border-radius:12px}
+  table.cat tr:has(.empty-row){display:block;border-left-color:#e4e4e7}
+}
+@media (max-width:760px){
+  .wrap{padding:20px 16px 56px}
+  .chap{margin-top:40px}
+  .vrow{grid-template-columns:1fr}
+  .grid2{gap:10px}
+  body .q-resumo{padding:14px 14px 12px}
+}
+/* ---- compacto: meta de altura no celular (≤ 15 telas) ---- */
+.bpd-tabela table{display:block;overflow-x:auto}
+.q-resumo .q-linhas .q-v{display:flex;align-items:baseline;justify-content:space-between;gap:6px;padding:5px 9px}
+.q-resumo .q-linhas .q-v dd{font-size:16px}
+.q-resumo .q-linha{padding:8px 0}
+.q-resumo .q-linha-hd{margin-bottom:4px}
+.q-resumo .q-ress{margin-top:4px;font-size:13.5px}
+.r3-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.r3-c .q-vals .q-v{padding:6px 9px}
+.r-nota{margin:2px 0 8px;font-size:13.5px;color:#3f3f46}
+.leg-chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}
+.leg-chips .chip{margin:0}
+.capviz .figt{font-size:14px;margin:0 0 2px}
+.capviz .vrow{margin:6px 0;gap:3px 14px}
+.capviz .vname{font-size:14px;gap:0 6px}
+.capviz .vname small{flex-basis:auto;display:inline;font-size:12.5px;font-weight:500}
+.capviz .vtxt{font-size:13px;margin-top:0}
+.card.cv{padding:12px 14px}
+@media (max-width:760px){
+  table.cat tr{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"who who chip" "prom prom prom" "meta pag det";padding:10px 12px 8px}
+  table.cat td:nth-child(6){align-self:center}
+  table.cat td:nth-child(6):empty{display:none}
+  table.cat td .tr-snip{-webkit-line-clamp:1}
+  table.cat .detail-btn,table.cat .cat-det{width:auto;margin-top:0;min-height:44px;padding:0 14px}
+  table.cat td:nth-child(4){text-align:left}
+}
+/* ---- compacto 2: resumo em linhas no celular, linhas de tema de 1 linha de status ---- */
+.r3-cab{display:none}
+@media (max-width:859px){
+  .r3{gap:0;border:1px solid #e4e4e7;border-radius:14px;overflow:hidden}
+  .r3-cab{display:grid;grid-template-columns:minmax(0,1fr) 88px 88px;gap:6px;padding:6px 10px;background:#fafafa;border-bottom:1px solid #e4e4e7;font-size:12.5px;font-weight:600;color:#3f3f46}
+  .r3-cab span{display:flex;align-items:center;gap:5px}
+  .r3-c{display:grid;grid-template-columns:minmax(0,1fr) 182px;align-items:center;gap:6px;border:0;border-bottom:1px solid #e4e4e7;border-radius:0;padding:8px 10px}
+  .r3-c:last-child{border-bottom:0}
+  .r3-hd{flex-direction:column;align-items:flex-start;gap:4px}
+  .r3-q{font-size:14px}
+  .r3-c .q-vals{grid-template-columns:88px 88px;gap:6px}
+  .r3-c .q-v dt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .r3-c .q-v{padding:5px 8px}
+  .r3-c .q-v dd{font-size:17px}
+}
+.tema-row>summary{min-height:52px;padding:7px 12px}
+.tema-row{margin:6px 0}
+.tr-s{gap:2px 12px;font-size:13px}
+.tr-s .tr-lbl{color:#52525b}
+@media (max-width:760px){
+  table.cat td .tr-snip{display:none}
+  body .q-cred{row-gap:0}
+}
+/* ---- compacto 3: linhas do resumo (por tema/seção), filtros em 4 linhas, texto de apoio 15 px ---- */
+.q-v dd{white-space:nowrap}
+.r3--tema,.r3--linhas{grid-template-columns:1fr!important;gap:0;border:1px solid #e4e4e7;border-radius:14px;overflow:hidden}
+.r3--tema .r3-cab,.r3--linhas .r3-cab{display:grid;grid-template-columns:minmax(0,1fr) 88px 88px;gap:6px;padding:6px 10px;background:#fafafa;border-bottom:1px solid #e4e4e7;font-size:12.5px;font-weight:600;color:#3f3f46}
+.r3--tema .r3-cab span,.r3--linhas .r3-cab span{display:flex;align-items:center;gap:5px}
+.r3--tema .r3-c,.r3--linhas .r3-c{display:grid;grid-template-columns:minmax(0,1fr) 182px;align-items:center;gap:4px 6px;border:0;border-bottom:1px solid #e4e4e7;border-radius:0;padding:8px 10px}
+.r3--tema .r3-c:last-child,.r3--linhas .r3-c:last-child{border-bottom:0}
+.r3--tema .r3-hd,.r3--linhas .r3-hd{flex-direction:column;align-items:flex-start;gap:4px}
+.r3--tema .r3-q,.r3--linhas .r3-q{font-size:14.5px}
+.r3--tema .r3-q a,.r3--linhas .r3-q a{color:#18181b;text-decoration:underline;text-decoration-color:#d4d4d8;text-underline-offset:3px}
+.r3--tema .q-vals,.r3--linhas .q-vals{grid-template-columns:88px 88px;gap:6px}
+.r3--tema .q-v dt,.r3--linhas .q-v dt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.r3--tema .q-v,.r3--linhas .q-v{padding:5px 8px}
+.r3--tema .q-v dd,.r3--linhas .q-v dd{font-size:16px}
+.r3-nota{grid-column:1 / -1;margin:0;font-size:13px;line-height:1.45;color:#3f3f46}
+.r3-nota b{color:#18181b}
+@media (min-width:860px){.r3--tema,.r3--linhas{max-width:720px}}
+@media (pointer:coarse){.r3-q a{display:inline-flex;align-items:center;min-height:44px;margin:-10px 0}}
+@media (max-width:760px){
+  body .chap{margin-top:30px}
+  .chap .lead,.pg-hero .sub{font-size:15px;line-height:1.5}
+  body .chap-hd{margin-bottom:10px}
+  .filters{grid-template-columns:1fr 1fr;grid-template-areas:"cand tema" "cat limpa" "busca busca" "status status";gap:6px 10px}
+  .filters .f:nth-child(1){grid-area:cand}
+  .filters .f:nth-child(2){grid-area:tema}
+  .filters .f:nth-child(3){grid-area:cat}
+  .filters .f:nth-child(4){grid-area:busca;grid-column:1 / -1}
+  .filters .f:nth-child(5){grid-area:status}
+  .filters .f:nth-child(6){grid-area:limpa;align-self:end}
+  .filters .f:nth-child(5) label,.filters .f:nth-child(6) label{display:none}
+  .filters .f:nth-child(5) .search-status{min-height:0;font-size:13.5px}
+  .fullbar .fullbtn{width:100%;min-height:44px}
+}
+.q-cred-neutro{color:#3f3f46}
+.q-mais--graf{margin:0 0 14px}
+@media (max-width:760px){.chap-hd>.kicker{display:none}body .chap-hd{padding-top:4px}}
+.q-mais--graf .viz{margin:0;border:0;border-top:1px solid #e4e4e7;border-radius:0 0 12px 12px}
+@media (min-width:900px){.q-mais--graf{margin:0}}
 @media print{.topnav{display:none}body{background:#fff}.card,.row,.bigbox,.tablewrap{break-inside:avoid}.modal-backdrop{display:none!important}}
 </style>
 <link rel="stylesheet" href="/assets/css/site.css">
 <script>window.SITE_CONFIG={"gaId":"__GA_ID__","siteUrl":"__SITE_URL__","pageId":"balanco","consent":"__CONSENT__"};</script>
 <script defer src="/assets/js/analytics.js"></script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "__SITE_URL__/#org", "name": "Bora pros dados Brasil", "url": "__SITE_URL__/", "logo": {"@type": "ImageObject", "url": "__SITE_URL__/assets/img/logo-400.png", "width": 400, "height": 225}, "description": "Análises descritivas com dados públicos oficiais do Brasil, sem juízo político, com os arquivos originais para download."}, {"@type": "WebSite", "@id": "__SITE_URL__/#website", "name": "Bora pros dados Brasil", "url": "__SITE_URL__/", "inLanguage": "pt-BR", "publisher": {"@id": "__SITE_URL__/#org"}}, {"@type": "BreadcrumbList", "@id": "__SITE_URL__/balanco/#breadcrumb", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Início", "item": "__SITE_URL__/"}, {"@type": "ListItem", "position": 2, "name": "Promessas e Realizações", "item": "__SITE_URL__/balanco/"}]}, {"@type": "WebPage", "@id": "__SITE_URL__/balanco/#webpage", "url": "__SITE_URL__/balanco/", "name": "Promessas cumpridas? Planos de Bolsonaro (2018) e Lula (2022) item a item", "description": "67 promessas dos planos de governo de Bolsonaro (2018) e Lula (2022) registrados no TSE, cada uma com veredito (cumprida, parcial, não cumprida…) e a fonte oficial.", "inLanguage": "pt-BR", "isPartOf": {"@id": "__SITE_URL__/#website"}, "primaryImageOfPage": {"@type": "ImageObject", "url": "__SITE_URL__/assets/img/og-balanco.jpg", "width": 1200, "height": 630}, "datePublished": "__DATE_PUBLISHED__", "dateModified": "__DATE_MODIFIED__", "breadcrumb": {"@id": "__SITE_URL__/balanco/#breadcrumb"}}, {"@type": "Article", "@id": "__SITE_URL__/balanco/#article", "headline": "Promessas de governo: o que foi prometido × o que foi cumprido", "description": "67 promessas dos planos de governo de Bolsonaro (2018) e Lula (2022) registrados no TSE, cada uma com veredito (cumprida, parcial, não cumprida…) e a fonte oficial.", "inLanguage": "pt-BR", "mainEntityOfPage": {"@id": "__SITE_URL__/balanco/#webpage"}, "image": "__SITE_URL__/assets/img/og-balanco.jpg", "datePublished": "__DATE_PUBLISHED__", "dateModified": "__DATE_MODIFIED__", "author": {"@id": "__SITE_URL__/#org"}, "publisher": {"@id": "__SITE_URL__/#org"}, "isAccessibleForFree": true, "articleSection": "Promessas de governo", "keywords": "promessas de campanha cumpridas, promessas de Bolsonaro cumpridas, promessas de Lula cumpridas, plano de governo, balanço de promessas, TSE", "isBasedOn": ["__SITE_URL__/dados/tse/2018BR280000614517.pdf", "__SITE_URL__/dados/tse/2022BR280001607829.pdf", "https://www.planalto.gov.br/", "https://www.camara.leg.br/", "https://www25.senado.leg.br/"], "about": [{"@type": "Person", "name": "Jair Bolsonaro", "sameAs": "https://pt.wikipedia.org/wiki/Jair_Bolsonaro"}, {"@type": "Person", "name": "Luiz Inácio Lula da Silva", "alternateName": "Lula", "sameAs": "https://pt.wikipedia.org/wiki/Luiz_Inácio_Lula_da_Silva"}]}]}</script>
+<link rel="stylesheet" href="/assets/css/share.css">
+<script defer src="/assets/js/share.js"></script>
+<script defer src="/assets/js/charts.js"></script>
+<script defer src="/assets/js/ui.js"></script>
 </head>
 <body>
 <header class="sitebar">
   <div class="sb-in">
     <a class="sb-brand" href="/" aria-label="Bora pros dados Brasil, início"><img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil" width="200" height="113"></a>
+    <a href="/fontes/" class="sb-cta"><svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span class="t-longo">Baixar fontes →</span> <span class="t-curto">Fontes</span></a>
     <nav class="sb-nav" aria-label="Páginas do site">
-      <a href="/">Governo Lula × Bolsonaro</a>
+      <a href="/"><span class="t-longo">Governo Lula × Bolsonaro</span> <span class="t-curto">Governos</span></a>
       <a href="/propostas/">Propostas 2026</a>
-      <a href="/balanco/" class="ativo">Promessas e Realizações Lula × Bolsonaro</a>
-      <a href="/fontes/" class="sb-cta">Baixar fontes →</a>
+      <a href="/balanco/" class="ativo" aria-current="page"><span class="t-longo">Promessas e Realizações Lula × Bolsonaro</span> <span class="t-curto">Promessas</span></a>
     </nav>
   </div>
 </header>
 <nav class="topnav" aria-label="Seções">
   <div class="in">
-    <a href="#topo">Resumo</a>
-    <a href="#regua">A régua</a>
+    <a href="#resumo">Resumo</a>
+    <a href="#regua">Régua</a>
     <a href="#placar">Placar</a>
     <a href="#cap-bolso">Bolso</a>
     <a href="#cap-servicos">Serviços</a>
     <a href="#cap-estado">Estado</a>
     <a href="#cap-seguranca">Segurança</a>
-    <a href="#catalogo">Explorar</a>
-    <a href="#fora">Fora do plano</a>
+    <a href="#catalogo">Todas</a>
+    <a href="#fora">Fora</a>
     <a href="#metodo">Método</a>
   </div>
   <div class="prog" id="prog"></div>
 </nav>
+<div class="q-cred-wrap">
+  <div class="q-cred" role="note" aria-label="Sobre a confiabilidade destes dados">
+    <span class="q-cred-selo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 3.5v6c0 5-3.4 8.8-8 10.5-4.6-1.7-8-5.5-8-10.5v-6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg> Só fontes oficiais</span>
+    <span class="q-cred-fontes">Leis, Diário Oficial, Congresso, IBGE · <b>67 promessas, uma a uma</b></span>
+    <span class="q-cred-data">Atualizado em <time datetime="__UPDATED_ISO__">__UPDATED__</time> · corte em 30/09/2026</span>
+    <span class="q-cred-links"><a href="#metodo">Como classificamos ›</a><a href="/fontes/#fonte-tse">Planos com SHA-256 ›</a><a href="#quem-fez">Quem fez ›</a></span>
+    <span class="q-cred-neutro">Este site não indica voto.</span>
+  </div>
+</div>
 <div class="wrap" id="topo">
-  <p class="eyebrow">Bora pros dados Brasil · promessas de governo · planos registrados no TSE · verificação somente em fontes oficiais do Estado brasileiro</p>
-  <h1><span class="gb">Governo Bolsonaro (2019–2022)</span> × <span class="gl">Governo Lula (2023–30/09/2026)</span>: o que foi prometido, o que foi cumprido</h1>
-  <p class="sub">O que cada governo prometeu no plano registrado no TSE e o que aconteceu com cada promessa, tema a tema, com a prova oficial e a fonte.</p>
-  <p class="sub">Por que importa para você: comparar promessa e entrega ajuda a ler com mais cuidado as promessas de 2026. Usamos só fontes oficiais: leis e decretos, andamento no Congresso, estatísticas públicas e sites do governo. Sem notícias de imprensa e sem sites que acompanham promessas (“trackers”). O site não indica voto.</p>
+  <div class="pg-hero">
+  <p class="eyebrow">Promessas de governo · planos registrados no TSE · prova só em fontes oficiais</p>
+  <h1><span class="gb">Governo Bolsonaro</span> × <span class="gl">Governo Lula</span>: quanto do plano foi cumprido?</h1>
+  <p class="sub">Cada promessa do plano registrado no TSE (2018 e 2022), com a prova oficial. O mandato de Lula segue em curso: corte em 30/09/2026.</p>
+  </div>
+
+  <section class="q-resumo" id="resumo" data-track-section="resumo" data-track-name="Resumo em 1 minuto" aria-labelledby="resumo-t">
+    <p class="q-resumo-kicker">Resumo em 1 minuto</p>
+    <h2 class="q-resumo-t" id="resumo-t">Quanto do plano cada governo cumpriu: três jeitos de contar</h2>
+    <p class="q-resumo-sub">Plano de 2018 (mandato encerrado) × plano de 2022 (em curso) · ↑ maior é melhor</p>
+    <div class="r3">
+      <div class="r3-cab" aria-hidden="true"><span></span><span><i class="mk mk--b"></i>Bolsonaro</span><span><i class="mk mk--l"></i>Lula</span></div>
+      <article class="r3-c" id="q-cumpridas" aria-labelledby="q-cumpridas-t">
+        <div class="r3-hd"><p class="r3-q" id="q-cumpridas-t">Cumpridas, de todas as promessas</p><span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado." aria-label="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></div>
+        <dl class="q-vals">
+          <div class="q-v q-v--b"><dt><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</dt><dd>15,2% <small>5 de 33</small></dd></div>
+          <div class="q-v q-v--l is-win"><dt><i class="mk mk--l" aria-hidden="true"></i>Lula</dt><dd>35,3% <small>12 de 34</small></dd></div>
+        </dl>
+      </article>
+      <article class="r3-c" id="q-verificaveis" aria-labelledby="q-verificaveis-t">
+        <div class="r3-hd"><p class="r3-q" id="q-verificaveis-t">Cumpridas, só entre as que têm prova oficial</p><span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado." aria-label="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></div>
+        <dl class="q-vals">
+          <div class="q-v q-v--b"><dt><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</dt><dd>22,7% <small>5 de 22</small></dd></div>
+          <div class="q-v q-v--l is-win"><dt><i class="mk mk--l" aria-hidden="true"></i>Lula</dt><dd>38,7% <small>12 de 31</small></dd></div>
+        </dl>
+      </article>
+      <article class="r3-c" id="q-cumpridas-parciais" aria-labelledby="q-cumpridas-parciais-t">
+        <div class="r3-hd"><p class="r3-q" id="q-cumpridas-parciais-t">Cumpridas ou parciais, de todas</p><span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado." aria-label="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></div>
+        <dl class="q-vals">
+          <div class="q-v q-v--b"><dt><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</dt><dd>27,3% <small>9 de 33</small></dd></div>
+          <div class="q-v q-v--l is-win"><dt><i class="mk mk--l" aria-hidden="true"></i>Lula</dt><dd>50,0% <small>17 de 34</small></dd></div>
+        </dl>
+      </article>
+    </div>
+    <p class="r-fixa"><b>Fora do veredito:</b> “não cumpridas” (39,4% × 5,9%), porque o mandato de Lula ainda está aberto. “Em andamento”: 0 × 12.</p>
+    <p class="r-ress"><b>Ressalva:</b> compare porcentagens, não quantidades: cada plano tem um conjunto próprio de promessas (33 × 34). “Sem evidência oficial” (11 × 3) não é o mesmo que descumprida.</p>
+    <p class="r-sub">Por tema <small>· cumpridas, com a mesma categoria para os dois</small></p>
+    <div class="r3 r3--tema">
+      <div class="r3-cab" aria-hidden="true"><span>Tema</span><span><i class="mk mk--b"></i>Bolsonaro</span><span><i class="mk mk--l"></i>Lula</span></div>
+      <div class="r3-c">
+        <div class="r3-hd"><p class="r3-q"><a href="#cap-bolso">Impostos e trabalho</a></p><span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></div>
+        <dl class="q-vals">
+          <div class="q-v q-v--b"><dt><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</dt><dd>0 de 7</dd></div>
+          <div class="q-v q-v--l is-win"><dt><i class="mk mk--l" aria-hidden="true"></i>Lula</dt><dd>5 de 7</dd></div>
+        </dl>
+        <p class="r3-nota">Parciais 0 × 1 · em andamento: não se aplica × 0</p>
+      </div>
+      <div class="r3-c">
+        <div class="r3-hd"><p class="r3-q"><a href="#cap-servicos">Proteção social, saúde e educação</a></p><span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span></div>
+        <dl class="q-vals">
+          <div class="q-v q-v--b"><dt><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</dt><dd>0 de 5</dd></div>
+          <div class="q-v q-v--l is-win"><dt><i class="mk mk--l" aria-hidden="true"></i>Lula</dt><dd>4 de 12</dd></div>
+        </dl>
+        <p class="r3-nota">Parciais 3 × 4 · em andamento: não se aplica × 3 · <b>o que mudaria:</b> contando parciais, 3 de 5 × 8 de 12.</p>
+      </div>
+      <div class="r3-c">
+        <div class="r3-hd"><p class="r3-q"><a href="#cap-estado">Estado e infraestrutura</a></p><span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span></div>
+        <dl class="q-vals">
+          <div class="q-v q-v--b is-win"><dt><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</dt><dd>5 de 13</dd></div>
+          <div class="q-v q-v--l"><dt><i class="mk mk--l" aria-hidden="true"></i>Lula</dt><dd>1 de 7</dd></div>
+        </dl>
+        <p class="r3-nota">Parciais 0 × 0 · em andamento: não se aplica × 5 · <b>o que mudaria:</b> Lula tem 5 de 7 em andamento.</p>
+      </div>
+      <div class="r3-c">
+        <div class="r3-hd"><p class="r3-q"><a href="#cap-seguranca">Segurança, meio ambiente e instituições</a></p><span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span></div>
+        <dl class="q-vals">
+          <div class="q-v q-v--b"><dt><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</dt><dd>0 de 8</dd></div>
+          <div class="q-v q-v--l is-win"><dt><i class="mk mk--l" aria-hidden="true"></i>Lula</dt><dd>2 de 8</dd></div>
+        </dl>
+        <p class="r3-nota">Parciais 1 × 0 · em andamento: não se aplica × 4 · <b>o que mudaria:</b> Lula tem 4 de 8 em andamento.</p>
+      </div>
+    </div>
+    <p class="q-resumo-pe">Fonte: planos de governo registrados no TSE (2018: 81 págs.; 2022: 21 págs.) e prova em fontes oficiais, item a item · corte em 30/09/2026 · atualizado em __UPDATED__ · <a href="#metodo">Como classificamos ›</a></p>
+    <p class="q-resumo-url">boraprosdadosbrasil.netlify.app/balanco/</p>
+    <div class="r-acoes" id="resumo-acoes">
+      <div class="share" data-share-section="balanco" data-share-placement="placar" data-share-anchor="resumo" data-share-name="o resumo das promessas"
+           data-share-text="📊 Promessas cumpridas, 3 leituras: 15,2% × 35,3% do total; 22,7% × 38,7% só das verificáveis; 27,3% × 50,0% com as parciais (Gov. Bolsonaro × Gov. Lula, mandato em curso). Fonte: planos no TSE."></div>
+    </div>
+  </section>
+
 
   <section class="chap" id="regua" data-track-section="regua" data-track-name="A régua">
     <div class="chap-hd">
       <div class="kicker">A régua</div>
       <h2>Mesmas 5 categorias para os dois governos (e só fontes oficiais)</h2>
     </div>
-    <div class="legend">
+    <p class="leg-chips" aria-label="As cinco categorias"><span class="chip chip-ok">Cumprida</span><span class="chip chip-mid">Parcial</span><span class="chip chip-run">Em andamento</span><span class="chip chip-no">Não cumprida</span><span class="chip chip-na">Sem evidência oficial</span></p>
+    <p class="lead"><b>O que isto mostra:</b> as cinco categorias, iguais para os dois governos, e o que cada uma quer dizer. <b>Por que importa para você:</b> para saber o que conta como “cumprida”.</p>
+    <details class="q-mais">
+      <summary data-track="detalhes_abertos" data-track-label="regua-como-ler"><span class="ao-abrir">O que cada categoria quer dizer e como ler</span><span class="ao-fechar">Fechar</span></summary>
+      <div class="q-mais-corpo">
+    <div class="legend" style="margin:6px 0 10px">
       <span><span class="chip chip-ok">Cumprida</span> a promessa foi feita por completo, com prova oficial</span>
       <span><span class="chip chip-mid">Parcial</span> foi feita só em parte; o que falta está indicado</span>
       <span><span class="chip chip-no">Não cumprida</span> há prova oficial de que não foi feita (ou “não cumprida até 30/09/2026”)</span>
       <span><span class="chip chip-run">Em andamento</span> só para o governo atual: já existe medida oficial em execução e o prazo não acabou</span>
       <span><span class="chip chip-na">Sem evidência oficial</span> nenhuma fonte oficial confirma nem nega</span>
     </div>
-    <div class="card explain" style="margin-top:12px">
-      <h4>Como ler (e o que a régua não diz)</h4>
+      <h4 style="margin:10px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:#52525b">Como ler (e o que a régua não diz)</h4>
       <p>· Os conjuntos de promessas são diferentes (33 do Bolsonaro × 34 do Lula): <b>não é possível comparar quantidades</b>, compare a proporção dentro de cada conjunto.</p>
       <p>· O mandato do Lula está <b>em curso</b> (corte em 30/09/2026): “não cumprida até 30/09/2026” não é o mesmo que “não vai cumprir”. O de Bolsonaro está fechado (2019–2022).</p>
       <p>· “Em andamento” só existe para o mandato em curso; “sem evidência oficial” não é o mesmo que descumprimento.</p>
       <p>· A régua mede o que foi escrito no plano registrado no TSE, não é avaliação geral de governo (há entregas fora do plano nos dois lados, listadas em “Fora do plano”).</p>
-    </div>
+      </div>
+    </details>
   </section>
 
   <section class="chap" id="placar" data-track-section="placar" data-track-name="O placar">
     <div class="chap-hd">
       <div class="kicker">O placar</div>
-      <h2>Proporção de cumpridas: 35,3% no <span class="gl">Governo Lula</span> × 15,2% no <span class="gb">Governo Bolsonaro</span></h2>
+      <h2>Cumpridas: 15,2% × 35,3% · só verificáveis: 22,7% × 38,7% · com parciais: 27,3% × 50,0%</h2>
+      <div class="answer"><span class="selo-lado w2"><i class="mk mk--l" aria-hidden="true"></i>✓ Governo Lula à frente nas 3 contas</span> <span class="q-forca">clara</span></div>
     </div>
-    <p class="lead">Quantas promessas de cada governo caíram em cada categoria, em número e em %. As contas foram feitas a partir do catálogo desta página (nenhum número de terceiros é usado).</p>
-    <p class="note">Antes de comparar: o mandato do Lula ainda está em curso, e cada governo tem um conjunto diferente de promessas (33 × 34). Por isso compare as porcentagens, não as quantidades.</p>
+    <p class="lead"><b>O que isto mostra:</b> as cinco categorias para cada governo, em número e em porcentagem. <b>Por que importa para você:</b> mostra quanto do que foi escrito virou realidade.</p>
+    <div class="vrd-grid">
+      <div class="viz" id="g-promessas" role="figure" aria-label="Que parte do plano foi cumprida? Governo Bolsonaro 5 de 33 (15,2%); Governo Lula 12 de 34 (35,3%)."></div>
+      <details class="q-mais q-mais--graf" data-abrir-desktop>
+        <summary data-track="detalhes_abertos" data-track-label="grafico-verificaveis"><span>E só entre as promessas com prova oficial? <b>22,7% × 38,7%</b></span></summary>
+        <div class="viz" id="g-verificaveis" role="figure" aria-label="Só entre as promessas com prova oficial: Governo Bolsonaro 5 de 22 (22,7%); Governo Lula 12 de 31 (38,7%)."></div>
+      </details>
+    </div>
+    <details class="q-mais" id="placar-mais">
+      <summary data-track="detalhes_abertos" data-track-label="placar-ver-mais"><span class="ao-abrir">Ver mais: números por categoria e mapa tema a tema</span><span class="ao-fechar">Fechar</span></summary>
+      <div class="q-mais-corpo">
+    <p class="note">Antes de comparar: o mandato do Lula ainda está em curso, e cada governo tem um conjunto diferente de promessas (33 × 34). Por isso compare as porcentagens, não as quantidades. As contas foram feitas a partir do catálogo desta página (nenhum número de terceiros é usado).</p>
     <div class="verdict2" id="placar-boxes"></div>
+    <div class="viz" id="g-temas"></div>
     <figure class="card" style="margin-top:6px">
-      <h3 class="figt">Mapa tema a tema: onde cada governo cumpriu, parou ou ficou sem evidência</h3>
-      <div style="overflow-x:auto"><div id="placar-mapa"></div></div>
-      <figcaption><strong>Fonte:</strong> catálogo desta página (67 promessas; planos registrados no TSE e vereditos em fontes oficiais) · <strong>Unidade:</strong> % das promessas de cada governo no tema · <strong>Nota:</strong> mandato de Lula em curso, corte em 30/09/2026.</figcaption>
+      <h3 class="figt">Mapa tema a tema: onde cada governo cumpriu, não cumpriu ou ficou sem evidência</h3>
+      <div id="placar-mapa"></div>
+      <figcaption><strong>Fonte:</strong> catálogo desta página (67 promessas; planos registrados no TSE e vereditos em fontes oficiais) · <strong>Unidade:</strong> promessas de cada governo no tema · <strong>Nota:</strong> mandato de Lula em curso, corte em 30/09/2026.</figcaption>
     </figure>
+      </div>
+    </details>
   </section>
 
   <section class="chap" id="cap-bolso" data-track-section="cap-bolso" data-track-name="Bolso">
     <div class="chap-hd">
       <div class="kicker">O que prometeram para o meu bolso?</div>
-      <h2>Impostos e trabalho: o <span class="gl">Governo Lula</span> cumpriu 5 de 7 promessas; o <span class="gb">Governo Bolsonaro</span>, nenhuma de 7</h2>
-      <div class="answer"><span>Maior proporção de cumpridas:</span> <span class="chipw w2">Governo Lula (5 de 7)</span></div>
+      <h2>Impostos e trabalho: cumpridas 0 de 7 × 5 de 7</h2>
+      <p class="h2-sub">Parciais 0 × 1 · em andamento: não se aplica × 0</p>
+      <div class="answer"><span class="selo-lado w2"><i class="mk mk--l" aria-hidden="true"></i>✓ Governo Lula à frente</span> <span class="q-forca">clara</span></div>
     </div>
-    <p class="lead">O que esta seção mostra: o que cada governo prometeu sobre impostos e trabalho, e o que aconteceu. Por que importa para você: são promessas que mexem direto no seu bolso.</p>
-    <div class="card"><div class="capviz" data-temas="impostos,trabalho"></div></div>
+    <p class="lead"><b>O que isto mostra:</b> o que cada governo prometeu sobre impostos e trabalho, e o que aconteceu. <b>Por que importa para você:</b> são promessas que mexem direto no seu bolso.</p>
+    <div class="card cv"><div class="capviz" data-temas="impostos,trabalho"></div></div>
     <div id="tema-impostos"></div>
     <div id="tema-trabalho"></div>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gl"><b>Governo Lula</b></span>, 5 cumpridas, 1 parcial e 1 não cumprida até 30/09/2026 (de 7). <span class="gb"><b>Governo Bolsonaro</b></span>, 4 não cumpridas e 3 sem evidência oficial (de 7).</div>
+    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Governo Bolsonaro</b></span>, 0 cumpridas, 0 parciais, 4 não cumpridas e 3 sem evidência oficial (de 7). <span class="gl"><b>Governo Lula</b></span>, 5 cumpridas, 1 parcial, 0 em andamento, 1 não cumprida até 30/09/2026 e 0 sem evidência oficial (de 7).</div>
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-bolso" data-share-placement="card" data-share-anchor="cap-bolso" data-share-name="o dado de impostos e trabalho"
+         data-share-text="📊 Promessas de impostos e trabalho nos planos registrados no TSE: cumpridas 0 de 7 no Gov. Bolsonaro × 5 de 7 no Gov. Lula (mandato em curso, corte 30/09/26). Prova só em fontes oficiais."></div></div>
   </section>
 
   <section class="chap" id="cap-servicos" data-track-section="cap-servicos" data-track-name="Serviços e proteção social">
     <div class="chap-hd">
       <div class="kicker">E os serviços e a proteção social?</div>
-      <h2>Proteção social, saúde e educação: o <span class="gl">Governo Lula</span> cumpriu 4 de 12 e tem 3 em andamento; o <span class="gb">Governo Bolsonaro</span> ficou no parcial (3 de 5)</h2>
-      <div class="answer"><span>Maior proporção de cumpridas:</span> <span class="chipw w2">Governo Lula (4 de 12)</span></div>
+      <h2>Proteção social, saúde e educação: cumpridas 0 de 5 × 4 de 12</h2>
+      <p class="h2-sub">Parciais 3 × 4 · em andamento: não se aplica × 3</p>
+      <div class="answer"><span class="selo-lado w2"><i class="mk mk--l" aria-hidden="true"></i>✓ Governo Lula à frente</span> <span class="q-forca q-forca--apertada">apertada</span> <span class="note">Contando parciais: 3 de 5 × 8 de 12.</span></div>
     </div>
-    <p class="lead">O que esta seção mostra: o que cada governo prometeu para combate à pobreza, saúde e educação, e o que aconteceu. Por que importa para você: são os serviços e benefícios que mais chegam às famílias.</p>
-    <div class="card"><div class="capviz" data-temas="social,saude,educacao"></div></div>
+    <p class="lead"><b>O que isto mostra:</b> promessas sobre pobreza, saúde e educação, e o que aconteceu. <b>Por que importa para você:</b> são os serviços e benefícios que mais chegam às famílias.</p>
+    <div class="card cv"><div class="capviz" data-temas="social,saude,educacao"></div></div>
     <div id="tema-social"></div>
     <div id="tema-saude"></div>
     <div id="tema-educacao"></div>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gl"><b>Governo Lula</b></span>, 4 cumpridas, 4 parciais, 3 em andamento e 1 sem evidência oficial (de 12). <span class="gb"><b>Governo Bolsonaro</b></span>, 3 parciais, 1 não cumprida e 1 sem evidência oficial (de 5).</div>
+    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Governo Bolsonaro</b></span>, 0 cumpridas, 3 parciais, 1 não cumprida e 1 sem evidência oficial (de 5). <span class="gl"><b>Governo Lula</b></span>, 4 cumpridas, 4 parciais, 3 em andamento, 0 não cumpridas até 30/09/2026 e 1 sem evidência oficial (de 12).</div>
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-servicos" data-share-placement="card" data-share-anchor="cap-servicos" data-share-name="o dado de proteção social, saúde e educação"
+         data-share-text="📊 Promessas de proteção social, saúde e educação (planos no TSE): cumpridas 0 de 5 no Gov. Bolsonaro × 4 de 12 no Gov. Lula (em curso, corte 30/09/26); apertada (contando parciais: 3 de 5 × 8 de 12)."></div></div>
   </section>
 
   <section class="chap" id="cap-estado" data-track-section="cap-estado" data-track-name="Estado e infraestrutura">
     <div class="chap-hd">
       <div class="kicker">E o Estado e a infraestrutura?</div>
-      <h2>Estado e infraestrutura: o <span class="gb">Governo Bolsonaro</span> cumpriu 5 de 13; o <span class="gl">Governo Lula</span> tem 5 de 7 em andamento</h2>
-      <div class="answer"><span>Maior proporção de cumpridas:</span> <span class="chipw w1">Governo Bolsonaro (5 de 13)</span></div>
+      <h2>Estado e infraestrutura: cumpridas 5 de 13 × 1 de 7</h2>
+      <p class="h2-sub">Parciais 0 × 0 · em andamento: não se aplica × 5</p>
+      <div class="answer"><span class="selo-lado w1"><i class="mk mk--b" aria-hidden="true"></i>✓ Governo Bolsonaro à frente</span> <span class="q-forca q-forca--apertada">apertada</span> <span class="note">Lula tem 5 de 7 em andamento.</span></div>
     </div>
-    <p class="lead">O que esta seção mostra: o que cada governo prometeu para a máquina pública, reformas, privatizações, obras e energia, e o que aconteceu. Por que importa para você: essas escolhas afetam o tamanho do governo e a infraestrutura que você usa.</p>
-    <div class="card"><div class="capviz" data-temas="estado,infraenergia"></div></div>
+    <p class="lead"><b>O que isto mostra:</b> promessas sobre máquina pública, reformas, privatizações, obras e energia. <b>Por que importa para você:</b> afetam o tamanho do governo e a infraestrutura que você usa.</p>
+    <div class="card cv"><div class="capviz" data-temas="estado,infraenergia"></div></div>
     <div id="tema-estado"></div>
     <div id="tema-infraenergia"></div>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Governo Bolsonaro</b></span>, 5 cumpridas, 3 não cumpridas e 5 sem evidência oficial (de 13). <span class="gl"><b>Governo Lula</b></span>, 1 cumprida, 5 em andamento e 1 sem evidência oficial (de 7).</div>
+    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Governo Bolsonaro</b></span>, 5 cumpridas, 0 parciais, 3 não cumpridas e 5 sem evidência oficial (de 13). <span class="gl"><b>Governo Lula</b></span>, 1 cumprida, 0 parciais, 5 em andamento, 0 não cumpridas até 30/09/2026 e 1 sem evidência oficial (de 7).</div>
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-estado" data-share-placement="card" data-share-anchor="cap-estado" data-share-name="o dado de Estado e infraestrutura"
+         data-share-text="📊 Promessas de Estado e infraestrutura (planos no TSE): cumpridas 5 de 13 no Gov. Bolsonaro × 1 de 7 no Gov. Lula (em curso, corte 30/09/26); apertada (Lula tem 5 de 7 em andamento)."></div></div>
   </section>
 
   <section class="chap" id="cap-seguranca" data-track-section="cap-seguranca" data-track-name="Segurança e instituições">
     <div class="chap-hd">
       <div class="kicker">E segurança, meio ambiente e instituições?</div>
-      <h2>Segurança, meio ambiente e instituições: o <span class="gb">Governo Bolsonaro</span> não cumpriu 5 de 8; o <span class="gl">Governo Lula</span> tem 4 de 8 em andamento</h2>
-      <div class="answer"><span>Maior proporção de cumpridas:</span> <span class="chipw w2">Governo Lula (2 de 8)</span></div>
+      <h2>Segurança, meio ambiente e instituições: cumpridas 0 de 8 × 2 de 8</h2>
+      <p class="h2-sub">Parciais 1 × 0 · em andamento: não se aplica × 4</p>
+      <div class="answer"><span class="selo-lado w2"><i class="mk mk--l" aria-hidden="true"></i>✓ Governo Lula à frente</span> <span class="q-forca q-forca--apertada">apertada</span> <span class="note">Lula tem 4 de 8 em andamento.</span></div>
     </div>
-    <p class="lead">O que esta seção mostra: o que cada governo prometeu para segurança, meio ambiente, instituições e política externa, e o que aconteceu. Por que importa para você: são temas com efeito de longo prazo, além de um só governo.</p>
-    <div class="card"><div class="capviz" data-temas="seguranca,meioambiente,instituicoes"></div></div>
+    <p class="lead"><b>O que isto mostra:</b> promessas sobre segurança, ambiente, instituições e política externa. <b>Por que importa para você:</b> são temas com efeito por muitos anos.</p>
+    <div class="card cv"><div class="capviz" data-temas="seguranca,meioambiente,instituicoes"></div></div>
     <div id="tema-seguranca"></div>
     <div id="tema-meioambiente"></div>
     <div id="tema-instituicoes"></div>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Governo Bolsonaro</b></span>, 5 não cumpridas, 1 parcial e 2 sem evidência oficial (de 8; nenhuma promessa verificável de meio ambiente no plano de 2018). <span class="gl"><b>Governo Lula</b></span>, 2 cumpridas, 4 em andamento, 1 não cumprida até 30/09/2026 e 1 sem evidência oficial (de 8).</div>
+    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Governo Bolsonaro</b></span>, 0 cumpridas, 1 parcial, 5 não cumpridas e 2 sem evidência oficial (de 8; nenhuma promessa verificável de meio ambiente no plano de 2018). <span class="gl"><b>Governo Lula</b></span>, 2 cumpridas, 0 parciais, 4 em andamento, 1 não cumprida até 30/09/2026 e 1 sem evidência oficial (de 8).</div>
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-seguranca" data-share-placement="card" data-share-anchor="cap-seguranca" data-share-name="o dado de segurança, meio ambiente e instituições"
+         data-share-text="📊 Promessas de segurança, meio ambiente e instituições (planos no TSE): cumpridas 0 de 8 no Gov. Bolsonaro × 2 de 8 no Gov. Lula (em curso, corte 30/09/26); apertada (Lula tem 4 de 8 em andamento)."></div></div>
   </section>
 
   <section class="chap" id="catalogo" data-track-section="catalogo" data-track-name="Catálogo de promessas">
     <div class="chap-hd">
       <div class="kicker">Explore</div>
-      <h2>Catálogo de promessas e vereditos, todas as 67</h2>
+      <h2>Todas as 67 promessas, com veredito e prova</h2>
     </div>
-    <p class="lead">Todas as promessas verificáveis dos dois planos, com o trecho exato do plano, a página, a regra usada para dizer se foi cumprida e o veredito com o fato oficial. Filtre por candidato, tema ou categoria; toque em <b>detalhes</b> para ver o critério, o que aconteceu e as fontes oficiais.</p>
+    <p class="lead"><b>O que isto mostra:</b> cada promessa, a categoria e o link da prova oficial. <b>Por que importa para você:</b> para conferir qualquer item (toque em <b>detalhes</b>).</p>
     <div class="filters">
       <div class="f"><label for="f-cand">Candidato</label>
         <select id="f-cand"><option value="">Todos</option><option value="bolsonaro">Bolsonaro (2018)</option><option value="lula">Lula (2022)</option></select></div>
@@ -368,7 +755,7 @@ body.modal-open{overflow:hidden}
       <div class="f"><label for="f-busca">Busca (ignora acentos)</label>
         <input id="f-busca" type="text" placeholder="ex.: desmatamento, salário mínimo…"></div>
       <div class="f"><label>&nbsp;</label>
-        <span class="search-status" id="cat-status">67 de 67 promessas</span></div>
+        <span class="search-status" id="cat-status" aria-live="polite">67 de 67 promessas</span></div>
       <div class="f"><label>&nbsp;</label>
         <button class="ghost-btn" id="f-clear">Limpar filtros</button></div>
     </div>
@@ -378,6 +765,7 @@ body.modal-open{overflow:hidden}
         <tbody id="cat-body"></tbody>
       </table>
     </div>
+    <button type="button" class="cat-mais-btn" id="cat-mais" hidden data-track="catalogo_mais" data-track-label="balanco">Mostrar mais 15</button>
     <p class="note">“Sem evidência oficial” não é o mesmo que descumprimento: significa que nada foi localizado nas fontes permitidas (ver Método). Os conjuntos têm tamanhos diferentes (33 × 34), compare proporções, não quantidades.</p>
   </section>
 
@@ -386,34 +774,45 @@ body.modal-open{overflow:hidden}
       <div class="kicker">Fora do plano</div>
       <h2>Entregas fora do plano e diretrizes não mensuráveis</h2>
     </div>
-    <div class="subhead" style="margin-top:6px">Entregas fora do plano (não recebem veredito)</div>
-    <p class="note">Itens relevantes que não constavam dos planos registrados no TSE. Tratamento neutro, com o mesmo critério para os dois governos.</p>
+    <p class="lead"><b>O que isto mostra:</b> o que cada governo fez sem ter prometido no plano, e o que não dá para medir. <b>Por que importa para você:</b> a régua só olha o plano; aqui está o resto.</p>
+    <details class="q-mais">
+      <summary data-track="detalhes_abertos" data-track-label="fora-entregas"><span class="ao-abrir">Entregas fora do plano: 2 de cada governo</span><span class="ao-fechar">Fechar</span></summary>
+      <div class="q-mais-corpo">
+    <p class="note">Itens relevantes que não constavam dos planos registrados no TSE. Não recebem veredito. Tratamento neutro, com o mesmo critério para os dois governos.</p>
     <div class="rows">
       <div class="row"><span class="who bolso">Bolsonaro</span> <b>· Auxílio Emergencial</b>, criado pela Lei 13.982/2020 (R$ 600 mensais iniciais), fora do plano de 2018. <a href="https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2020/lei/L13982.htm" target="_blank" rel="noopener">Lei 13.982/2020</a></div>
       <div class="row"><span class="who bolso">Bolsonaro</span> <b>· Escolas cívico-militares (Pecim)</b>, Decreto 10.004/2019 instituiu o programa; revogado em 2023 pelo governo seguinte. <a href="https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/decreto/D10004.htm" target="_blank" rel="noopener">Decreto 10.004/2019</a></div>
       <div class="row"><span class="who lula">Lula</span> <b>· Pé-de-Meia</b>, incentivo financeiro-educacional criado pela Lei 14.818/2024, fora das diretrizes do plano de 2022. <a href="https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2024/lei/L14818.htm" target="_blank" rel="noopener">Lei 14.818/2024</a></div>
       <div class="row"><span class="who lula">Lula</span> <b>· Revogação dos decretos de armas</b>, Decreto 11.366/2023 suspendeu registros e restringiu quantitativos (promessa de campanha; não constava do plano). <a href="https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/decreto/D11366.htm" target="_blank" rel="noopener">Decreto 11.366/2023</a></div>
     </div>
+      </div>
+    </details>
 
-    <div class="subhead">Promessas de campanha (fora do escopo)</div>
-    <div class="row">Compromissos citados em campanha, mas não escritos nos planos do TSE, <b>não entram no catálogo nem no placar</b> (mesma regra para os dois): “não aumentar impostos” (Bolsonaro); “escolas cívico-militares” (Bolsonaro; execução listada em “Fora do plano”); “zerar o IR até R$ 5 mil” (Lula; o ato correspondente de 2025 consta do item L18); “Ministério da Segurança Pública” (Lula, não criado); “revogação dos decretos de armas” (Lula; execução listada em “Fora do plano”).</div>
+    <details class="q-mais">
+      <summary data-track="detalhes_abertos" data-track-label="fora-campanha"><span class="ao-abrir">Promessas de campanha (fora do escopo)</span><span class="ao-fechar">Fechar</span></summary>
+      <div class="q-mais-corpo"><div class="row">Compromissos citados em campanha, mas não escritos nos planos do TSE, <b>não entram no catálogo nem no placar</b> (mesma regra para os dois): “não aumentar impostos” (Bolsonaro); “escolas cívico-militares” (Bolsonaro; execução listada em “Fora do plano”); “zerar o IR até R$ 5 mil” (Lula; o ato correspondente de 2025 consta do item L18); “Ministério da Segurança Pública” (Lula, não criado); “revogação dos decretos de armas” (Lula; execução listada em “Fora do plano”).</div></div>
+    </details>
   </section>
 
   <section class="chap apx" id="metodo" data-track-section="metodo" data-track-name="Método">
     <div class="chap-hd">
       <div class="kicker">De onde vem cada veredito?</div>
-      <h2>Método, fontes e os planos na íntegra</h2>
+      <h2>Como classificamos e onde ler os planos inteiros</h2>
     </div>
+    <p class="lead"><b>O que isto mostra:</b> a regra de cada categoria, as fontes aceitas e os dois planos. <b>Por que importa para você:</b> para conferir a classificação de qualquer promessa.</p>
     <div class="subhead" style="margin-top:6px" id="integra">Planos na íntegra</div>
-    <p class="lead">Este balanço cobre as promessas de campanha dos dois planos registrados no TSE, os documentos completos estão embutidos nesta página. Abra para ler ou buscar no texto, a busca ignora acentos e mostra o contador de ocorrências.</p>
+    <p class="lead">Os dois planos registrados no TSE, inteiros, nesta página: abra para ler ou buscar no texto (a busca ignora acentos).</p>
     <div class="fullbar">
-      <button class="fullbtn bolso" id="bt-abrir-bolso">Abrir o plano do Bolsonaro, texto integral (2018, 81 páginas)</button>
-      <button class="fullbtn lula" id="bt-abrir-lula">Abrir o plano do Lula, texto integral (2022, 21 páginas)</button>
+      <button class="fullbtn bolso" id="bt-abrir-bolso">Plano de Bolsonaro, inteiro (2018, 81 págs.)</button>
+      <button class="fullbtn lula" id="bt-abrir-lula">Plano de Lula, inteiro (2022, 21 págs.)</button>
     </div>
-    <p class="fullhint">Textos extraídos dos PDFs oficiais das propostas de governo registradas no TSE (arquivos 2018BR280000614517 e 2022BR280001607829), com palavras preservadas e quebras de linha ajustadas para leitura. Dica: qualquer botão “pág. N” ou “abrir no plano” leva direto à página citada.</p>
 
-    <div class="subhead">Método e fontes</div>
+    <details class="q-mais" id="metodo-regras">
+      <summary data-track="detalhes_abertos" data-track-label="metodo-regras"><span class="ao-abrir">Método e fontes: as regras, item a item</span><span class="ao-fechar">Fechar</span></summary>
+      <div class="q-mais-corpo">
+    <p class="fullhint">Textos extraídos dos PDFs oficiais das propostas de governo registradas no TSE (arquivos 2018BR280000614517 e 2022BR280001607829), com palavras preservadas e quebras de linha ajustadas para leitura. Dica: qualquer botão “pág. N” ou “abrir no plano” leva direto à página citada.</p>
     <div class="rows">
+      <div class="row"><b>Densidade dos planos:</b> 33 promessas em 81 páginas (2018) × 34 em 21 páginas (2022). Quem extrai mais itens de um plano curto escolhe o nível de detalhe; por isso comparamos porcentagens.</div>
       <div class="row"><b>O que contamos como promessa:</b> um compromisso escrito no plano registrado no TSE que dá para conferir. O catálogo traz ID, candidato, tema, trecho literal, página do PDF e critério objetivo (o que precisaria existir para contar como cumprida). Declarações genéricas foram separadas como “diretrizes não mensuráveis” (em “Fora do plano”) e não entram no placar. Mesmo grau de granularidade para os dois planos; promessas feitas só na campanha ficam de fora.</div>
       <div class="row"><b>Fontes permitidas (exclusivas):</b> planos de governo do TSE (fonte única do que foi prometido); atos normativos (Planalto, Diário Oficial da União); tramitação legislativa (Câmara e Senado); estatísticas oficiais (IBGE, Banco Central, INPE/PRODES e DETER, Tesouro Nacional, Portal da Transparência, Inep, DataSUS, Ipea); páginas oficiais de ministérios e órgãos federais (gov.br). Imprensa, trackers de promessas, ONGs, organismos internacionais e redes sociais estão excluídos.</div>
       <div class="row"><b>Que prova vale mais:</b> lei, decreto ou dado estatístico oficial vale mais que o andamento no Congresso, que vale mais que um comunicado do governo. Comunicados oficiais valem apenas para fatos verificáveis (programa criado, data, valor), nunca como prova de resultado.</div>
@@ -426,7 +825,8 @@ body.modal-open{overflow:hidden}
           <li><b>Sem evidência oficial:</b> não foi possível confirmar nem negar em fonte permitida.</li>
         </ul></div>
       <div class="row"><b>Mandatos e data de corte:</b> Bolsonaro, jan/2019 a dez/2022 (mandato fechado). Lula, jan/2023 até a data de corte de <b>30/09/2026</b> (mandato em curso).</div>
-      <div class="row"><b>Selo dos cartões (seções por tema):</b> derivado da contagem do próprio tema, selo = categoria predominante; empate resolvido pela ordem cumprida → parcial → em andamento → não cumprida → sem evidência; as contagens completas são exibidas ao lado do selo. O selo de cada seção (“maior proporção de cumpridas”) compara a proporção de promessas cumpridas de cada governo nos temas da seção.</div>
+      <div class="row"><b>Selo dos cartões (seções por tema):</b> derivado da contagem do próprio tema, selo = categoria predominante; empate resolvido pela ordem cumprida → parcial → em andamento → não cumprida → sem evidência; as contagens completas são exibidas ao lado do selo. O selo de cada seção (“à frente”) compara a proporção de promessas cumpridas de cada governo nos temas da seção, com a força (clara ou apertada) e o que mudaria o resultado.</div>
+      <div class="row"><b>Cores e formas:</b> azul com círculo = Governo Bolsonaro; roxo com quadrado = Governo Lula, sempre nessa ordem. Nas barras, a mesma regra vale para os dois: cor do lado cheia = cumprida, cor clara = parcial, listrado = em andamento, cinza = não cumprida, vazado = sem evidência oficial.</div>
       <div class="row"><b>Fontes efetivamente usadas nesta verificação:</b>
         <ul class="tight">
           <li>Planos registrados no TSE (textos integrais, embutidos nesta página).</li>
@@ -442,6 +842,8 @@ body.modal-open{overflow:hidden}
         </ul></div>
       <div class="row"><b>Limites e transparência:</b> 14 dos 67 itens (11 do conjunto do Bolsonaro e 3 do de Lula) ficaram como “sem evidência oficial”, em geral por ausência de página/ato acessível nas bases oficiais (as páginas consultadas estão listadas no detalhe de cada item). Itens com limitações conhecidas têm observação no detalhe. Divergências de critério foram sinalizadas caso a caso, e nenhum número foi estimado fora de fonte oficial.</div>
     </div>
+      </div>
+    </details>
 
   </section>
 
@@ -452,7 +854,7 @@ body.modal-open{overflow:hidden}
       <img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil">
       <p>Análises descritivas com dados públicos oficiais do Brasil, sem juízo político. Tudo com fonte aberta e os arquivos originais disponíveis para download.</p>
     </div>
-    <div class="sf-col"><h4>Quem sou</h4>
+    <div class="sf-col" id="quem-fez"><h4>Quem sou</h4>
       <p>Profissional da área de tecnologia há 16 anos e atuo como Gerente de Desenvolvimento de Software. Lidero o time responsável pela plataformização e disponibilização de dados por diferentes meios em uma Big Tech brasileira, referência no mercado, atuando em um ambiente de altíssima volumetria e escala.</p>
     </div>
     <div class="sf-col-group">
@@ -461,13 +863,15 @@ body.modal-open{overflow:hidden}
       <a href="/propostas/">Propostas 2026</a>
       <a href="/balanco/">Promessas e Realizações Lula × Bolsonaro</a>
     </div>
-    <div class="sf-col"><h4>Dados</h4>
-      <a href="/fontes/">Todas as fontes (32 arquivos)</a>
+    <div class="sf-col"><h4>Método e dados</h4>
+      <a href="/sobre/">Sobre e método</a>
+      <a href="#metodo">Como calculamos</a>
+      <a href="/fontes/">Dados abertos (50 arquivos)</a>
       <a href="/dados/SHA256SUMS.txt">Checksums (SHA-256)</a>
     </div>
     </div>
 </div>
-  <div class="sf-base">© 2026 Bora pros dados Brasil · dados públicos oficiais · <a href="/dados/SHA256SUMS.txt">integridade dos arquivos (SHA-256)</a></div>
+  <div class="sf-base">© 2026 Bora pros dados Brasil · dados públicos oficiais · atualizado em <time datetime="__UPDATED_ISO__">__UPDATED__</time> · <a href="/dados/SHA256SUMS.txt">integridade dos arquivos (SHA-256)</a></div>
 </footer>
 </div>
 
@@ -534,13 +938,22 @@ body.modal-open{overflow:hidden}
     lula:      { nome:'Lula',      label:'Lula, plano de 2022',      cls:'lula',  party:'plano de 2022 (TSE)' }
   };
   var CATS = {
-    ok:  { l:'Cumprida',              c:'chip-ok',  cor:'#7fb99b' },
-    mid: { l:'Parcial',               c:'chip-mid', cor:'#e3b878' },
-    no:  { l:'Não cumprida',          c:'chip-no',  cor:'#dd9a95' },
-    run: { l:'Em andamento',          c:'chip-run', cor:'#8ec2d1' },
-    na:  { l:'Sem evidência oficial', c:'chip-na',  cor:'#c3c3ca' }
+    ok:  { l:'Cumprida',              c:'chip-ok'  },
+    mid: { l:'Parcial',               c:'chip-mid' },
+    no:  { l:'Não cumprida',          c:'chip-no'  },
+    run: { l:'Em andamento',          c:'chip-run' },
+    na:  { l:'Sem evidência oficial', c:'chip-na'  }
   };
   var CATORDER = ['ok','mid','run','no','na'];
+  /* mesma codificação do gráfico (charts.js), igual para os dois lados: cor do lado cheia, clara, listrada, cinza, vazada */
+  var SEG = { ok:'cheio', mid:'claro', run:'listrado', no:'neutro', na:'vazio' };
+  var LADO = { bolsonaro:'b', lula:'l' };
+  function legenda(){
+    return '<p class="seg-leg">' + CATORDER.map(function(k){ return '<span><i class="sw sw--' + SEG[k] + '" aria-hidden="true"></i>' + CATS[k].l + '</span>'; }).join('') + '</p>';
+  }
+  function pctBR(n, d){ return d ? (n / d * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%' : '–'; }
+  var CELULAR = window.matchMedia ? window.matchMedia('(max-width: 760px)') : { matches: false };
+  var INICIO = 6, PASSO = 15, limite = INICIO;
   var TEMAS = [
     { k:'estado',       l:'Estado, reformas e privatizações' },
     { k:'impostos',     l:'Impostos, renda e custo de vida' },
@@ -610,7 +1023,7 @@ body.modal-open{overflow:hidden}
       }
       shown++;
       var c = CAND[it.cand];
-      rows.push('<tr>'
+      rows.push('<tr' + (CELULAR.matches && shown > limite ? ' hidden' : '') + '>'
         + '<td class="who ' + c.cls + '">' + c.nome + '</td>'
         + '<td>' + esc(temaLabel(it.tema)) + '</td>'
         + '<td><span class="t">' + esc(it.id) + ' · ' + esc(it.titulo) + '</span>'
@@ -620,16 +1033,23 @@ body.modal-open{overflow:hidden}
         + '<td><button class="detail-btn" data-id="' + it.id + '">detalhes</button></td>'
         + '</tr>');
     }
-    catBody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6" class="empty-row">Nenhuma promessa corresponde aos filtros.</td></tr>';
+    catBody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6" class="empty-row">Nenhum item com esses filtros. <button type="button" class="ghost-btn" data-limpar>Limpar filtros</button></td></tr>';
     catStatus.textContent = shown + ' de ' + PROM.length + ' promessas';
+    var falta = CELULAR.matches ? Math.max(0, shown - limite) : 0;
+    catMais.hidden = !falta;
+    catMais.textContent = 'Mostrar mais ' + Math.min(PASSO, falta);
   }
-  fCand.addEventListener('change', renderCatalog);
-  fTema.addEventListener('change', renderCatalog);
-  fCat.addEventListener('change', renderCatalog);
-  fBusca.addEventListener('input', renderCatalog);
-  document.getElementById('f-clear').addEventListener('click', function(){
-    fCand.value=''; fTema.value=''; fCat.value=''; fBusca.value=''; renderCatalog();
-  });
+  var catMais = document.getElementById('cat-mais');
+  function filtra(){ limite = INICIO; renderCatalog(); }
+  function limpa(){ fCand.value=''; fTema.value=''; fCat.value=''; fBusca.value=''; filtra(); }
+  fCand.addEventListener('change', filtra);
+  fTema.addEventListener('change', filtra);
+  fCat.addEventListener('change', filtra);
+  fBusca.addEventListener('input', filtra);
+  document.getElementById('f-clear').addEventListener('click', limpa);
+  catBody.addEventListener('click', function(e){ if (e.target.closest && e.target.closest('[data-limpar]')) limpa(); });
+  catMais.addEventListener('click', function(){ limite += PASSO; renderCatalog(); });
+  if (CELULAR.addEventListener) CELULAR.addEventListener('change', filtra);
 
   /* ---------- 2. tema a tema ---------- */
   function cardFor(temaK, cand){
@@ -661,24 +1081,32 @@ body.modal-open{overflow:hidden}
     }).join('');
     return head + chips + '<ul class="plist">' + lis + '</ul></article>';
   }
+  function resumoTema(temaK, cand){
+    var itens = PROM.filter(function(it){ return it.tema===temaK && it.cand===cand; });
+    var ok = itens.filter(function(it){ return it.cat==='ok'; }).length;
+    return '<span class="tr-v"><i class="mk mk--' + LADO[cand] + '" aria-hidden="true"></i>' + CAND[cand].nome + ' '
+      + (itens.length ? ok + ' de ' + itens.length : 'sem promessa no tema') + '</span>';
+  }
   function renderTemas(){
     // cada tema vai para o seu lugar dentro da seção (div#tema-<k>)
     for (var i=0;i<TEMAS.length;i++){
       var t = TEMAS[i];
       var el = document.getElementById('tema-' + t.k);
-      if (el) el.innerHTML = '<h3 class="subhead">' + esc(t.l) + '</h3><div class="grid2">' + cardFor(t.k,'bolsonaro') + cardFor(t.k,'lula') + '</div>';
+      if (el) el.innerHTML = '<details class="tema-row"><summary data-track="detalhes_abertos" data-track-label="tema-' + t.k + '"><span class="tr-t">' + esc(t.l) + '</span><span class="tr-s">'
+        + '<span class="tr-lbl">cumpridas:</span>' + resumoTema(t.k, 'bolsonaro') + resumoTema(t.k, 'lula') + '</span></summary><div class="grid2">' + cardFor(t.k,'bolsonaro') + cardFor(t.k,'lula') + '</div></details>';
     }
   }
 
   /* ---------- visuais novos: barras 100% por seção e mapa tema × governo (só contagens do catálogo) ---------- */
-  function stackBar(list){
+  function stackBar(list, lado){
     var n = list.length, c = { ok:0, mid:0, no:0, run:0, na:0 };
     list.forEach(function(it){ c[it.cat]++; });
     if (!n) return '<div class="sbar"></div>';
-    return '<div class="sbar">' + CATORDER.map(function(k){
+    var desc = CATORDER.filter(function(k){ return c[k]; }).map(function(k){ return CATS[k].l + ' ' + c[k]; }).join(', ');
+    return '<div class="sbar sbar--' + lado + '" role="img" aria-label="' + desc + ' (de ' + n + ')">' + CATORDER.map(function(k){
       if (!c[k]) return '';
       var w = c[k]/n*100;
-      return '<i title="' + CATS[k].l + ': ' + c[k] + ' de ' + n + '" style="width:' + w + '%;background:' + CATS[k].cor + '">' + (w >= 9 ? c[k] : '') + '</i>';
+      return '<i class="seg seg--' + SEG[k] + '" title="' + CATS[k].l + ': ' + c[k] + ' de ' + n + '" style="flex:' + c[k] + ' 1 0">' + (w >= 9 ? '<span>' + c[k] + '</span>' : '') + '</i>';
     }).join('') + '</div>';
   }
   function resumo(list){
@@ -696,27 +1124,29 @@ body.modal-open{overflow:hidden}
     var boxes = document.querySelectorAll('.capviz');
     for (var b=0;b<boxes.length;b++){
       var temas = boxes[b].getAttribute('data-temas').split(',');
-      var html = '<h3 class="figt">Composição das promessas dos temas da seção, por governo</h3>';
+      var html = '<h3 class="figt">Composição das promessas da seção, por governo </h3>';
       CANDS.forEach(function(cd){
         var list = PROM.filter(function(it){ return it.cand===cd && temas.indexOf(it.tema) !== -1; });
-        var cls = CAND[cd].cls === 'bolso' ? 'gb' : 'gl';
-        html += '<div class="vrow"><div class="vname ' + cls + '">Governo ' + CAND[cd].nome + '<small>' + list.length + ' promessa' + (list.length===1?'':'s') + ' · ' + CAND[cd].party + '</small></div>'
-          + stackBar(list) + '<div class="vtxt">' + (list.length ? resumo(list) : 'nenhuma promessa verificável nestes temas') + '</div></div>';
+        var cls = CAND[cd].cls === 'bolso' ? 'gb' : 'gl', lado = LADO[cd];
+        html += '<div class="vrow"><div class="vname ' + cls + '"><i class="mk mk--' + lado + '" aria-hidden="true"></i>Governo ' + CAND[cd].nome + '<small>· ' + list.length + ' promessa' + (list.length===1?'':'s') + '</small></div>'
+          + stackBar(list, lado) + (list.length ? '' : '<div class="vtxt">nenhuma promessa verificável nestes temas</div>') + '</div>';
       });
-      html += '<p class="note" style="margin-top:8px">Verde = cumprida · âmbar = parcial · ciano = em andamento · vermelho = não cumprida' + ' (no Governo Lula, até 30/09/2026) · cinza = sem evidência oficial. Contagens do catálogo desta página; compare proporções, não quantidades.</p>';
       boxes[b].innerHTML = html;
     }
   }
   function renderMapa(){
     var el = document.getElementById('placar-mapa'); if (!el) return;
-    var h = ['<table class="mapa" style="min-width:640px"><thead><tr><th>Tema</th><th class="gb">Governo Bolsonaro (plano de 2018)</th><th></th><th class="gl">Governo Lula (plano de 2022)</th><th></th></tr></thead><tbody>'];
-    for (var i=0;i<TEMAS.length;i++){
-      var t = TEMAS[i];
-      var lb = PROM.filter(function(it){ return it.tema===t.k && it.cand==='bolsonaro'; });
-      var ll = PROM.filter(function(it){ return it.tema===t.k && it.cand==='lula'; });
-      h.push('<tr><td>' + esc(t.l) + '</td><td style="width:30%">' + stackBar(lb) + '</td><td class="n">' + (lb.length ? lb.length : '–') + '</td><td style="width:30%">' + stackBar(ll) + '</td><td class="n">' + (ll.length ? ll.length : '–') + '</td></tr>');
-    }
-    h.push('</tbody></table>');
+    var h = ['<div class="mapa2">'];
+    TEMA_ORD.forEach(function(k){
+      h.push('<div class="mt"><p class="mt-t">' + esc(temaLabel(k)) + '</p>');
+      CANDS.forEach(function(cd){
+        var l = PROM.filter(function(it){ return it.tema===k && it.cand===cd; });
+        h.push('<div class="mt-r"><span class="mt-n"><i class="mk mk--' + LADO[cd] + '" aria-hidden="true"></i>' + CAND[cd].nome + '</span>'
+          + (l.length ? stackBar(l, LADO[cd]) : '<span class="mt-0">nenhuma promessa no tema</span>') + '<span class="mt-c">' + (l.length || '–') + '</span></div>');
+      });
+      h.push('</div>');
+    });
+    h.push('</div>' + legenda());
     el.innerHTML = h.join('');
   }
 
@@ -732,18 +1162,14 @@ body.modal-open{overflow:hidden}
     CANDS.forEach(function(cd){
       var list = PROM.filter(function(it){ return it.cand===cd; });
       var c = countsOf(list);
-      var pct = function(n){ return list.length ? Math.round(n/list.length*1000)/10 : 0; };
-      var bar = CATORDER.map(function(k){
-        return '<i style="width:' + (list.length ? (c[k]/list.length*100) : 0) + '%;background:' + CATS[k].cor + '"></i>';
-      }).join('');
+      var pct = function(n){ return pctBR(n, list.length); };
       var kv = CATORDER.map(function(k){
-        return '<p class="kv">· ' + CATS[k].l + ': <b>' + c[k] + '</b> (' + pct(c[k]) + '%)</p>';
+        return '<p class="kv">· ' + CATS[k].l + ': <b>' + c[k] + '</b> (' + pct(c[k]) + ')</p>';
       }).join('');
       html += '<div class="bigbox ' + CAND[cd].cls + '">'
         + '<h4>Governo ' + CAND[cd].label + '</h4>'
-        + '<p><span class="n">' + c.ok + ' de ' + list.length + '</span> cumpridas integralmente (' + pct(c.ok) + '%)</p>'
-        + '<div class="bar">' + bar + '</div>'
-        + '<p style="font-size:12.5px;color:var(--muted)">verde: cumprida · âmbar: parcial · ciano: em andamento · vermelho: não cumprida · cinza: sem evidência</p>'
+        + '<p><span class="n">' + c.ok + ' de ' + list.length + '</span> cumpridas integralmente (' + pct(c.ok) + ')</p>'
+        + stackBar(list, LADO[cd])
         + kv
         + '<p style="font-size:12.5px;color:var(--muted)">' + (cd==='lula' ? 'Mandato em curso, data de corte 30/09/2026.' : 'Mandato fechado (jan/2019–dez/2022).') + ' Totais não comparáveis em quantidade, só em proporção.</p>'
         + '</div>';
@@ -888,12 +1314,69 @@ body.modal-open{overflow:hidden}
     else if (mPlan.classList.contains('open')) closePlan();
   });
 
+  /* ---------- gráficos (charts.js): contagens tiradas do próprio catálogo ---------- */
+  var GCATS = [{id:'cumprida',nome:'Cumprida',tipo:'cheio'},{id:'parcial',nome:'Parcial',tipo:'claro'},{id:'andamento',nome:'Em andamento',tipo:'listrado'},{id:'nao',nome:'Não cumprida',tipo:'neutro'},{id:'sem',nome:'Sem evidência oficial',tipo:'vazio'}];
+  var GK = { ok:'cumprida', mid:'parcial', run:'andamento', no:'nao', na:'sem' };
+  function contagens(f){
+    var c = { cumprida:0, parcial:0, andamento:0, nao:0, sem:0 };
+    PROM.forEach(function(it){ if (f(it)) c[GK[it.cat]]++; });
+    return c;
+  }
+  var GRUPOS = [
+    { tema:'Impostos e trabalho', temas:['impostos','trabalho'] },
+    { tema:'Proteção social, saúde e educação', temas:['social','saude','educacao'] },
+    { tema:'Estado e infraestrutura', temas:['estado','infraenergia'] },
+    { tema:'Segurança, meio ambiente e instituições', temas:['seguranca','meioambiente','instituicoes'] }
+  ];
+  function graficos(){
+    if (!window.BPD) return;
+    var base = { categorias: GCATS, destaque:'cumprida', destaqueRotulo:'cumpridas', vencedorRotulo:'maior proporção cumprida',
+      lados: { b:{ nome:'Governo Bolsonaro' }, l:{ nome:'Governo Lula' } }, atualizado:'__UPDATED__' };
+    function ext(o){ var r = {}, k; for (k in base) r[k] = base[k]; for (k in o) r[k] = o[k]; return r; }
+    var linhas = [
+      { lado:'b', sub:'plano de 2018 · 33 promessas · mandato encerrado', contagens: contagens(function(it){ return it.cand==='bolsonaro'; }) },
+      { lado:'l', sub:'plano de 2022 · 34 promessas · em curso (corte 30/09/2026)', contagens: contagens(function(it){ return it.cand==='lula'; }) }
+    ];
+    var fonte = 'planos registrados no TSE (2018 e 2022) e prova em fontes oficiais, item a item · catálogo de /balanco/ (67 promessas) · corte 30/09/2026';
+    BPD.promessas('#g-promessas', ext({ titulo:'Que parte do plano foi cumprida? · ↑ maior é melhor', linhas: linhas,
+      nota:'Os conjuntos são diferentes (33 × 34): compare a %, não a quantidade. O mandato de Lula está em curso; “em andamento” só existe para ele.', fonte: fonte }));
+    BPD.promessas('#g-verificaveis', ext({ titulo:'E só entre as promessas com prova oficial? · ↑ maior é melhor', linhas: linhas, excluir:['sem'],
+      nota:'“Sem evidência” não é descumprida; o lado à frente não muda. Retiradas: 11 do Governo Bolsonaro e 3 do Governo Lula.',
+      fonte:'catálogo de /balanco/ · cálculo: cumpridas ÷ (total − sem evidência oficial)' }));
+    BPD.promessas('#g-temas', ext({ titulo:'Cumpridas por tema · ↑ maior é melhor', grupos: GRUPOS.map(function(g){
+        return { tema: g.tema, linhas: [
+          { lado:'b', contagens: contagens(function(it){ return it.cand==='bolsonaro' && g.temas.indexOf(it.tema) !== -1; }) },
+          { lado:'l', contagens: contagens(function(it){ return it.cand==='lula' && g.temas.indexOf(it.tema) !== -1; }) } ] };
+      }), fonte:'catálogo de /balanco/ · “Saldo da seção” de cada tema' }));
+    /* ⤓ Baixar imagem: PNG do gráfico principal (o mesmo quadro do resumo) */
+    var acoes = document.getElementById('resumo-acoes');
+    if (acoes && BPD.paraPNG && !document.getElementById('resumo-img')) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'dl-img'; b.id = 'resumo-img';
+      b.setAttribute('data-track', 'imagem_baixada'); b.setAttribute('data-track-label', 'balanco-resumo');
+      b.textContent = '⤓ Baixar imagem';
+      b.addEventListener('click', function(){
+        var svg = document.querySelector('#g-promessas svg'); if (!svg) return;
+        BPD.paraPNG(svg, 3).then(function(blob){
+          var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'promessas-cumpridas-bolsonaro-lula.png';
+          document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+        }, function(){ b.textContent = 'Não foi possível gerar a imagem'; });
+      });
+      acoes.appendChild(b);
+    }
+  }
+  function quandoPronto(fn){
+    var go = function(){ if (document.fonts && document.fonts.ready) document.fonts.ready.then(fn, fn); else fn(); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
+  }
+
   /* ---------- init ---------- */
   renderCatalog();
   renderTemas();
   renderPlacar();
   renderCapViz();
   renderMapa();
+  quandoPronto(graficos);
 })();
 
 </script>

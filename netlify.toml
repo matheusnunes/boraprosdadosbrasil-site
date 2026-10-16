@@ -33,6 +33,12 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Página de demonstração dos componentes de interface (uso interno): fora do índice
+[[headers]]
+  for = "/_componentes/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
 # Arquivos para buscadores de IA: texto puro em UTF-8, fora do índice do Google
 # (para não competir com as páginas HTML), mas livres para leitura e citação.
 [[headers]]
@@ -48,26 +54,46 @@
     X-Robots-Tag = "noindex"
     Cache-Control = "public, max-age=3600"
 
-# Catálogo "Meus dados" e links de seleção compartilhada (/c/1-3-5): fora do índice dos buscadores,
-# mas sem bloquear no robots.txt (os robôs de prévia do WhatsApp/Facebook precisam ler o OG).
+# Páginas oficiais arquivadas em /dados/legislacao-fiscal/ (Planalto, STF): são HTML de terceiros,
+# com scripts próprios: servidas como download, para não rodarem como página deste site.
+[[headers]]
+  for = "/dados/legislacao-fiscal/*"
+  [headers.values]
+    Content-Disposition = "attachment"
+    X-Robots-Tag = "noindex"
+
+# Links de seleção compartilhada (/c/1-3-5): fora do índice dos buscadores, mas sem bloquear
+# no robots.txt (os robôs de prévia do WhatsApp/Facebook precisam ler o OG).
 [[headers]]
   for = "/c/*"
   [headers.values]
     X-Robots-Tag = "noindex"
-[[headers]]
-  for = "/meus-dados/*"
-  [headers.values]
-    X-Robots-Tag = "noindex"
-# registro único das comparações: revalida a cada 5 min (muda quando um dado é corrigido)
+# registro único das comparações e livro-razão dos IDs: revalidam a cada 5 min
 [[headers]]
   for = "/dados/comparacoes.json"
   [headers.values]
     Cache-Control = "public, max-age=300, must-revalidate"
+[[headers]]
+  for = "/dados/comparacoes-ids.json"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
 
-# Seleção compartilhada: /c/1-3-5-6-7 → página de chegada (rewrite 200, a URL fica igual).
-# Sem "force": arquivos que existem têm prioridade (shadowing), então as páginas estáticas
-# por comparação /c/<slug>/ (30-share-spec §4) continuam funcionando. Slugs sempre começam
-# com letra (o build valida), seleções só têm dígitos e hífens: não há colisão.
+# Catálogo: o nome antigo /meus-dados/ vira /comparacoes/ (301 permanente).
+[[redirects]]
+  from = "/meus-dados"
+  to = "/comparacoes/"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/meus-dados/*"
+  to = "/comparacoes/"
+  status = 301
+  force = true
+
+# Seleção compartilhada (canônico, decisão do dono 8): /c/1-3-5-6-7 → página de chegada
+# (rewrite 200, a URL fica igual). Sem "force": arquivos que existem têm prioridade
+# (shadowing), então /c/<slug>/ estáticos (temas) continuam valendo. O build recusa slug
+# que pareça seleção (^[pb]?\d+(-[pb]?\d+)*$) e os nomes reservados.
 [[redirects]]
   from = "/c/*"
   to = "/c/index.html"

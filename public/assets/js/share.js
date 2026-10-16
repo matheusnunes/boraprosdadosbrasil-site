@@ -1,34 +1,33 @@
 /* ==== Bora pros dados Brasil — compartilhamento (share.js) — ES5, sem dependências, ok com a CSP ====
    <div class="share" data-share-section="inflacao" data-share-text="📊 Inflação (IPCA): ..." data-share-name="o dado de inflação"
-     [data-share-path="/c/inflacao/" | data-share-anchor="cap-motor"] [data-share-placement="card|capitulo|placar|fim|barra|kit"]
-     [data-share-variant="mini|bar|kit"] [data-share-image="/a.png /b.png"] (1 card ou N = carrossel, separados por espaço)
-     [data-share-caption="legenda longa (Instagram)"] [data-share-download="/x.zip"] [data-share-lead="..."]></div>
-   section="auto" (barra): herda o .share da seção em leitura. Eventos: share_click (method=image|download…)/_success/_cancel. */
+     [data-share-path="/c/inflacao/" | data-share-anchor="cap-motor"] [data-share-placement="card|capitulo|placar|fim|barra"]
+     [data-share-variant="mini|bar"] [data-share-image="/assets/img/share/story-inflacao.jpg"] [data-share-lead="..."]></div>
+   section="auto" (barra): herda o .share da seção [data-track-section] em leitura. Eventos: share_click/_success/_cancel. */
 (function () {
   var cfg = (typeof window.SITE_CONFIG === 'object' && window.SITE_CONFIG) || {};
   var PAGE = cfg.pageId || 'site';
   var BASE = /^https?:\/\//.test(cfg.siteUrl || '') ? cfg.siteUrl.replace(/\/$/, '') : location.origin;
   var CTA = 'Números, ressalvas e método:';
-  var CODE = { whatsapp: 'wa', telegram: 'tg', x: 'x', facebook: 'fb', copy: 'cp', native: 'ns', image: 'img', download: 'dl' };
+  var CODE = { whatsapp: 'wa', telegram: 'tg', x: 'x', facebook: 'fb', copy: 'cp', native: 'ns', image: 'img' };
   var NATIVE = typeof navigator.share === 'function';
   var FILES = false, files = {}, E = encodeURIComponent;
-  try { FILES = !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'x.png', { type: 'image/png' })] })); } catch (e) {}
+  try { FILES = !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'x.jpg', { type: 'image/jpeg' })] })); } catch (e) {}
 
   function track(n, p) { try { if (window.__track) window.__track(n, p); } catch (e) {} }
   function attr(b, k, d) { return b.getAttribute('data-share-' + k) || d || ''; }
+  /* 'auto' (barra) sem componente na seção em leitura: mede como a página */
+  function secao(b) { var s = attr(b, 'section', PAGE); return s === 'auto' ? PAGE : s; }
   /* link com origem: /c/<slug>/?o=wa (curto, prévia própria) ou página#âncora com UTM completa */
   function link(b, m) {
-    var sec = attr(b, 'section', PAGE), path = attr(b, 'path'), a = attr(b, 'anchor');
+    var sec = secao(b), path = attr(b, 'path'), a = attr(b, 'anchor');
     if (path) return BASE + path + '?o=' + CODE[m];
     return BASE + location.pathname + '?utm_source=' + m + '&utm_medium=share&utm_campaign=' + E(PAGE) +
       '&utm_content=' + E(sec) + (a ? '#' + a : '');
   }
   function body(b) { return attr(b, 'text', document.title); }
   function msg(b, m) { return body(b) + ' ' + CTA + ' ' + link(b, m); }
-  function caption(b, m) { var c = attr(b, 'caption'); return c ? c + '\n\n' + CTA + ' ' + link(b, m) : msg(b, m); }
-  function imgs(b) { return attr(b, 'image').split(/\s+/).filter(function (x) { return x; }); }
   var HREF = {
-    whatsapp: function (b) { return 'https://wa.me/?text=' + E(caption(b, 'whatsapp')); },
+    whatsapp: function (b) { return 'https://wa.me/?text=' + E(msg(b, 'whatsapp')); },
     telegram: function (b) { return 'https://t.me/share/url?url=' + E(link(b, 'telegram')) + '&text=' + E(body(b)); },
     x: function (b) { return 'https://twitter.com/intent/tweet?text=' + E(msg(b, 'x')); },
     facebook: function (b) { return 'https://www.facebook.com/sharer/sharer.php?u=' + E(link(b, 'facebook')); }
@@ -48,7 +47,6 @@
     for (k in at) if (at.hasOwnProperty(k)) n.setAttribute(k, at[k]); return n;
   }
   function btn(m, txt, label, cls) {
-    if (m === 'download') return el('a', 'share-btn ' + (cls || ''), txt, { 'data-m': m, href: '#', download: '', 'aria-label': label });
     if (HREF[m]) return el('a', 'share-btn ' + (cls || ''), txt, { 'data-m': m, href: '#', target: '_blank', rel: 'noopener', 'aria-label': label });
     return el('button', 'share-btn ' + (cls || ''), txt, { 'data-m': m, type: 'button', 'aria-label': label });
   }
@@ -65,12 +63,7 @@
     var v = attr(b, 'variant', 'full'), row = el('div', 'share-row'), pan = el('div', 'share-panel'), what = attr(b, 'name', 'este dado');
     pan.hidden = true;
     if (v === 'full') b.appendChild(el('p', 'share-lead', attr(b, 'lead', 'Mande este dado com a fonte: quem receber pode conferir.')));
-    if (v === 'kit') {
-      row.appendChild(FILES ? btn('image', 'Enviar no WhatsApp', 'Enviar a imagem de ' + what + ': abre a lista de apps, escolha o WhatsApp', 'share-btn--wa') :
-        btn('whatsapp', 'Enviar no WhatsApp', 'Enviar ' + what + ' pelo WhatsApp (texto e link)', 'share-btn--wa'));
-      row.appendChild(btn('download', 'Baixar', 'Baixar a imagem de ' + what));
-      row.appendChild(btn('copy', 'Copiar legenda', 'Copiar a legenda com a fonte e o link'));
-    } else if (v === 'mini') {
+    if (v === 'mini') {
       row.appendChild(NATIVE ? btn('native', 'Compartilhar', 'Compartilhar ' + what) :
         btn('more', 'Compartilhar', 'Mostrar opções para compartilhar ' + what));
       pan.appendChild(btn('whatsapp', 'WhatsApp', 'Enviar ' + what + ' pelo WhatsApp', 'share-btn--wa'));
@@ -81,8 +74,8 @@
       row.appendChild(NATIVE ? btn('native', 'Outros apps', 'Compartilhar em outros aplicativos') :
         btn('more', 'Mais', 'Mais opções para compartilhar'));
     }
-    if (FILES && attr(b, 'image') && v !== 'kit') row.appendChild(btn('image', 'Imagem', 'Enviar a imagem de ' + what));
-    if ((!NATIVE || v === 'mini') && v !== 'kit') {
+    if (FILES && attr(b, 'image')) row.appendChild(btn('image', 'Imagem', 'Enviar a imagem do comparativo'));
+    if (!NATIVE || v === 'mini') {
       pan.appendChild(btn('telegram', 'Telegram', 'Enviar pelo Telegram'));
       pan.appendChild(btn('x', 'X', 'Publicar no X'));
       pan.appendChild(btn('facebook', 'Facebook', 'Publicar no Facebook'));
@@ -91,20 +84,18 @@
     b.appendChild(row); if (pan.firstChild) b.appendChild(pan);
     b.appendChild(el('span', 'share-status', '', { role: 'status', 'aria-live': 'polite' }));
     var links = b.querySelectorAll('a[data-m]'), i;
-    for (i = 0; i < links.length; i += 1) { var lm = links[i].getAttribute('data-m');
-      links[i].href = lm === 'download' ? (attr(b, 'download') || imgs(b)[0] || '#') : HREF[lm](ctx(b)); }
+    for (i = 0; i < links.length; i += 1) links[i].href = HREF[links[i].getAttribute('data-m')](ctx(b));
     b.addEventListener('click', function (e) { onClick(b, e); });
-    if (FILES && imgs(b).length) prefetch(b);
     if (v === 'bar') bar(b);
   }
 
   function onClick(b, e) {
     var t = e.target && e.target.closest ? e.target.closest('[data-m]') : null; if (!t) return;
     e.stopPropagation(); /* evita outbound_click duplicado no analytics.js */
-    var m = t.getAttribute('data-m'), c = ctx(b), sec = attr(c, 'section', PAGE);
+    var m = t.getAttribute('data-m'), c = ctx(b), sec = secao(c);
     if (m === 'more') { e.preventDefault(); toggle(b); return; }
-    track('share_click', { method: m, section: sec, placement: attr(b, 'placement', attr(b, 'variant', 'full')), n_files: m === 'image' ? imgs(c).length : 0 });
-    if (HREF[m] || m === 'download') { if (HREF[m]) t.href = HREF[m](c); return; }
+    track('share_click', { method: m, section: sec, placement: attr(b, 'placement', attr(b, 'variant', 'full')) });
+    if (HREF[m]) { t.href = HREF[m](c); return; }
     e.preventDefault();
     if (m === 'copy') copy(b, c, sec);
     else if (m === 'native') native(b, { title: document.title, text: msg(c, 'native') }, 'native', sec);
@@ -123,37 +114,18 @@
     try { ok = document.execCommand('copy'); } catch (e) {} document.body.removeChild(ta); return ok;
   }
   function copy(b, c, sec) {
-    var txt = caption(c, 'copy');
+    var txt = msg(c, 'copy');
     function ok() { say(b, 'Copiado! Agora é só colar na conversa.'); track('share_success', { method: 'copy', section: sec }); }
     function fb() { if (legacyCopy(txt)) ok(); else say(b, 'Não deu para copiar. Use o botão WhatsApp.'); }
     if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt).then(ok, fb); else fb();
   }
-  /* arquivos: pré-carregados quando o card entra na tela, para o share sair no mesmo toque (Safari exige) */
-  function load(list, cb) {
-    var out = [], left = list.length, bad = false;
-    list.forEach(function (src, k) {
-      if (files[src]) { out[k] = files[src]; if (--left === 0) cb(out); return; }
-      fetch(src).then(function (r) { if (!r.ok) throw r; return r.blob(); }).then(function (bl) {
-        out[k] = files[src] = new File([bl], src.split('/').pop(), { type: bl.type || 'image/png' });
-        if (--left === 0 && !bad) cb(out);
-      }, function () { if (!bad) { bad = true; cb(null); } });
-    });
-  }
-  function prefetch(b) {
-    function go() { load(imgs(b), function () {}); }
-    if (!('IntersectionObserver' in window)) { b.addEventListener('pointerdown', go); return; }
-    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); go(); } }, { rootMargin: '300px 0px' });
-    io.observe(b);
-  }
   function image(b, c, sec) {
-    var list = imgs(c), ready = list.every(function (s) { return files[s]; }), txt = caption(c, 'image');
-    function go(fs) {
-      if (!fs || (navigator.canShare && !navigator.canShare({ files: fs }))) { say(b, 'Não deu para enviar a imagem. Use Baixar.'); return; }
-      /* o WhatsApp no iPhone costuma descartar o texto junto de imagem: a legenda vai também para a área de transferência */
-      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt).then(function () { say(b, 'Legenda copiada: cole na conversa se não aparecer.'); }, function () {});
-      native(b, { files: fs, text: txt }, 'image', sec);
-    }
-    if (ready) go(list.map(function (s) { return files[s]; })); else load(list, go);
+    var src = attr(c, 'image');
+    function go(f) { if (f) native(b, { files: [f], text: msg(c, 'image') }, 'image', sec); else say(b, 'Imagem indisponível agora.'); }
+    if (files[src]) { go(files[src]); return; }
+    fetch(src).then(function (r) { return r.blob(); }).then(function (bl) {
+      files[src] = new File([bl], src.split('/').pop(), { type: bl.type || 'image/jpeg' }); go(files[src]);
+    }, function () { go(null); });
   }
 
   /* barra fixa: aparece depois da 1ª tela, some quando outro .share ou o rodapé estão visíveis */

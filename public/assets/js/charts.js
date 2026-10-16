@@ -20,7 +20,11 @@
 
   var NS = 'http://www.w3.org/2000/svg';
   var FONTE = "InterVar, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
-  var SITE = 'boraprosdadosbrasil.netlify.app';
+  /* endereço impresso na imagem: o do build (SITE_CONFIG.siteUrl), senão o de produção */
+  var SITE = (function () {
+    var u = root.SITE_CONFIG && root.SITE_CONFIG.siteUrl;
+    return (typeof u === 'string' && /^https?:\/\//.test(u)) ? u.replace(/^https?:\/\//, '').replace(/\/$/, '') : 'boraprosdadosbrasil.netlify.app';
+  })();
 
   /* ---------- tokens (validados com validate_palette.js; ver 40-dataviz-spec.md) ---------- */
   var TEMAS = {

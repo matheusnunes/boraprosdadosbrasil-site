@@ -44,8 +44,3 @@
 @media (min-width:761px){.share--bar{display:none}}
 @media (prefers-reduced-motion:reduce){.share--bar,.share--bar.is-on{transition:none}}
 @media print{.share{display:none}}
-
-/* kit de compartilhamento (/compartilhar/): 3 botões por card, empilhados no celular estreito */
-.share--kit{margin:10px 0 0}
-.share--kit .share-row .share-btn{flex:1 1 auto}
-.share--kit .share-row .share-btn--wa{flex:1 1 100%}
