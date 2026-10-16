@@ -44,3 +44,12 @@
 @media (min-width:761px){.share--bar{display:none}}
 @media (prefers-reduced-motion:reduce){.share--bar,.share--bar.is-on{transition:none}}
 @media print{.share{display:none}}
+
+/* aviso flutuante (Copiar imagem): região viva sempre no DOM, só fica visível com .is-on */
+.share-toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:60;transform:translate(-50%,8px);
+  max-width:calc(100% - 32px);box-sizing:border-box;padding:12px 18px;border-radius:12px;background:#18181b;color:#ffffff;
+  font-size:15px;font-weight:600;line-height:1.4;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.18);
+  opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+.share-toast.is-on{opacity:1;transform:translate(-50%,0)}
+@media (max-width:760px){.share-toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+@media (prefers-reduced-motion:reduce){.share-toast{transition:none}}
