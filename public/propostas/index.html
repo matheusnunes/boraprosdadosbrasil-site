@@ -507,6 +507,17 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
 .pl-nota{margin:6px 0 0;font-size:12.5px;color:#52525b}
 .pl-leg{display:flex;flex-wrap:wrap;gap:4px 14px;margin:2px 0 4px;font-size:12.5px;color:#3f3f46}
 .pl-leg span{display:inline-flex;align-items:center;gap:5px}
+
+/* ---- v7: ações por card (imagem + WhatsApp), estilo do BPD.montarCard ---- */
+.bpd-card-acoes{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 0}
+.bpd-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:22px;border:1px solid #d4d4d8;background:#fff;color:#18181b;font:600 14px/1.2 InterVar,-apple-system,sans-serif;text-decoration:none;cursor:pointer}
+.bpd-btn:hover{background:#fafafa;border-color:#a1a1aa}
+.bpd-btn--wa{background:#02522b;color:#fff;border-color:#02522b}
+.bpd-btn--wa:hover{background:#036b39;border-color:#036b39}
+.bpd-card-status{font-size:13px;color:#52525b}
+.sec-acoes.tem-card{justify-content:flex-start}
+.sec-acoes.tem-card .share{display:none}
+.mt-r .sbar{min-width:4px}
 /* ---- v5: seção = card ---- */
 .sc{padding:12px 14px 10px;margin:8px 0 6px}
 .sc-t{margin:0 0 4px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
@@ -549,6 +560,8 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
 <link rel="stylesheet" href="/assets/css/share.css">
 <script defer src="/assets/js/share.js"></script>
 <script defer src="/assets/js/charts.js"></script>
+<script defer src="/assets/js/charts.js"></script>
+<script defer src="/assets/js/cards-propostas.js"></script>
 <script defer src="/assets/js/ui.js"></script>
 <link rel="stylesheet" href="/assets/css/catalogo.css">
 </head>
@@ -619,7 +632,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
     <p class="q-resumo-pe">Fonte: planos de governo registrados no TSE (Flávio Bolsonaro, 76 págs.; Lula, 84 págs.), página citada em cada trecho · 19 temas por plano · atualizado em __UPDATED__ · <a href="#metodo">Como classificamos ›</a></p>
     <p class="q-resumo-url">boraprosdadosbrasil.netlify.app/propostas/</p>
     <div class="r-acoes">
-      <div class="share" data-share-section="propostas" data-share-placement="placar" data-share-anchor="resumo" data-share-name="o resumo das propostas"
+      <div class="share" data-share-section="propostas" data-share-placement="placar" data-share-anchor="resumo" data-share-card="p-geral" data-share-name="o resumo das propostas"
            data-share-text="📊 Planos de 2026: diz COMO vai fazer (instrumento nomeado) em 1 de 19 temas (Flávio) × 11 de 19 (Lula); algum caminho: 13 × 17. Programas em execução contam, o que favorece quem governa."></div>
     </div>
   </section>
@@ -692,7 +705,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
       <p class="bar-rot">2 ferramenta nomeada · 3 parciais</p>
       <figcaption class="sc-src">Fonte: planos de governo registrados no TSE (2026), página citada em cada trecho · programas em execução contam como caminho, o que favorece quem governa</figcaption>
     </figure>
-    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-bolso" data-share-placement="card" data-share-anchor="cap-bolso" data-share-name="o dado de impostos, trabalho, renda e casa"
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-bolso" data-share-placement="card" data-share-anchor="cap-bolso" data-share-card="p-bolso" data-share-name="o dado de impostos, trabalho, renda e casa"
          data-share-text="📊 Planos 2026 (TSE), impostos, trabalho, renda e casa (5 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 2; algum caminho 2 × 5; só intenção 3 × 0. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
     <p class="tr-cab">O que cada plano promete, tema a tema (toque para ler o trecho e a página):</p>
   <!-- IMPOSTOS -->
@@ -794,7 +807,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
       <p class="pt-nota"><b>O que mudaria:</b> Contando parciais: empate, 3 × 3.</p>
       <figcaption class="sc-src">Fonte: planos de governo registrados no TSE (2026), página citada em cada trecho · programas em execução contam como caminho, o que favorece quem governa</figcaption>
     </figure>
-    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-seguranca" data-share-placement="card" data-share-anchor="cap-seguranca" data-share-name="o dado de segurança"
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-seguranca" data-share-placement="card" data-share-anchor="cap-seguranca" data-share-card="p-seguranca" data-share-name="o dado de segurança"
          data-share-text="📊 Planos 2026 (TSE), segurança e crime organizado (3 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 2; algum caminho 3 × 3; só intenção 0 × 0. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
     <p class="tr-cab">O que cada plano promete, tema a tema (toque para ler o trecho e a página):</p>
   <!-- SEGURANÇA -->
@@ -864,7 +877,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
       <p class="bar-rot">4 ferramenta nomeada · 1 parcial</p>
       <figcaption class="sc-src">Fonte: planos de governo registrados no TSE (2026), página citada em cada trecho · programas em execução contam como caminho, o que favorece quem governa</figcaption>
     </figure>
-    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-servicos" data-share-placement="card" data-share-anchor="cap-servicos" data-share-name="o dado de serviços públicos"
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-servicos" data-share-placement="card" data-share-anchor="cap-servicos" data-share-card="p-servicos" data-share-name="o dado de serviços públicos"
          data-share-text="📊 Planos 2026 (TSE), saúde, educação, universidades, mulheres e cultura (5 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 4; algum caminho 2 × 5; só intenção 3 × 0. Programas em execução contam como caminho."></div></div>
     <p class="tr-cab">O que cada plano promete, tema a tema (toque para ler o trecho e a página):</p>
   <!-- SAÚDE -->
@@ -967,7 +980,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
       <p class="pt-nota"><b>O que mudaria:</b> Contando parciais: Flávio à frente, 4 × 3.</p>
       <figcaption class="sc-src">Fonte: planos de governo registrados no TSE (2026), página citada em cada trecho · programas em execução contam como caminho, o que favorece quem governa</figcaption>
     </figure>
-    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-economia" data-share-placement="card" data-share-anchor="cap-economia" data-share-name="o dado de economia"
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-economia" data-share-placement="card" data-share-anchor="cap-economia" data-share-card="p-economia" data-share-name="o dado de economia"
          data-share-text="📊 Planos 2026 (TSE), economia e crescimento (4 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 1 × 2; algum caminho 4 × 3; só intenção 0 × 1. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
     <p class="tr-cab">O que cada plano promete, tema a tema (toque para ler o trecho e a página):</p>
   <!-- ECONOMIA -->
@@ -1054,7 +1067,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
       <p class="pt-nota"><b>O que mudaria:</b> Contando parciais: Flávio à frente, 2 × 1.</p>
       <figcaption class="sc-src">Fonte: planos de governo registrados no TSE (2026), página citada em cada trecho · programas em execução contam como caminho, o que favorece quem governa</figcaption>
     </figure>
-    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-ambiente" data-share-placement="card" data-share-anchor="cap-ambiente" data-share-name="o dado de meio ambiente e instituições"
+    <div class="sec-acoes"><div class="share share--mini" data-share-variant="mini" data-share-section="cap-ambiente" data-share-placement="card" data-share-anchor="cap-ambiente" data-share-card="p-ambiente" data-share-name="o dado de meio ambiente e instituições"
          data-share-text="📊 Planos 2026 (TSE), meio ambiente e instituições (2 temas), Flávio Bolsonaro × Lula: ferramenta nomeada 0 × 1; algum caminho 2 × 1; só intenção 0 × 1. Programas em execução contam como caminho, o que favorece quem governa."></div></div>
     <p class="tr-cab">O que cada plano promete, tema a tema (toque para ler o trecho e a página):</p>
   <!-- AMBIENTE -->
@@ -1516,6 +1529,62 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
 })();
 </script>
 
+<script>
+/* v7: cada seção ganha [Compartilhar imagem] (PNG 1080×1350 do card do data-viz) + [WhatsApp].
+   O que fica na tela é o bloco da página; o card do charts.js só gera a imagem. */
+(function(){
+  var MAPA = {"resumo": "p-geral", "cap-bolso": "p-bolso", "cap-seguranca": "p-seguranca", "cap-servicos": "p-servicos", "cap-economia": "p-economia", "cap-ambiente": "p-ambiente"};
+  function track(n, p){ try { if (window.__track) window.__track(n, p); } catch (e) {} }
+  function acoes(alvo, def, texto, ancora, sh){
+    var box = document.createElement('div'); box.className = 'bpd-card-acoes';
+    var st = document.createElement('span'); st.className = 'bpd-card-status'; st.setAttribute('role', 'status');
+    var url = location.origin + location.pathname + '#' + ancora;
+    var bImg = document.createElement('button'); bImg.type = 'button'; bImg.className = 'bpd-btn bpd-btn--img'; bImg.textContent = 'Compartilhar imagem';
+    bImg.addEventListener('click', function(){
+      st.textContent = 'Gerando a imagem…';
+      track('share_click', { section: def.id, method: 'image', placement: 'card' });
+      BPD.cardPNG(def, 'feed').then(function(blob){
+        var nome = 'bora-pros-dados-' + def.id + '.png', file = null;
+        try { file = new File([blob], nome, { type: 'image/png' }); } catch (e) {}
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          return navigator.share({ files: [file], text: texto + ' ' + url }).then(function(){ st.textContent = ''; track('share_success', { section: def.id, method: 'image' }); }, function(){ st.textContent = ''; });
+        }
+        var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome; document.body.appendChild(a); a.click();
+        setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+        st.textContent = 'Imagem baixada. Agora é só anexar na conversa.';
+        track('share_success', { section: def.id, method: 'download' });
+      }).catch(function(){ st.textContent = 'Não deu para gerar a imagem agora.'; });
+    });
+    var bWa = document.createElement('a'); bWa.className = 'bpd-btn bpd-btn--wa'; bWa.textContent = 'WhatsApp'; bWa.target = '_blank'; bWa.rel = 'noopener';
+    bWa.href = 'https://wa.me/?text=' + encodeURIComponent(texto + ' Números, ressalvas e método: ' + url + (url.indexOf('?') < 0 ? '' : ''));
+    bWa.addEventListener('click', function(){ track('share_click', { section: def.id, method: 'whatsapp', placement: 'card' }); });
+    box.appendChild(bImg); box.appendChild(bWa);
+    /* "Copiar imagem" (share.js): PNG do card com rodapé de referência + texto com o link; sem suporte, copia o texto */
+    if (sh && alvo.classList.contains('tem-card') && window.__share && window.__share.copiar) {
+      var bCp = document.createElement('button'); bCp.type = 'button'; bCp.className = 'bpd-btn bpd-btn--copiar';
+      bCp.textContent = window.__share.copiaImagem ? 'Copiar imagem' : 'Copiar';
+      bCp.setAttribute('aria-label', window.__share.copiaImagem ? 'Copiar a imagem, com a fonte e o link do site' : 'Copiar mensagem com o link');
+      bCp.addEventListener('click', function(){ window.__share.copiar(sh); });
+      box.appendChild(bCp);
+    }
+    box.appendChild(st);
+    alvo.appendChild(box);
+  }
+  function inicia(){
+    var DEFS = window.CARDS_PROPOSTAS; if (!window.BPD || !BPD.cardPNG || !DEFS) return;
+    var porId = {}; DEFS.forEach(function(d){ porId[d.id] = d; });
+    Object.keys(MAPA).forEach(function(sec){
+      var s = document.getElementById(sec), def = porId[MAPA[sec]]; if (!s || !def) return;
+      var sh = s.querySelector('.share[data-share-text]'), texto = sh ? sh.getAttribute('data-share-text') : document.title;
+      var alvo = s.querySelector('.sec-acoes') || s.querySelector('.r-acoes');
+      if (!alvo) return;
+      if (alvo.classList.contains('sec-acoes')) alvo.classList.add('tem-card');
+      acoes(alvo, def, texto, sec, sh);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inicia); else inicia();
+})();
+</script>
 <script defer src="/assets/js/catalogo.js"></script>
 </body>
 </html>

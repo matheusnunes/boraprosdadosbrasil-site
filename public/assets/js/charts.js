@@ -8,7 +8,9 @@
  *   BPD.distribuicao(el, opts)  ganho real por faixa de renda (P10…P99)
  *   BPD.promessas(el, opts)     barra 100% empilhada por categoria (cumprida/parcial/…)
  *   BPD.resumo(el, opts)        "Resumo em 1 minuto": placar + duelos compactos numa só imagem
- *   BPD.card / cardSintese      cards para compartilhar (feed, story, og) e fechamento de carrossel
+ *   BPD.card(el, def, formato)  card "a seção é o card" (web inline | feed | story | og)  — v0.3
+ *   BPD.montarCard(el, def)     card web + [Compartilhar imagem] [WhatsApp] (sem segundo gráfico)
+ *   BPD.cardPNG(def, formato)   Promise<Blob> PNG do card
  *   BPD.cardSelecao(el, opts)   imagem única de uma seleção /c/1-3-5 (título neutro, contexto no rodapé)
  *   BPD.paraPNG(svg, escala)    Promise<Blob> PNG da imagem (para compartilhar)
  *
@@ -642,7 +644,7 @@
    *       excluir:['sem_evidencia'], grupos:[{tema, linhas}] (mapa tema a tema), fonte, nota
    * ===================================================================== */
   function corCategoria(cat, lado, T, hatch) {
-    if (cat.cor) return cat.cor;   // cor de STATUS fixa, igual para os dois lados (99-principios-imagem)
+    if (cat.cor) return cat.cor;   // cor de STATUS fixa, igual para os dois lados (registro de comparações)
     switch (cat.tipo) {
       case 'cheio': return T[lado];
       case 'claro': return T[lado + 'Claro'];
@@ -799,348 +801,648 @@
   }
 
   /* =====================================================================
-   * CARD para compartilhar (feed 1080×1350 · story 1080×1920 · og 1200×630)
-   * BPD.card(el, {
-   *   formato: 'feed'|'story'|'og', variante: 'trajetoria'|'barras'|'duelo',
-   *   indicador: 'Inflação', criterio: 'menor'|'maior', criterioTexto?,
-   *   destaque: { rotulo, sub, valores:{b,l}, formato, periodo:{b,l} },   // decide o vencedor
-   *   manchete: { valor: '4,6%', texto: '...' },                            // número do lado à frente
-   *   grafico: { titulo, sub, ... dados da variante },
-   *   fonte, periodo, dados (até quando), url, atualizado, provisorio, nota, lados
-   * })
-   * O vencedor é calculado pelo critério sobre destaque.valores (o título nunca é digitado à mão).
-   * Sempre tema claro (é imagem para circular fora do site). Tamanho real em px: exporta 1:1.
+   * CARDS v0.3 — "a seção É o card": o que se vê no site é o que se compartilha.
+   *
+   *   BPD.card(el, def, formato?)      desenha o card (formato 'web' = inline e responsivo; 'feed' 1080×1350;
+   *                                    'story' 1080×1920; 'og' 1200×630). Devolve o <svg>.
+   *   BPD.montarCard(el, def, op?)     card 'web' + botões [Compartilhar imagem] [WhatsApp] (+ tabela recolhida
+   *                                    e "Saiba mais" opcionais). NUNCA desenha um segundo gráfico.
+   *   BPD.cardPNG(def, formato)        Promise<Blob> com o PNG (sempre tema claro, fonte embutida).
+   *
+   * def = {
+   *   id, tema: 'Inflação', criterio: 'menor'|'maior'|null, vencedor?: 'b'|'l'|null (calculado de def.valores
+   *   quando houver criterio), valores?: {b,l} (o número que decide), titulo?: (pergunta neutra quando não há vencedor),
+   *   detalhe: 'quanto os preços subiram', forca: 'clara'|'apertada', mudaria: 'o que mudaria o resultado',
+   *   manchete: {valor, texto}, grafico: {tipo, titulo, sub, ...dados}, nota, fonte, periodo, dados, url,
+   *   atualizado, lados, share: {texto, url}, tabela: {cab, linhas}, saibaMais: [parágrafos]
+   * }
+   * Regras: veredito UMA vez (no título); cada número UMA vez; ordem fixa Bolsonaro → Lula; zero declarado.
    * ===================================================================== */
   var FORMATOS = {
-    feed: { W: 1080, H: 1350, P: 72, topo: 0, base: 0, k: 1 },
-    story: { W: 1080, H: 1920, P: 72, topo: 250, base: 250, k: 1 },
-    og: { W: 1200, H: 630, P: 44, topo: 0, base: 0, k: 0.62 }
+    web: { W: 0, H: 0, P: 16, s: 1, marca: false, url: false },
+    feed: { W: 1080, H: 1350, P: 64, s: 2.3, marca: true, url: true },
+    story: { W: 1080, H: 1920, P: 64, s: 2.45, topo: 250, base: 250, marca: true, url: true },
+    og: { W: 1200, H: 630, P: 40, s: 1.4, marca: true, url: true, colunas: true }
   };
-  var CARD = { fundo: '#fbfbf9', ink: '#18181b', ink2: '#3f3f46', muted: '#63636b', grid: '#e7e7e4', axis: '#a1a1aa', area: 'rgba(113,113,122,.16)' };
+  var ESCURO = { fundo: '#18181b', ink: '#fafafa', ink2: '#d4d4d8', muted: '#a1a1aa', grid: '#2e2e33', axis: '#5b5b63', area: 'rgba(161,161,170,.18)', borda: '#2e2e33', tile: '#232327' };
+  var CLARO = { fundo: '#ffffff', ink: '#18181b', ink2: '#3f3f46', muted: '#63636b', grid: '#ebebe8', axis: '#a1a1aa', area: 'rgba(113,113,122,.15)', borda: '#e4e4e7', tile: '#ffffff' };
+  // cores de STATUS (iguais para os dois lados; nunca azul/roxo) — mesmas do /balanco/ v4
+  var STATUS = { ok: '#2f7d55', mid: '#e2a63c', runA: '#8da597', runB: '#e7eee9', no: '#e3867f', na: '#e4e4e7', naEsc: '#3f3f46' };
 
   function cardTexto(g, x, y, s, size, weight, fill, anchor, ls) {
-    var t = texto(g, x, y, s, { size: size, weight: weight, fill: fill, anchor: anchor });
+    var t = texto(g, x, y, s, { size: Math.round(size * 10) / 10, weight: weight, fill: fill, anchor: anchor });
     if (ls) t.setAttribute('letter-spacing', ls);
     return t;
   }
   function cardTicks(lo, hi, n) {
-    var span = hi - lo, passo = Math.pow(10, Math.floor(Math.log(span / n) / Math.LN10)), err = span / n / passo;
+    var span = hi - lo || 1, passo = Math.pow(10, Math.floor(Math.log(span / n) / Math.LN10)), err = span / n / passo;
     passo *= err >= 7.5 ? 10 : err >= 3.5 ? 5 : err >= 1.5 ? 2 : 1;
-    var t = [], v = Math.floor(lo / passo) * passo;
+    var t = [], v = Math.floor(lo / passo + 1e-9) * passo;
     for (; v <= hi + passo * 0.001; v += passo) t.push(+v.toFixed(6));
     return t;
   }
-  function cardHatch(defs, cor, id) {
-    var pat = el('pattern', { id: id, patternUnits: 'userSpaceOnUse', width: 14, height: 14, patternTransform: 'rotate(45)' }, defs);
-    el('rect', { width: 14, height: 14, fill: '#ffffff' }, pat);
-    el('rect', { width: 7, height: 14, fill: cor }, pat);
+  var _hid = 0;
+  function hachura(defs, a, b, larg) {
+    var id = 'bpdh' + (++_hid) + Math.random().toString(36).slice(2, 5), w = larg || 6;
+    var pat = el('pattern', { id: id, patternUnits: 'userSpaceOnUse', width: w, height: w, patternTransform: 'rotate(45)' }, defs);
+    el('rect', { width: w, height: w, fill: b }, pat);
+    el('rect', { width: w / 2, height: w, fill: a }, pat);
     return 'url(#' + id + ')';
   }
 
-  /* -- variante 1: trajetória sobreposta ("meses desde a posse") -- */
-  function cardTrajetoria(g, defs, x, y, w, h, k, gr, L, T) {
-    var f = fmtFn(gr.formato), n = Math.max(gr.b.length, gr.l.length) - 1;
+  /* contexto de desenho: escala s, paleta, helpers em unidades lógicas */
+  function ctxCard(svg, defs, g, F, escuro, L) {
+    var C = escuro ? ESCURO : CLARO, T = TEMAS.light, s = F.s;
+    return {
+      svg: svg, defs: defs, g: g, F: F, C: C, T: T, s: s, L: L, escuro: escuro,
+      z: function (n) { return n * s; },
+      t: function (x, y, str, size, weight, fill, anchor, ls) { return cardTexto(g, x, y, str, size * s, weight, fill || C.ink, anchor, ls ? ls * s : null); },
+      w: function (str, size, weight) { return largura(str, size * s, weight || 400); },
+      q: function (str, size, weight, max) { return quebra(str, size * s, weight || 400, max); },
+      marca: function (lado, cx, cy, tam) { return marca(g, lado, cx, cy, tam * s, { b: T.b, l: T.l, ctx: T.ctx, ring: C.fundo }); },
+      corLado: function (lado) { return T[lado]; },
+      st: function (tipo) {
+        if (tipo === 'ok') return STATUS.ok; if (tipo === 'mid') return STATUS.mid; if (tipo === 'no') return STATUS.no;
+        if (tipo === 'run') return hachura(defs, STATUS.runA, STATUS.runB, 6 * s);
+        return escuro ? STATUS.naEsc : STATUS.na;
+      }
+    };
+  }
+
+  /* ---------- blocos de texto ---------- */
+  function vencedorDef(def) {
+    if (def.vencedor !== undefined && !def.criterio) return def.vencedor;
+    if (def.criterio && def.valores) return vencedor({ criterio: def.criterio, valores: def.valores, vencedor: def.vencedor, titulo: def.tema });
+    return def.vencedor || null;
+  }
+  function blkMarca(c, x, y) { c.t(x, y + c.z(12), 'BORA PROS DADOS BRASIL', 12, 800, c.C.muted, 'start', 1.4); return y + c.z(24); }
+  function blkTitulo(c, x, y, w, def, venc) {
+    var C = c.C;
+    if (venc) {
+      c.q(def.tema + ':', 21, 800, w).forEach(function (ln) { y += c.z(25); c.t(x, y - c.z(5), ln, 21, 800, C.ink); });
+      // tamanho fixado pelo nome mais longo dos dois lados (mesmo desenho para qualquer vencedor)
+      var ts = 23, longo = c.w(c.L.b.nome, 10, 800) > c.w(c.L.l.nome, 10, 800) ? c.L.b.nome : c.L.l.nome;
+      while (ts > 15 && c.w(longo + ' à frente', ts, 800) + c.z(ts * 0.85) > w) ts -= 0.5;
+      y += c.z(ts * 1.2);
+      c.marca(venc, x + c.z(ts * 0.3), y - c.z(ts * 0.36), ts * 0.5);
+      var tx = x + c.z(ts * 0.8), nm = c.L[venc].nome + ' à frente';
+      c.t(tx, y, nm, ts, 800, C.ink);
+      el('rect', { x: tx, y: y + c.z(ts * 0.16), width: c.w(nm, ts, 800), height: c.z(Math.max(2.5, ts * 0.11)), rx: c.z(1.5), fill: c.corLado(venc) }, c.g);
+      return y + c.z(ts * 0.38);
+    }
+    c.q(def.titulo || def.tema, 21, 800, w).forEach(function (ln) { y += c.z(25); c.t(x, y - c.z(5), ln, 21, 800, C.ink); });
+    return y + c.z(2);
+  }
+  function blkCriterio(c, x, y, w, def) {
+    var C = c.C, partes = [];
+    var crit = def.criterio === 'menor' ? '↓ menor é melhor' : def.criterio === 'maior' ? '↑ maior é melhor' : (def.criterioTexto || 'sem vencedor: contexto');
+    partes.push(crit + (def.detalhe ? ' · ' + def.detalhe : ''));
+    var ls = c.q(partes[0], 13, 600, w);
+    ls.forEach(function (ln) { y += c.z(18); c.t(x, y - c.z(4), ln, 13, 600, C.ink2); });
+    if (def.forca) {
+      var txt = def.forca === 'apertada' ? 'diferença apertada' : 'diferença clara', pw = c.w(txt, 13, 700) + c.z(18), ph = c.z(22);
+      y += c.z(6);
+      el('rect', { x: x + 0.5, y: y + 0.5, width: pw - 1, height: ph - 1, rx: ph / 2, fill: 'none', stroke: C.ink2, 'stroke-width': Math.max(1, c.z(1)), 'stroke-dasharray': def.forca === 'apertada' ? c.z(3) + ' ' + c.z(2) : null }, c.g);
+      c.t(x + pw / 2, y + ph * 0.7, txt, 13, 700, C.ink2, 'middle');
+      y += ph;
+    }
+    return y + c.z(4);
+  }
+  function blkManchete(c, x, y, w, def) {
+    if (!def.manchete) return y;
+    var C = c.C, ms = 42, mv = def.manchete.valor;
+    while (ms > 28 && c.w(mv, ms, 800) > w * 0.55) ms -= 1;
+    var mw = c.w(mv, ms, 800), tx = x + mw + c.z(12), tw = x + w - tx, tl;
+    y += c.z(8);
+    if (tw >= c.z(140)) {
+      tl = c.q(def.manchete.texto, 14, 400, tw);
+      var hT = tl.length * c.z(18), hM = c.z(ms * 0.78), y0 = y + Math.max(0, (hM - hT) / 2);
+      c.t(x, y + hM, mv, ms, 800, C.ink);
+      tl.forEach(function (ln, j) { c.t(tx, y0 + c.z(14) + j * c.z(18), ln, 14, j === 0 ? 700 : 400, j === 0 ? C.ink : C.ink2); });
+      return y + Math.max(hM, hT) + c.z(8);
+    }
+    c.t(x, y + c.z(ms * 0.78), mv, ms, 800, C.ink); y += c.z(ms * 0.78) + c.z(6);
+    c.q(def.manchete.texto, 14, 400, w).forEach(function (ln, j) { y += c.z(18); c.t(x, y - c.z(4), ln, 14, j === 0 ? 700 : 400, j === 0 ? C.ink : C.ink2); });
+    return y + c.z(8);
+  }
+  function blkGraficoTitulo(c, x, y, w, gr) {
+    if (gr.titulo) { y += c.z(16); c.t(x, y - c.z(3), gr.titulo.toUpperCase(), 12.5, 800, c.C.ink, 'start', 0.6); }
+    if (gr.sub) c.q(gr.sub, 13, 400, w).forEach(function (ln) { y += c.z(17); c.t(x, y - c.z(3), ln, 13, 400, c.C.muted); });
+    return y + c.z(6);
+  }
+  function blkRodape(c, x, y, w, def, comUrl) {
+    var C = c.C;
+    if (def.mudaria) {
+      y += c.z(4);
+      var lab = 'O que mudaria o resultado: ';
+      c.q(lab + def.mudaria, 13, 400, w).forEach(function (ln, j) {
+        y += c.z(17);
+        if (j === 0 && ln.indexOf(lab.trim()) === 0) { c.t(x, y - c.z(3), lab.trim(), 13, 700, C.ink); c.t(x + c.w(lab, 13, 700), y - c.z(3), ln.slice(lab.length), 13, 400, C.ink2); }
+        else c.t(x, y - c.z(3), ln, 13, 400, C.ink2);
+      });
+    }
+    if (def.nota) c.q(def.nota, 13, 400, w).forEach(function (ln) { y += c.z(17); c.t(x, y - c.z(3), ln, 13, 400, C.ink2); });
+    y += c.z(8);
+    el('line', { x1: x, x2: x + w, y1: y, y2: y, stroke: C.grid, 'stroke-width': Math.max(1, c.z(1)) }, c.g);
+    y += c.z(2);
+    var f = 'Fonte: ' + def.fonte + (def.periodo ? ' · ' + def.periodo : '') + (def.dados ? ' · dados até ' + def.dados : '');
+    c.q(f, 12.5, 400, w).forEach(function (ln) { y += c.z(16); c.t(x, y - c.z(3), ln, 12.5, 400, C.muted); });
+    if (comUrl) {
+      c.q((def.url || SITE) + ' · atualizado em ' + (def.atualizado || ''), 12.5, 700, w).forEach(function (ln) { y += c.z(16); c.t(x, y - c.z(3), ln, 12.5, 700, C.ink2); });
+    }
+    return y + c.z(2);
+  }
+
+  /* ---------- gráficos (todos em px reais; c.z converte unidades lógicas) ---------- */
+  var GRAF = {};
+  GRAF.trajetoria = { flex: true, alt: 200, desenhar: function (c, x, y, w, h, gr) {
+    var C = c.C, f = fmtFn(gr.formato), fy = fmtFn(gr.formatoEixo || gr.formato), n = Math.max(gr.b.length, gr.l.length) - 1;
     var todos = gr.b.concat(gr.l).filter(function (v) { return v != null; });
     var lo = Math.min(0, Math.min.apply(null, todos)), hi = Math.max(0, Math.max.apply(null, todos));
+    if (gr.yMax != null) hi = Math.max(hi, gr.yMax);
     var ticks = cardTicks(lo, hi, 4); lo = Math.min(lo, ticks[0]); hi = Math.max(hi, ticks[ticks.length - 1]);
-    var fy = fmtFn(gr.formatoEixo || gr.formato);
-    var axW = Math.max.apply(null, ticks.map(function (t) { return largura(fy(t), 24 * k, 400); })) + 14 * k;
-    var endW = 230 * k, pl = x + axW, pr = x + w - endW, top = y + 10 * k, bot = y + h - 44 * k;
+    var axW = Math.max.apply(null, ticks.map(function (t) { return c.w(fy(t), 12.5); })) + c.z(6);
+    var fimTxt = function (lado) { return [c.L[lado].curto.toUpperCase(), gr.rotuloFim === 'nome' ? null : f(gr[lado][gr[lado].length - 1]), gr.fim ? gr.fim[lado] : null]; };
+    var endW = Math.max.apply(null, ORDEM.map(function (l) { var a = fimTxt(l); return Math.max(c.w(a[0], 12, 800), a[1] ? c.w(a[1], 17, 800) : 0, a[2] ? c.w(a[2], 12.5) : 0); })) + c.z(14);
+    var pl = x + axW, pr = x + w - endW, top = y + c.z(8), bot = y + h - c.z(gr.rotuloX ? 34 : 20);
     var X = function (i) { return pl + i / n * (pr - pl); }, Y = function (v) { return bot - (v - lo) / (hi - lo) * (bot - top); };
     ticks.forEach(function (t) {
-      el('line', { x1: pl, x2: pr, y1: Y(t), y2: Y(t), stroke: t === 0 ? CARD.axis : CARD.grid, 'stroke-width': t === 0 ? 2 * k : 1.5 * k }, g);
-      cardTexto(g, pl - 12 * k, Y(t) + 8 * k, fy(t), 24 * k, 400, CARD.muted, 'end');
+      el('line', { x1: pl, x2: pr, y1: Y(t), y2: Y(t), stroke: t === 0 ? C.axis : C.grid, 'stroke-width': c.z(t === 0 ? 1.4 : 1) }, c.g);
+      c.t(pl - c.z(5), Y(t) + c.z(4.5), fy(t), 12.5, 400, C.muted, 'end');
     });
-    var passoX = gr.passoX || 12;
-    for (var i = 0; i <= n; i += passoX) cardTexto(g, X(i) - (i === 0 ? 4 * k : 0), bot + 32 * k, i === 0 ? 'Posse' : String(i), 24 * k, 400, CARD.muted, i === 0 ? 'start' : 'middle');
-    if (gr.rotuloX) cardTexto(g, pr, bot + 32 * k + 30 * k, gr.rotuloX, 22 * k, 400, CARD.muted, 'end');
-    // área entre as curvas (neutra: cinza, nunca a cor de um lado)
+    var passo = gr.passoX || 12;
+    for (var i = 0; i <= n; i += passo) c.t(X(i), bot + c.z(15), i === 0 ? (gr.rotulo0 || 'Posse') : String(i), 12.5, 400, C.muted, i === 0 ? 'start' : 'middle');
+    if (gr.rotuloX) c.t(pr, bot + c.z(30), gr.rotuloX, 12.5, 400, C.muted, 'end');
     var m = Math.min(gr.b.length, gr.l.length) - 1, d = '';
     for (i = 0; i <= m; i++) d += (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(gr.b[i]).toFixed(1);
     for (i = m; i >= 0; i--) d += 'L' + X(i).toFixed(1) + ',' + Y(gr.l[i]).toFixed(1);
-    el('path', { d: d + 'Z', fill: CARD.area }, g);
+    el('path', { d: d + 'Z', fill: C.area }, c.g);
     if (gr.marcaMes != null) {
-      el('line', { x1: X(gr.marcaMes), x2: X(gr.marcaMes), y1: top, y2: bot, stroke: CARD.axis, 'stroke-width': 1.5 * k, 'stroke-dasharray': (6 * k) + ' ' + (5 * k) }, g);
-      if (gr.marcaTexto) cardTexto(g, X(gr.marcaMes) - 8 * k, bot - 12 * k, gr.marcaTexto, 22 * k, 600, CARD.ink2, 'end');
+      el('line', { x1: X(gr.marcaMes), x2: X(gr.marcaMes), y1: top, y2: bot, stroke: C.axis, 'stroke-width': c.z(1), 'stroke-dasharray': c.z(4) + ' ' + c.z(3) }, c.g);
+      if (gr.marcaTexto) c.t(X(gr.marcaMes) - c.z(4), bot - c.z(5), gr.marcaTexto, 12.5, 600, C.ink2, 'end');
     }
-    var fins = [];
     ORDEM.forEach(function (lado) {
       var v = gr[lado], dd = '';
       v.forEach(function (val, j) { if (val != null) dd += (dd ? 'L' : 'M') + X(j).toFixed(1) + ',' + Y(val).toFixed(1); });
-      el('path', { d: dd, fill: 'none', stroke: T[lado], 'stroke-width': 6 * k, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, g);
-      var j = v.length - 1; marca(g, lado, X(j), Y(v[j]), 18 * k, T);
-      fins.push({ lado: lado, x: X(j), y: Y(v[j]), v: v[j] });
+      el('path', { d: dd, fill: 'none', stroke: c.corLado(lado), 'stroke-width': c.z(2.6), 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, c.g);
     });
-    // rótulo direto no fim da linha (afasta os dois se colidirem; fio liga ao ponto)
+    // valor no "mesmo mês" (quando o outro lado ainda não terminou)
+    if (gr.marcaValor) {
+      var lv = gr.marcaValor.lado, iv = gr.marcaMes, vv = gr[lv][iv];
+      c.marca(lv, X(iv), Y(vv), 7);
+      var lab = f(vv), lw = c.w(lab, 13, 800);
+      el('rect', { x: X(iv) - lw - c.z(12), y: Y(vv) - c.z(gr.marcaValor.acima ? 22 : -6), width: lw + c.z(6), height: c.z(16), rx: c.z(3), fill: C.fundo, opacity: 0.9 }, c.g);
+      c.t(X(iv) - c.z(9), Y(vv) - c.z(gr.marcaValor.acima ? 9 : -18), lab, 13, 800, C.ink, 'end');
+    }
+    var fins = ORDEM.map(function (lado) { var v = gr[lado], j = v.length - 1; c.marca(lado, X(j), Y(v[j]), 8); return { lado: lado, x: X(j), y: Y(v[j]) }; });
     fins.sort(function (a, b) { return a.y - b.y; });
-    var alt = (gr.fim ? 124 : 80) * k, lim0 = top + 24 * k, lim1 = bot - (gr.fim ? 60 : 34) * k;
-    fins[0].ly = fins[0].y; fins[1].ly = fins[1].y;
-    if (fins[1].ly - fins[0].ly < alt) { var mid = (fins[0].y + fins[1].y) / 2; fins[0].ly = mid - alt / 2; fins[1].ly = mid + alt / 2; }
+    var hB = function (lado) { var a = fimTxt(lado); return c.z(12) + (a[1] ? c.z(19) : 0) + (a[2] ? c.z(15) : 0); };
+    var alt = Math.max(hB('b'), hB('l')) + c.z(6), lim0 = top + c.z(10), lim1 = bot - hB(fins[1].lado) + c.z(10);
+    fins[0].ly = fins[0].y - c.z(6); fins[1].ly = fins[1].y - c.z(6);
+    if (fins[1].ly - fins[0].ly < alt) { var mid = (fins[0].ly + fins[1].ly) / 2; fins[0].ly = mid - alt / 2; fins[1].ly = mid + alt / 2; }
     if (fins[1].ly > lim1) { fins[1].ly = lim1; fins[0].ly = Math.min(fins[0].ly, lim1 - alt); }
     if (fins[0].ly < lim0) { fins[0].ly = lim0; fins[1].ly = Math.max(fins[1].ly, lim0 + alt); }
     fins.forEach(function (fi) {
-      var ly = fi.ly != null ? fi.ly : fi.y, lx = pr + 26 * k;
-      el('line', { x1: fi.x + 12 * k, x2: lx - 6 * k, y1: fi.y, y2: ly, stroke: CARD.axis, 'stroke-width': 1.5 * k }, g);
-      cardTexto(g, lx, ly - 10 * k, L[fi.lado].curto.toUpperCase(), 20 * k, 700, CARD.ink2, 'start', 1 * k);
-      cardTexto(g, lx, ly + 30 * k, f(fi.v), 40 * k, 800, CARD.ink, 'start');
-      if (gr.fim && gr.fim[fi.lado]) cardTexto(g, lx, ly + 56 * k, gr.fim[fi.lado], 20 * k, 400, CARD.muted, 'start');
+      var a = fimTxt(fi.lado), lx = pr + c.z(12), ly = fi.ly;
+      el('line', { x1: fi.x + c.z(5), x2: lx - c.z(3), y1: fi.y, y2: ly + c.z(4), stroke: C.axis, 'stroke-width': c.z(0.8) }, c.g);
+      c.t(lx, ly + c.z(8), a[0], 12, 800, C.ink2, 'start', 0.4);
+      var yy = ly + c.z(8);
+      if (a[1]) { yy += c.z(19); c.t(lx, yy, a[1], 17, 800, C.ink); }
+      if (a[2]) { yy += c.z(15); c.t(lx, yy, a[2], 12.5, 400, C.muted); }
     });
-  }
+  } };
 
-  /* -- variante 2: barras ano a ano de mandato (1º ano × 1º ano ...) -- */
-  function cardBarras(g, defs, x, y, w, h, k, gr, L, T) {
-    var f = fmtFn(gr.formato), G = gr.grupos;
-    var vals = []; G.forEach(function (q) { vals.push(q.b.v, q.l.v); });
-    var hi = Math.max.apply(null, vals), ticks = cardTicks(0, hi * 1.2, 4); hi = Math.max(ticks[ticks.length - 1], hi * 1.2);
-    var fy = fmtFn(gr.formatoEixo || gr.formato);
-    var axW = Math.max.apply(null, ticks.map(function (t) { return largura(fy(t), 22 * k, 400); })) + 14 * k;
-    // legenda com forma
-    var lx = x + axW;
-    ORDEM.forEach(function (lado) {
-      marca(g, lado, lx + 9 * k, y + 12 * k, 18 * k, T);
-      var s = L[lado].nome + (L[lado].periodo ? ' · ' + L[lado].periodo : '');
-      cardTexto(g, lx + 26 * k, y + 20 * k, s, 22 * k, 600, CARD.ink2);
-      lx += largura(s, 22 * k, 600) + 60 * k;
+  /* linha anual com faixas de governo (anos de calendário) */
+  GRAF.anual = { flex: true, alt: 200, desenhar: function (c, x, y, w, h, gr) {
+    var C = c.C, f = fmtFn(gr.formato), fy = fmtFn(gr.formatoEixo || gr.formato), anos = gr.anos, n = anos.length - 1;
+    var vals = anos.map(function (a) { return gr.v[a]; });
+    var lo = gr.yMin != null ? gr.yMin : Math.min(0, Math.min.apply(null, vals)), hi = gr.yMax != null ? gr.yMax : Math.max.apply(null, vals) * 1.08;
+    var ticks = cardTicks(lo, hi, 4).filter(function (t) { return t >= lo - 1e-9; }); hi = Math.max(hi, ticks[ticks.length - 1]);
+    if (lo !== 0) { c.t(x, y + c.z(12), 'Atenção: o eixo começa em ' + fy(lo) + ', não em zero', 12.5, 600, C.ink2); y += c.z(18); h -= c.z(18); }
+    var axW = Math.max.apply(null, ticks.map(function (t) { return c.w(fy(t), 12.5); })) + c.z(6);
+    var duas = (gr.faixas || []).some(function (fx) { return fx.texto; });
+    var pl = x + axW + c.z(10), pr = x + w - c.z(18), top = y + c.z(duas ? 42 : 26), bot = y + h - c.z(20);
+    var X = function (i) { return pl + i / n * (pr - pl); }, Y = function (v) { return bot - (v - lo) / (hi - lo) * (bot - top); };
+    (gr.faixas || []).forEach(function (fx) {
+      var ia = anos.indexOf(fx.de), ib = anos.indexOf(fx.ate), xa = X(ia) - (ia > 0 ? (X(1) - X(0)) / 2 : c.z(8)), xb = X(ib) + (ib < n ? (X(1) - X(0)) / 2 : c.z(8));
+      var hh = c.z(duas ? 38 : 22);
+      el('rect', { x: xa, y: top - hh, width: xb - xa, height: bot - top + hh, fill: fx.lado === 'b' ? 'rgba(20,121,176,.09)' : 'rgba(114,80,251,.09)' }, c.g);
+      c.marca(fx.lado, xa + c.z(8), top - hh + c.z(10), 7);
+      c.t(xa + c.z(15), top - hh + c.z(14), c.L[fx.lado].curto, 12.5, 700, C.ink2);
+      if (fx.texto) c.t(xa + c.z(6), top - hh + c.z(30), fx.texto, 12.5, 600, C.ink2);
     });
-    var pl = x + axW, pr = x + w, top = y + 92 * k, bot = y + h - 70 * k;
-    var Y = function (v) { return bot - v / hi * (bot - top); };
     ticks.forEach(function (t) {
-      el('line', { x1: pl, x2: pr, y1: Y(t), y2: Y(t), stroke: t === 0 ? CARD.axis : CARD.grid, 'stroke-width': (t === 0 ? 2 : 1.5) * k }, g);
-      cardTexto(g, pl - 12 * k, Y(t) + 8 * k, fy(t), 22 * k, 400, CARD.muted, 'end');
+      el('line', { x1: pl - c.z(10), x2: pr + c.z(8), y1: Y(t), y2: Y(t), stroke: C.grid, 'stroke-width': c.z(1) }, c.g);
+      c.t(pl - c.z(14), Y(t) + c.z(4.5), fy(t), 12.5, 400, C.muted, 'end');
     });
-    var gw = (pr - pl) / G.length, bw = Math.min(110 * k, gw * 0.34), gap = 8 * k;
+    var cada = Math.max(1, Math.ceil(c.w('2026', 12.5) * 1.6 / ((pr - pl) / Math.max(1, n))));
+    anos.forEach(function (a, i) { if (i % cada === 0 || i === n) c.t(X(i), bot + c.z(15), String(a), 12.5, 400, C.muted, 'middle'); });
+    // linha: segmento de cada governo na sua cor; anos fora das faixas em cinza
+    var ladoDe = function (a) { var r = null; (gr.faixas || []).forEach(function (fx) { if (a >= fx.de && a <= fx.ate) r = fx.lado; }); return r; };
+    for (var i = 1; i <= n; i++) {
+      var lado = ladoDe(anos[i]) || 'ctx';
+      el('line', { x1: X(i - 1), y1: Y(vals[i - 1]), x2: X(i), y2: Y(vals[i]), stroke: lado === 'ctx' ? C.axis : c.corLado(lado), 'stroke-width': c.z(2.6), 'stroke-linecap': 'round' }, c.g);
+    }
+    var caixas = [];
+    anos.forEach(function (a, i) {
+      var lado = ladoDe(a);
+      if (gr.parcial && gr.parcial.indexOf(a) >= 0) el('circle', { cx: X(i), cy: Y(vals[i]), r: c.z(4.5), fill: C.fundo, stroke: lado ? c.corLado(lado) : C.axis, 'stroke-width': c.z(2) }, c.g);
+      else if (lado) c.marca(lado, X(i), Y(vals[i]), 8); else el('circle', { cx: X(i), cy: Y(vals[i]), r: c.z(3), fill: C.axis }, c.g);
+      if (gr.rotular && gr.rotular.indexOf(a) >= 0) {
+        var lab = f(vals[i]) + (gr.sufixoRotulo && gr.sufixoRotulo[a] ? ' ' + gr.sufixoRotulo[a] : ''), lw = c.w(lab, 13, 800);
+        var abaixo = gr.abaixo && gr.abaixo.indexOf(a) >= 0, ly = abaixo ? Y(vals[i]) + c.z(19) : Y(vals[i]) - c.z(9);
+        var anc = i === 0 ? 'start' : i === n ? 'end' : 'middle', bx = anc === 'start' ? X(i) - c.z(4) : anc === 'end' ? X(i) - lw + c.z(4) : X(i) - lw / 2;
+        if (anc === 'middle' && bx + lw > x + w) { anc = 'end'; bx = X(i) - lw + c.z(4); }
+        caixas.forEach(function (b) { if (bx < b.x + b.w && bx + lw > b.x && Math.abs(ly - b.y) < c.z(15)) ly = abaixo ? ly + c.z(15) : ly - c.z(15); });
+        caixas.push({ x: bx, y: ly, w: lw });
+        c.t(anc === 'start' ? X(i) - c.z(4) : anc === 'end' ? X(i) + c.z(4) : X(i), ly, lab, 13, 800, C.ink, anc);
+      }
+    });
+  } };
+
+  /* barras ano a ano de mandato (1º ano × 1º ano ...) */
+  GRAF.barras = { flex: true, alt: 210, desenhar: function (c, x, y, w, h, gr) {
+    var C = c.C, f = fmtFn(gr.formato), fy = fmtFn(gr.formatoEixo || gr.formato), G = gr.grupos;
+    // legenda (forma + nome + período)
+    var lx = x, ly = y + c.z(12);
+    ORDEM.forEach(function (lado) {
+      var s = c.L[lado].curto + (gr.periodos ? ' · ' + gr.periodos[lado] : ''), sw = c.w(s, 12.5, 600) + c.z(26);
+      if (lx + sw > x + w) { lx = x; ly += c.z(18); }
+      c.marca(lado, lx + c.z(5), ly - c.z(4), 9); c.t(lx + c.z(14), ly, s, 12.5, 600, C.ink2); lx += sw;
+    });
+    y = ly + c.z(10);
+    var vals = []; G.forEach(function (q) { ORDEM.forEach(function (l) { if (q[l] && q[l].v != null) vals.push(q[l].v); }); });
+    var lo = gr.yMin != null ? gr.yMin : Math.min(0, Math.min.apply(null, vals)), hiV = Math.max(0, Math.max.apply(null, vals));
+    var ticks = cardTicks(lo, hiV + (hiV - lo) * 0.12, 4).filter(function (t) { return t >= lo - 1e-9; }), hi = ticks[ticks.length - 1];
+    if (lo < 0) lo = Math.min(lo, ticks[0]);
+    if (gr.yMin != null && gr.yMin !== 0) { c.t(x, y + c.z(12), 'Atenção: o eixo começa em ' + fy(gr.yMin) + ', não em zero', 12.5, 600, C.ink2); y += c.z(18); }
+    var axW = Math.max.apply(null, ticks.map(function (t) { return c.w(fy(t), 12.5); })) + c.z(6);
+    var pl = x + axW, pr = x + w, top = y + c.z(20), bot = c._fimGraf - c.z(gr.semRotuloGrupo ? 22 : 38);
+    var botB = bot - (lo < 0 ? c.z(18) : 0);
+    var Y = function (v) { return botB - (v - lo) / (hi - lo) * (botB - top); };
+    ticks.forEach(function (t) {
+      el('line', { x1: pl, x2: pr, y1: Y(t), y2: Y(t), stroke: t === 0 ? C.axis : C.grid, 'stroke-width': c.z(t === 0 ? 1.4 : 1) }, c.g);
+      c.t(pl - c.z(5), Y(t) + c.z(4.5), fy(t), 12.5, 400, C.muted, 'end');
+    });
+    var gw = (pr - pl) / G.length, bw = Math.min(c.z(44), gw * 0.36), gap = c.z(3);
+    var fv = 12.5, maxLab = Math.max.apply(null, vals.map(function (v) { return c.w(f(v), fv, 800); }));
+    var escalona = maxLab > bw + gap - c.z(1);
+    var anosJuntos = G.some(function (q) { return ORDEM.some(function (l) { return q[l] && q[l].rot && c.w(q[l].rot, 12, 600) > bw + gap - c.z(1); }); });
+    var y0 = Y(Math.max(lo, 0));
     G.forEach(function (q, gi) {
       var cx = pl + gw * gi + gw / 2;
       ORDEM.forEach(function (lado, li) {
         var bx = li === 0 ? cx - gap / 2 - bw : cx + gap / 2, it = q[lado];
-        var fill = q.parcial ? cardHatch(defs, T[lado], 'h' + lado + gi + Math.random().toString(36).slice(2, 6)) : T[lado];
-        var yb = Y(it.v), r = Math.min(6 * k, bw / 2);
-        el('path', { d: 'M' + bx + ',' + bot + 'V' + (yb + r) + 'Q' + bx + ',' + yb + ' ' + (bx + r) + ',' + yb + 'H' + (bx + bw - r) + 'Q' + (bx + bw) + ',' + yb + ' ' + (bx + bw) + ',' + (yb + r) + 'V' + bot + 'Z', fill: fill, stroke: q.parcial ? T[lado] : 'none', 'stroke-width': 2 * k }, g);
-        cardTexto(g, bx + bw / 2, yb - 12 * k, f(it.v), 28 * k, 800, CARD.ink, 'middle');
-        cardTexto(g, bx + bw / 2, bot + 30 * k, it.rot, 22 * k, lado === 'l' || lado === 'b' ? 600 : 400, CARD.ink2, 'middle');
+        if (!it || it.v == null) {
+          var tv = c.t(bx + bw / 2 + c.z(4), y0 - c.z(4), it && it.vazio ? it.vazio : '—', 12, 600, C.muted, 'start');
+          tv.setAttribute('transform', 'rotate(-90 ' + (bx + bw / 2 + c.z(4)) + ' ' + (y0 - c.z(4)) + ')');
+          if (it && it.rot && !anosJuntos) c.t(bx + bw / 2, bot + c.z(15), it.rot, 12, 600, C.ink2, 'middle');
+          return;
+        }
+        var fill = it.parcial || it.fora ? hachura(c.defs, c.corLado(lado), C.fundo, c.z(6)) : c.corLado(lado);
+        var yv = Y(it.v), ya = Math.min(yv, y0), hb = Math.max(c.z(1.5), Math.abs(yv - y0));
+        el('rect', { x: bx, y: ya, width: bw, height: hb, rx: c.z(2), fill: fill, stroke: (it.parcial || it.fora) ? c.corLado(lado) : 'none', 'stroke-width': c.z(1.2) }, c.g);
+        var neg = it.v < 0, dy = escalona && li === 1 && !neg ? c.z(14) : 0;
+        c.t(bx + bw / 2, neg ? yv + c.z(14) : yv - c.z(5) - dy, f(it.v), fv, 800, C.ink, 'middle');
+        if (!anosJuntos) c.t(bx + bw / 2, bot + c.z(15), it.rot, 12, 600, C.ink2, 'middle');
       });
-      cardTexto(g, cx, bot + 60 * k, q.rotulo + (q.parcial ? ' · ' + q.parcial : ''), 21 * k, 400, CARD.muted, 'middle');
+      if (anosJuntos) { var rb = q.b ? String(q.b.rot) : '', rl = q.l ? String(q.l.rot) : ''; c.t(cx, bot + c.z(15), rb + '/' + (rl.length === 4 && rb.length === 4 ? rl.slice(2) : rl), 12, 600, C.ink2, 'middle'); }
+      if (!gr.semRotuloGrupo) c.t(cx, bot + c.z(31), q.rotulo, 12, 400, C.muted, 'middle');
     });
-  }
+  } };
 
-  /* -- variante 3: duelo (dois valores, barras horizontais a partir de zero) -- */
-  function cardDuelo(g, defs, x, y, w, h, k, gr, L, T, venc) {
-    var f = fmtFn(gr.formato), vals = ORDEM.map(function (l) { return gr.valores[l]; });
-    var hi = Math.max.apply(null, vals), labW = Math.max.apply(null, vals.map(function (v) { return largura(f(v), 56 * k, 800); })) + 24 * k;
-    var pl = x, pr = x + w - labW, bh = Math.min(96 * k, h / 5), yy = y + 20 * k;
+  /* duelo: dois valores, barras a partir de zero */
+  GRAF.duelo = { flex: false, desenhar: function (c, x, y, w, h, gr) {
+    var C = c.C, f = fmtFn(gr.formato), vals = ORDEM.map(function (l) { return gr.valores[l]; });
+    var lo = Math.min(0, Math.min.apply(null, vals)), hi = Math.max(0, Math.max.apply(null, vals));
+    var vs = 22; while (vs > 15 && Math.max.apply(null, vals.map(function (v) { return c.w(f(v), vs, 800); })) > w * 0.42) vs -= 1;
+    var labW = Math.max.apply(null, vals.map(function (v) { return c.w(f(v), vs, 800); })) + c.z(10);
+    var pl = x + (lo < 0 ? labW : 0), pr = x + w - (hi > 0 ? labW : 0);
+    var X = function (v) { return pl + (v - lo) / (hi - lo || 1) * (pr - pl); };
     ORDEM.forEach(function (lado) {
-      marca(g, lado, x + 12 * k, yy + 14 * k, 22 * k, T);
-      cardTexto(g, x + 34 * k, yy + 24 * k, L[lado].nome + (L[lado].periodo ? ' · ' + L[lado].periodo : ''), 28 * k, 700, CARD.ink);
-      if (venc === lado) {
-        var sw = largura('✓ à frente', 22 * k, 700) + 26 * k, sh = 36 * k;
-        el('rect', { x: x + w - sw, y: yy - 4 * k, width: sw, height: sh, rx: sh / 2, fill: T[lado] }, g);
-        cardTexto(g, x + w - sw / 2, yy - 4 * k + sh * 0.68, '✓ à frente', 22 * k, 700, '#ffffff', 'middle');
-      }
-      yy += 44 * k;
-      barra(g, pl, pl + Math.max(4, gr.valores[lado] / hi * (pr - pl)), yy, bh, T[lado]);
-      cardTexto(g, pl + gr.valores[lado] / hi * (pr - pl) + 16 * k, yy + bh / 2 + 20 * k, f(gr.valores[lado]), 56 * k, 800, CARD.ink);
-      yy += bh + 10 * k;
-      if (gr.sub && gr.sub[lado]) { cardTexto(g, x, yy + 26 * k, gr.sub[lado], 26 * k, 400, CARD.ink2); yy += 40 * k; }
-      yy += 34 * k;
+      var nm = c.L[lado].nome + (gr.periodos ? ' · ' + gr.periodos[lado] : '');
+      if (c.w(nm, 13, 700) + c.z(16) > w) nm = c.L[lado].curto + (gr.periodos ? ' · ' + gr.periodos[lado] : '');
+      c.marca(lado, x + c.z(5), y + c.z(10), 10); c.t(x + c.z(15), y + c.z(14), nm, 13, 700, C.ink);
+      y += c.z(22);
+      var v = gr.valores[lado], xa = X(0), xb = X(v); if (Math.abs(xb - xa) < 2) xb = xa + (v < 0 ? -2 : 2);
+      barra(c.g, xa, xb, y, c.z(24), c.corLado(lado));
+      c.t(v < 0 ? xb - c.z(6) : xb + c.z(6), y + c.z(12) + c.z(vs * 0.36), f(v), vs, 800, C.ink, v < 0 ? 'end' : 'start');
+      if (lo < 0) el('line', { x1: X(0), x2: X(0), y1: y - c.z(4), y2: y + c.z(28), stroke: C.ink2, 'stroke-width': c.z(1) }, c.g);
+      y += c.z(24);
+      if (gr.sub && gr.sub[lado]) c.q(gr.sub[lado], 13, 400, w).forEach(function (ln) { y += c.z(17); c.t(x, y - c.z(3), ln, 13, 400, C.ink2); });
+      y += c.z(14);
     });
-  }
+    return y;
+  } };
 
-  function desenharCard(cont, o) {
-    var F = FORMATOS[o.formato || 'feed'], W = F.W, H = F.H, P = F.P, k = F.k, T = TEMAS.light, L = lados(o);
-    var dv = o.destaque, fd = fmtFn(dv.formato);
-    var venc = vencedor({ criterio: o.criterio, valores: dv.valores, titulo: o.indicador });
-    var svg = el('svg', { xmlns: NS, width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'font-family': FONTE });
-    svg.style.display = 'block'; svg.style.width = '100%'; svg.style.height = 'auto';
-    var titulo = o.indicador + ': ' + (venc ? L[venc].nome + ' à frente' : 'sem vencedor');
-    var tt = el('title', null, svg); tt.textContent = titulo;
-    var dd = el('desc', null, svg);
-    dd.textContent = titulo + '. ' + (dv.rotulo || '') + ': ' + L.b.nome + ' ' + fd(dv.valores.b) + '; ' + L.l.nome + ' ' + fd(dv.valores.l) + '. Critério: ' + textoCriterio(o) + '. Fonte: ' + o.fonte + '.';
-    var defs = el('defs', null, svg);
-    el('rect', { x: 0, y: 0, width: W, height: H, fill: CARD.fundo }, svg);
-    var g = el('g', null, svg);
-    var og = o.formato === 'og';
-    var colW = og ? 560 : W - 2 * P;           // coluna de texto
-    var y = P + F.topo;
-
-    // 1. marca + selo provisório
-    cardTexto(g, P, y + 22 * k + (og ? 4 : 0), 'BORA PROS DADOS BRASIL', (og ? 18 : 24 * k), 800, CARD.muted, 'start', 2 * k);
-    if (o.provisorio) {
-      var ps = 'PROVISÓRIO · aguardando checagem', pw = largura(ps, 20 * (og ? 0.85 : k), 700) + 28;
-      el('rect', { x: W - P - pw, y: y - 6, width: pw, height: 40 * (og ? 0.85 : 1), rx: 8, fill: '#ffffff', stroke: CARD.ink2, 'stroke-width': 2, 'stroke-dasharray': '7 5' }, g);
-      cardTexto(g, W - P - pw / 2, y + 20 * (og ? 0.85 : 1), ps, 20 * (og ? 0.85 : k), 700, CARD.ink2, 'middle');
-    }
-    y += (og ? 48 : 70 * k);
-
-    // 2. título neutro: "<Indicador>:" + linha do vencedor com forma e sublinhado na cor do lado (mesmo desenho p/ os dois)
-    // tamanho do título: o maior em que "<nome mais longo dos dois lados> à frente" cabe numa linha (igual p/ qualquer vencedor)
-    var ts = og ? 40 : 66;
-    var maisLongo = largura(L.b.nome + ' à frente', 10, 800) > largura(L.l.nome + ' à frente', 10, 800) ? L.b.nome : L.l.nome;
-    while (ts > (og ? 28 : 40) && largura(maisLongo + ' à frente', ts, 800) + ts * 0.82 > colW) ts -= 2;
-    var lh = ts * 1.12;
-    quebra(o.indicador + ':', ts, 800, colW).forEach(function (ln) { y += lh; cardTexto(g, P, y - ts * 0.22, ln, ts, 800, CARD.ink); });
-    if (venc) {
-      var nomeV = L[venc].nome + ' à frente';
-      var linhasV = quebra(nomeV, ts, 800, colW - ts * 0.9);
-      linhasV.forEach(function (ln, j) {
-        y += lh;
-        if (j === 0) marca(g, venc, P + ts * 0.32, y - ts * 0.55, ts * 0.52, T);
-        var tx = P + ts * 0.82;
-        cardTexto(g, tx, y - ts * 0.22, ln, ts, 800, CARD.ink);
-        el('rect', { x: tx, y: y - ts * 0.08, width: largura(ln, ts, 800), height: ts * 0.1, rx: ts * 0.05, fill: T[venc] }, g);
+  /* vários pares (b × l) em grupos, mesma escala ou escala própria por grupo */
+  GRAF.pares = { flex: false, desenhar: function (c, x, y, w, h, gr) {
+    var C = c.C, f = fmtFn(gr.formato), nomeW = c.z(72);
+    var todos = []; gr.grupos.forEach(function (q) { todos.push(q.b, q.l); });
+    var hiG = Math.max.apply(null, todos);
+    gr.grupos.forEach(function (q) {
+      var fq = q.formato ? fmtFn(q.formato) : f, hi = gr.escalaPropria ? Math.max(q.b, q.l) : hiG;
+      var labW = Math.max(c.w(fq(q.b), 14, 800), c.w(fq(q.l), 14, 800)) + c.z(8);
+      y += c.z(16); c.t(x, y - c.z(2), q.rotulo, 13.5, 800, C.ink);
+      if (q.sub) { var sw = c.w(q.rotulo, 13.5, 800) + c.z(8); if (sw + c.w(q.sub, 12.5) <= w) c.t(x + sw, y - c.z(2), q.sub, 12.5, 400, C.muted); else { y += c.z(16); c.t(x, y - c.z(2), q.sub, 12.5, 400, C.muted); } }
+      y += c.z(6);
+      ORDEM.forEach(function (lado) {
+        var v = q[lado], pl = x + nomeW, pr = x + w - labW, xb = pl + Math.max(c.z(2), v / hi * (pr - pl));
+        c.marca(lado, x + c.z(5), y + c.z(8), 8); c.t(x + c.z(13), y + c.z(12.5), c.L[lado].curto, 12.5, 600, C.ink2);
+        barra(c.g, pl, xb, y + c.z(2), c.z(14), c.corLado(lado));
+        c.t(xb + c.z(5), y + c.z(14), fq(v), 14, 800, C.ink);
+        y += c.z(21);
       });
-    }
-    y += og ? 14 : 22 * k;
-    // critério
-    var cs = og ? 18 : 28;
-    cardTexto(g, P, y + cs, textoCriterio(o) + (o.criterioDetalhe ? ' · ' + o.criterioDetalhe : ''), cs, 600, CARD.ink2);
-    y += cs + (og ? 18 : 34);
-
-    // 3. manchete numérica (valor do lado à frente + frase com os dois lados)
-    if (o.manchete) {
-      var ms = og ? 76 : (o.formato === 'story' ? 140 : 116), mw = largura(o.manchete.valor, ms, 800);
-      var tx2 = P + mw + (og ? 18 : 32), tw = (og ? P + colW : W - P) - tx2, tl = quebra(o.manchete.texto, og ? 17 : 28, 400, tw);
-      var bloco = Math.max(ms * 0.95, tl.length * (og ? 22 : 36));
-      cardTexto(g, P, y + ms * 0.82, o.manchete.valor, ms, 800, CARD.ink);
-      tl.forEach(function (ln, j) { cardTexto(g, tx2, y + (og ? 22 : 36) * (j + 1) + Math.max(0, (ms * 0.82 - tl.length * (og ? 22 : 36)) / 2), ln, og ? 17 : 28, j === 0 ? 700 : 400, j === 0 ? CARD.ink : CARD.ink2); });
-      y += bloco + (og ? 16 : 30);
-    }
-
-    // rodapé (de baixo para cima): fonte/URL, depois "comparação em destaque"
-    var fs = og ? 15 : 22, linhasF = [];
-    var fonteTxt = 'Fonte: ' + o.fonte + (o.periodo ? ' · Período: ' + o.periodo : '') + (o.dados ? ' · Dados até ' + o.dados : '');
-    linhasF = quebra(fonteTxt, fs, 400, W - 2 * P);
-    var urlTxt = (o.url || SITE) + (o.atualizado ? ' · atualizado em ' + o.atualizado : '');
-    var yRod = H - P - F.base - (linhasF.length + 1) * (fs * 1.4);
-    if (o.nota) { var nl = quebra(o.nota, fs, 400, W - 2 * P); yRod -= nl.length * fs * 1.4 + 6; }
-    var yF = yRod;
-    if (o.nota) quebra(o.nota, fs, 400, W - 2 * P).forEach(function (ln) { yF += fs * 1.4; cardTexto(g, P, yF, ln, fs, 400, CARD.ink2); });
-    if (o.nota) yF += 6;
-    linhasF.forEach(function (ln) { yF += fs * 1.4; cardTexto(g, P, yF, ln, fs, 400, CARD.muted); });
-    yF += fs * 1.4; cardTexto(g, P, yF, urlTxt, fs, 700, CARD.ink2);
-
-    // comparação em destaque (dois lados, colunas iguais, mesmo desenho; selo "✓ à frente" no lado à frente)
-    var dx0 = P, dW = og ? colW : W - 2 * P, nsz = og ? 14 : 22, dH = og ? 132 : 184, yD;
-    yD = og ? y + 4 : yRod - dH - 24;
-    el('line', { x1: dx0, x2: dx0 + dW, y1: yD, y2: yD, stroke: CARD.ink2, 'stroke-width': og ? 1.5 : 2.5 }, g);
-    var rot = (dv.rotulo || 'Comparação em destaque').toUpperCase();
-    cardTexto(g, dx0, yD + (og ? 22 : 38), rot, og ? 15 : 22, 800, CARD.ink, 'start', 1);
-    if (dv.sub) cardTexto(g, dx0 + largura(rot, og ? 15 : 22, 800) + rot.length + (og ? 14 : 20), yD + (og ? 22 : 38), dv.sub, og ? 14 : 22, 400, CARD.muted);
-    var y2 = yD + (og ? 50 : 84), cw = (dW - (og ? 16 : 32)) / 2;
-    var sw2 = largura('✓ à frente', nsz, 700) + (og ? 16 : 26), sh2 = og ? 22 : 36;
-    // valor: mesmo tamanho nos dois lados, o maior que couber
-    var ds = og ? 40 : 64;
-    ORDEM.forEach(function (lado) { while (largura(fd(dv.valores[lado]), ds, 800) > cw && ds > 24) ds -= 2; });
-    ORDEM.forEach(function (lado, i) {
-      var cx = dx0 + i * (cw + (og ? 16 : 32)), per = dv.periodo && dv.periodo[lado] ? ' · ' + dv.periodo[lado] : '';
-      var nm = L[lado].curto + per;
-      if (largura(nm, nsz, 600) + (og ? 18 : 26) + sw2 + 8 > cw) nm = L[lado].curto; // mesma regra p/ os dois lados
-      marca(g, lado, cx + (og ? 6 : 9), y2 - (og ? 5 : 8), og ? 12 : 18, T);
-      cardTexto(g, cx + (og ? 18 : 26), y2, nm, nsz, 600, CARD.ink2);
-      if (venc === lado) {
-        el('rect', { x: cx + cw - sw2, y: y2 - sh2 * 0.72, width: sw2, height: sh2, rx: sh2 / 2, fill: T[lado] }, g);
-        cardTexto(g, cx + cw - sw2 / 2, y2 - sh2 * 0.72 + sh2 * 0.68, '✓ à frente', nsz, 700, '#ffffff', 'middle');
-      }
-      var vy = y2 + ds * 1.0 + (og ? 6 : 12);
-      cardTexto(g, cx, vy, fd(dv.valores[lado]), ds, 800, CARD.ink);
-      el('rect', { x: cx, y: vy + (og ? 10 : 18), width: cw, height: og ? 4 : 6, rx: 2, fill: T[lado] }, g);
+      y += c.z(8);
     });
+    return y;
+  } };
 
-    // 4. gráfico no espaço que sobra
-    var gr = o.grafico || {}, gx, gy, gw, gh;
-    if (og) { gx = P + colW + 36; gy = P + 4 + (o.provisorio ? 44 : 0); gw = W - P - gx; gh = yRod - gy - 16; }
-    else { gx = P; gy = y; gw = W - 2 * P; gh = yD - y - 26; }
-    if (gr.titulo) { cardTexto(g, gx, gy + (og ? 16 : 24), gr.titulo.toUpperCase(), og ? 15 : 23, 800, CARD.ink, 'start', 1); gy += og ? 24 : 36; gh -= og ? 24 : 36; }
-    if (gr.sub) { quebra(gr.sub, og ? 14 : 22, 400, gw).forEach(function (ln) { cardTexto(g, gx, gy + (og ? 16 : 24), ln, og ? 14 : 22, 400, CARD.muted); gy += og ? 20 : 30; gh -= og ? 20 : 30; }); }
-    gy += og ? 6 : 14; gh -= og ? 6 : 14;
-    var kk = og ? 0.62 : k;
-    if (o.variante === 'barras') cardBarras(g, defs, gx, gy, gw, gh, kk, gr, L, T);
-    else if (o.variante === 'duelo') cardDuelo(g, defs, gx, gy, gw, gh, kk, gr, L, T, venc);
-    else cardTrajetoria(g, defs, gx, gy, gw, gh, kk, gr, L, T);
-    return svg;
+  /* barras 100% empilhadas com categorias de STATUS (iguais para os dois lados) */
+  function linhaEmpilhada(c, x, y, w, hb, cont, cats, rotulos, omitir) {
+    var C = c.C, total = 0; cats.forEach(function (k) { total += cont[k.id] || 0; });
+    var segs = cats.filter(function (k) { return (cont[k.id] || 0) > 0; }), gaps = (segs.length - 1) * c.z(2), util = w - gaps, xx = x;
+    segs.forEach(function (k, i) {
+      var n = cont[k.id], sw = util * n / total, fill = c.st(k.st), base = (k.st === 'run' || k.st === 'na') ? C.fundo : fill;
+      var rx = (i === 0 || i === segs.length - 1) ? c.z(3) : 0;
+      el('rect', { x: xx, y: y, width: Math.max(1, sw), height: hb, rx: rx, fill: fill }, c.g);
+      if (k.st === 'na') el('rect', { x: xx + 0.5, y: y + 0.5, width: Math.max(0, sw - 1), height: hb - 1, rx: rx, fill: 'none', stroke: C.muted, 'stroke-dasharray': c.z(3) + ' ' + c.z(2) }, c.g);
+      var lab = String(n), lw = c.w(lab, 12.5, 800);
+      if (rotulos && !(omitir && omitir === k.id) && lw + c.z(8) < sw) {
+        if (k.st === 'run') el('rect', { x: xx + sw / 2 - lw / 2 - c.z(3), y: y + hb / 2 - c.z(8), width: lw + c.z(6), height: c.z(16), rx: c.z(2), fill: C.fundo }, c.g);
+        c.t(xx + sw / 2, y + hb / 2 + c.z(4.5), lab, 12.5, 800, (k.st === 'run' || k.st === 'na') ? C.ink : textoSobre(base), 'middle');
+      }
+      xx += sw + c.z(2);
+    });
+    return total;
   }
-  function card(cont, o) {
-    if (typeof cont === 'string') cont = document.querySelector(cont);
-    while (cont.firstChild) cont.removeChild(cont.firstChild);
-    var svg = desenharCard(cont, o);
-    cont.appendChild(svg);
-    return svg;
+  function legendaStatus(c, x, y, w, cats, sufixos) {
+    var C = c.C, xx = x; y += c.z(4);
+    cats.forEach(function (k) {
+      var nm = k.nome + (sufixos && sufixos[k.id] != null ? ' ' + sufixos[k.id] : ''), iw = c.z(20) + c.w(nm, 12.5) + c.z(12);
+      if (xx + iw > x + w) { xx = x; y += c.z(19); }
+      el('rect', { x: xx, y: y, width: c.z(14), height: c.z(12), rx: c.z(2), fill: c.st(k.st) }, c.g);
+      if (k.st === 'na') el('rect', { x: xx + 0.5, y: y + 0.5, width: c.z(13), height: c.z(11), rx: c.z(2), fill: 'none', stroke: C.muted, 'stroke-dasharray': c.z(2) + ' ' + c.z(1.5) }, c.g);
+      c.t(xx + c.z(19), y + c.z(10.5), nm, 12.5, 400, C.ink2); xx += iw;
+    });
+    return y + c.z(18);
   }
+  GRAF.empilhadas = { flex: false, desenhar: function (c, x, y, w, h, gr) {
+    var C = c.C;
+    ORDEM.forEach(function (lado) {
+      var ln = gr.linhas[lado], nm = ln.nome || c.L[lado].nome;
+      c.marca(lado, x + c.z(5), y + c.z(10), 10); c.t(x + c.z(15), y + c.z(14), nm, 13.5, 800, C.ink);
+      if (ln.direita) c.t(x + w, y + c.z(14), ln.direita, 13, 700, C.ink, 'end');
+      y += c.z(22);
+      linhaEmpilhada(c, x, y, w, c.z(gr.altura || 26), ln.contagens, gr.categorias, true);
+      y += c.z(gr.altura || 26) + c.z(12);
+    });
+    return legendaStatus(c, x, y, w, gr.categorias);
+  } };
+  /* placar de promessas no estilo antigo: número grande + barra das 5 categorias rotulada */
+  GRAF.placarPromessas = { flex: false, desenhar: function (c, x, y, w, h, gr) {
+    var C = c.C, lado2 = w >= c.z(560), bw = lado2 ? (w - c.z(16)) / 2 : w, y0 = y, yFim = y;
+    ORDEM.forEach(function (lado, i) {
+      var ln = gr.linhas[lado], bx = lado2 ? x + i * (bw + c.z(16)) : x, by = lado2 ? y0 : y;
+      el('rect', { x: bx, y: by, width: bw, height: c.z(3), rx: c.z(1.5), fill: c.corLado(lado) }, c.g);
+      by += c.z(8);
+      c.marca(lado, bx + c.z(6), by + c.z(11), 11); c.t(bx + c.z(17), by + c.z(16), ln.nome || c.L[lado].nome, 15, 800, C.ink);
+      by += c.z(22); if (ln.sub) { c.t(bx + c.z(17), by + c.z(12), ln.sub, 12.5, 400, C.muted); by += c.z(16); }
+      var tot = 0; gr.categorias.forEach(function (k) { tot += ln.contagens[k.id] || 0; });
+      var d = ln.contagens[gr.destaque] || 0, big = d + ' de ' + tot, pct = num(d / tot * 100, 1) + '%', rot = gr.destaqueRotulo || 'cumpridas';
+      var bs = 40; while (bs > 30 && c.w(big, bs, 800) + c.z(10) + c.w(rot, 13, 700) > bw) bs -= 1;
+      c.t(bx, by + c.z(bs), big, bs, 800, C.ink);
+      var tx = bx + c.w(big, bs, 800) + c.z(10);
+      if (tx + c.w(rot, 13, 700) <= bx + bw) { c.t(tx, by + c.z(bs * 0.55), rot, 13, 700, C.ink); c.t(tx, by + c.z(bs * 0.98), pct + ' do plano', 13, 400, C.ink2); by += c.z(bs + 12); }
+      else { by += c.z(bs + 4); c.t(bx, by + c.z(14), rot + ' · ' + pct + ' do plano', 13, 700, C.ink); by += c.z(24); }
+      linhaEmpilhada(c, bx, by, bw, c.z(28), ln.contagens, gr.categorias, true);
+      by += c.z(36);
+      if (lado2) yFim = Math.max(yFim, by); else { y = by + c.z(6); yFim = y; }
+    });
+    return legendaStatus(c, x, yFim, w, gr.categorias);
+  } };
 
-  /* =====================================================================
-   * CARD-SÍNTESE (fechamento de carrossel) — decisão do dono: a soma de pontos NUNCA é manchete.
-   * Dois blocos de MESMO tamanho, um por área, cada um com "<Governo X> à frente" no mesmo desenho do título
-   * dos cards; quesitos em grade 2×2 (blocos com 3 ou 4 itens ficam com a mesma altura); selo "apertada"
-   * idêntico para os dois lados. A contagem só aparece em texto pequeno no rodapé (opts.rodapeContagem).
-   * BPD.cardSintese(el, {formato, titulo, sub, grupos:[{titulo, vencedor:'b'|'l', itens:[{nome, apertada}]}],
-   *                      contexto:[{nome, nota}], fecho, rodapeContagem, fonte, url, atualizado})
-   * ===================================================================== */
-  function cardSintese(cont, o) {
-    if (typeof cont === 'string') cont = document.querySelector(cont);
-    while (cont.firstChild) cont.removeChild(cont.firstChild);
-    var F = FORMATOS[o.formato || 'feed'], W = F.W, H = F.H, P = F.P, T = TEMAS.light, L = lados(o);
-    var svg = el('svg', { xmlns: NS, width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'font-family': FONTE });
-    svg.style.display = 'block'; svg.style.width = '100%'; svg.style.height = 'auto';
-    var grupos = o.grupos.slice().sort(function (a, b) { return ORDEM.indexOf(a.vencedor) - ORDEM.indexOf(b.vencedor); }); // ordem fixa
-    var tt = el('title', null, svg); tt.textContent = o.titulo;
-    var dd = el('desc', null, svg);
-    dd.textContent = grupos.map(function (gr) { return gr.titulo + ': ' + L[gr.vencedor].nome + ' à frente (' + gr.itens.map(function (q) { return q.nome + (q.apertada ? ', apertada' : ''); }).join('; ') + ')'; }).join('. ') + '.';
-    el('rect', { x: 0, y: 0, width: W, height: H, fill: CARD.fundo }, svg);
-    var g = el('g', null, svg), y = P + F.topo;
-    cardTexto(g, P, y + 22, 'BORA PROS DADOS BRASIL', 24, 800, CARD.muted, 'start', 2);
-    y += 64;
-    quebra(o.titulo, 56, 800, W - 2 * P).forEach(function (ln) { y += 62; cardTexto(g, P, y - 12, ln, 56, 800, CARD.ink); });
-    if (o.sub) { y += 6; quebra(o.sub, 26, 400, W - 2 * P).forEach(function (ln) { y += 34; cardTexto(g, P, y - 6, ln, 26, 400, CARD.ink2); }); }
-    y += 30;
-    // tamanho do "<Governo> à frente": o do nome mais longo, igual nos dois blocos
-    var bw = W - 2 * P, pad = 28, ts = 44;
-    var longo = largura(L.b.nome, 10, 800) > largura(L.l.nome, 10, 800) ? L.b.nome : L.l.nome;
-    while (ts > 30 && largura(longo + ' à frente', ts, 800) + ts * 0.8 > bw - 2 * pad) ts -= 2;
-    var maxItens = Math.max.apply(null, grupos.map(function (gr) { return gr.itens.length; }));
-    var linhasGrade = Math.ceil(maxItens / 2), th = 64, tg = 12;
-    var altBloco = pad + 30 + ts * 1.25 + 22 + linhasGrade * (th + tg) - tg + pad;
-    var swA = largura('apertada', 20, 700) + 24;
-    grupos.forEach(function (gr) {
-      var k = gr.vencedor, x0 = P;
-      el('rect', { x: x0 + 1, y: y + 1, width: bw - 2, height: altBloco - 2, rx: 18, fill: '#ffffff', stroke: CARD.grid, 'stroke-width': 2 }, g);
-      el('rect', { x: x0, y: y, width: 10, height: altBloco, rx: 5, fill: T[k] }, g);
-      var yy = y + pad;
-      cardTexto(g, x0 + pad + 8, yy + 22, gr.titulo.toUpperCase(), 24, 800, CARD.ink2, 'start', 1.5);
-      yy += 30 + ts * 1.1;
-      marca(g, k, x0 + pad + 8 + ts * 0.3, yy - ts * 0.36, ts * 0.5, T);
-      var tx = x0 + pad + 8 + ts * 0.75, nm = L[k].nome + ' à frente';
-      cardTexto(g, tx, yy, nm, ts, 800, CARD.ink);
-      el('rect', { x: tx, y: yy + ts * 0.14, width: largura(nm, ts, 800), height: ts * 0.1, rx: ts * 0.05, fill: T[k] }, g);
-      yy += 22 + ts * 0.15;
-      var cw = (bw - 2 * pad - 8 - tg) / 2;
-      gr.itens.forEach(function (q, i) {
-        var cx = x0 + pad + 8 + (i % 2) * (cw + tg), cy = yy + Math.floor(i / 2) * (th + tg);
-        el('rect', { x: cx, y: cy, width: cw, height: th, rx: 12, fill: T[k] }, g);
-        var tam = 26, rot = '✓ ' + q.nome, livre = cw - 36 - (q.apertada ? swA + 10 : 0);
-        while (tam > 18 && largura(rot, tam, 700) > livre) tam -= 1;
-        cardTexto(g, cx + 16, cy + th / 2 + tam * 0.36, rot, tam, 700, '#ffffff');
+  /* blocos (resumo da home): dois blocos de mesmo tamanho, quesitos em grade, selo "apertada" igual */
+  GRAF.blocos = { flex: false, desenhar: function (c, x, y, w, h, gr) {
+    var C = c.C, grupos = gr.grupos.slice().sort(function (a, b) { return ORDEM.indexOf(a.vencedor) - ORDEM.indexOf(b.vencedor); });
+    var lado2 = w >= c.z(600), bw = lado2 ? (w - c.z(14)) / 2 : w, pad = c.z(12), th = c.z(36), tg = c.z(7);
+    var ap0 = c.w('apertada', 12, 700) + c.z(12), cw2 = (bw - 2 * pad - c.z(4) - tg) / 2;
+    var cabe2 = grupos.every(function (g2) { return g2.itens.every(function (q) { return c.w('✓ ' + q.nome, 12, 700) + c.z(16) + (q.apertada ? ap0 + c.z(6) : 0) <= cw2; }); });
+    var cols = cabe2 ? 2 : 1, maxI = Math.max.apply(null, grupos.map(function (g2) { return g2.itens.length; }));
+    var rows = Math.ceil(maxI / cols), ts = 17;
+    var longo = c.w(c.L.b.nome, 10, 800) > c.w(c.L.l.nome, 10, 800) ? c.L.b.nome : c.L.l.nome;
+    while (ts > 13 && c.w(longo + ' à frente', ts, 800) + c.z(ts) > bw - 2 * pad - c.z(4)) ts -= 0.5;
+    var altB = pad + c.z(16) + c.z(ts * 1.5) + c.z(8) + rows * (th + tg) - tg + pad, ap = 'apertada', apw = c.w(ap, 12, 700) + c.z(12);
+    grupos.forEach(function (gp, i) {
+      var k = gp.vencedor, bx = lado2 ? x + i * (bw + c.z(14)) : x, by = lado2 ? y : y + i * (altB + c.z(10));
+      el('rect', { x: bx + 0.5, y: by + 0.5, width: bw - 1, height: altB - 1, rx: c.z(10), fill: C.tile, stroke: C.borda, 'stroke-width': c.z(1) }, c.g);
+      el('rect', { x: bx, y: by, width: c.z(5), height: altB, rx: c.z(2.5), fill: c.corLado(k) }, c.g);
+      var yy = by + pad + c.z(11);
+      c.t(bx + pad + c.z(4), yy, gp.titulo.toUpperCase(), 12.5, 800, C.ink2, 'start', 0.8);
+      yy += c.z(ts * 1.4);
+      c.marca(k, bx + pad + c.z(4) + c.z(ts * 0.3), yy - c.z(ts * 0.36), ts * 0.5);
+      var tx = bx + pad + c.z(4) + c.z(ts * 0.8), nm = c.L[k].nome + ' à frente';
+      c.t(tx, yy, nm, ts, 800, C.ink);
+      el('rect', { x: tx, y: yy + c.z(3), width: c.w(nm, ts, 800), height: c.z(2.5), rx: c.z(1), fill: c.corLado(k) }, c.g);
+      yy += c.z(12);
+      var cw = (bw - 2 * pad - c.z(4) - (cols - 1) * tg) / cols;
+      gp.itens.forEach(function (q, j) {
+        var cx = bx + pad + c.z(4) + (j % cols) * (cw + tg), cy = yy + Math.floor(j / cols) * (th + tg);
+        el('rect', { x: cx, y: cy, width: cw, height: th, rx: c.z(7), fill: c.corLado(k) }, c.g);
+        var fs = 13.5, rot = '✓ ' + q.nome, livre = cw - c.z(16) - (q.apertada ? apw + c.z(6) : 0);
+        while (fs > 12 && c.w(rot, fs, 700) > livre) fs -= 0.5;
+        c.t(cx + c.z(8), cy + th / 2 + c.z(fs * 0.36), rot, fs, 700, '#ffffff');
         if (q.apertada) {
-          var sh = 32, sx = cx + cw - swA - 12, sy = cy + (th - sh) / 2;
-          el('rect', { x: sx, y: sy, width: swA, height: sh, rx: sh / 2, fill: '#ffffff' }, g);
-          cardTexto(g, sx + swA / 2, sy + sh * 0.7, 'apertada', 20, 700, T[k], 'middle');
+          var ph = c.z(18), px = cx + cw - apw - c.z(7), py = cy + (th - ph) / 2;
+          el('rect', { x: px, y: py, width: apw, height: ph, rx: ph / 2, fill: '#ffffff' }, c.g);
+          c.t(px + apw / 2, py + ph * 0.72, ap, 12, 700, c.corLado(k), 'middle');
         }
       });
-      y += altBloco + 24;
     });
-    (o.contexto || []).forEach(function (q) {
-      el('rect', { x: P + 1, y: y + 1, width: W - 2 * P - 2, height: 54, rx: 12, fill: 'none', stroke: CARD.axis, 'stroke-width': 2, 'stroke-dasharray': '8 6' }, g);
-      cardTexto(g, P + 18, y + 36, q.nome + ': ' + (q.nota || 'contexto, não conta ponto'), 24, 600, CARD.ink2);
-      y += 66;
+    y += lado2 ? altB : 2 * altB + c.z(10);
+    (gr.contexto || []).forEach(function (q) {
+      y += c.z(8);
+      el('rect', { x: x + 0.5, y: y + 0.5, width: w - 1, height: c.z(30), rx: c.z(7), fill: 'none', stroke: C.axis, 'stroke-dasharray': c.z(4) + ' ' + c.z(3) }, c.g);
+      c.t(x + c.z(10), y + c.z(19.5), q.nome + ': ' + (q.nota || 'contexto, não conta ponto'), 13, 600, C.ink2);
+      y += c.z(30);
     });
-    // rodapé: fecho + contagem em texto pequeno + legenda do "apertada" + fonte + URL
-    var fs = 22, pe = [];
-    if (o.rodapeContagem) pe = pe.concat(quebra(o.rodapeContagem, 20, 400, W - 2 * P).map(function (t) { return [t, 20, 400, CARD.muted]; }));
-    pe = pe.concat(quebra('Fonte: ' + o.fonte, fs, 400, W - 2 * P).map(function (t) { return [t, fs, 400, CARD.muted]; }));
-    pe.push([(o.url || SITE) + (o.atualizado ? ' · atualizado em ' + o.atualizado : ''), fs, 700, CARD.ink2]);
-    var yR = H - P - F.base - pe.reduce(function (s2, l) { return s2 + l[1] * 1.4; }, 0);
-    if (o.fecho) { var fl = quebra(o.fecho, 30, 700, W - 2 * P), yf = yR - fl.length * 40 - 14; fl.forEach(function (ln) { yf += 40; cardTexto(g, P, yf, ln, 30, 700, CARD.ink); }); }
-    pe.forEach(function (l) { yR += l[1] * 1.4; cardTexto(g, P, yR, l[0], l[1], l[2], l[3]); });
+    if (gr.fecho) { y += c.z(22); c.t(x, y - c.z(4), gr.fecho, 15, 800, C.ink); }
+    if (gr.rodape) c.q(gr.rodape, 12.5, 400, w).forEach(function (ln) { y += c.z(17); c.t(x, y - c.z(3), ln, 12.5, 400, C.muted); });
+    return y + c.z(4);
+  } };
+
+  /* barras anuais com segmentos (precatórios): base + hachurado + "fantasma" tracejado */
+  GRAF.segmentos = { flex: true, alt: 230, desenhar: function (c, x, y, w, h, gr) {
+    var C = c.C, f = fmtFn(gr.formato), B = gr.barras;
+    var tot = B.map(function (b) { var s = b.v; (b.extra || []).forEach(function (e) { s += e.v; }); return s; });
+    var hi = Math.max.apply(null, tot) * 1.12, ticks = cardTicks(0, hi, 4); hi = ticks[ticks.length - 1];
+    var axW = Math.max.apply(null, ticks.map(function (t) { return c.w(f(t), 12.5); })) + c.z(6);
+    var pl = x + axW, pr = x + w, top = y + c.z(10), bot = c._fimGraf - c.z(20);
+    var Y = function (v) { return bot - v / hi * (bot - top); };
+    ticks.forEach(function (t) { el('line', { x1: pl, x2: pr, y1: Y(t), y2: Y(t), stroke: t === 0 ? C.axis : C.grid, 'stroke-width': c.z(t === 0 ? 1.4 : 1) }, c.g); c.t(pl - c.z(5), Y(t) + c.z(4.5), f(t), 12.5, 400, C.muted, 'end'); });
+    var gw = (pr - pl) / B.length, bw = Math.min(c.z(34), gw * 0.62);
+    B.forEach(function (b, i) {
+      var cx = pl + gw * i + gw / 2, bx = cx - bw / 2, cor = c.corLado(b.lado), base = b.v, yb = Y(base);
+      el('rect', { x: bx, y: yb, width: bw, height: bot - yb, fill: cor }, c.g);
+      var acc = base;
+      (b.extra || []).forEach(function (e) {
+        var y1 = Y(acc + e.v), y2 = Y(acc);
+        if (e.tipo === 'fantasma') el('rect', { x: bx + 0.75, y: y1, width: bw - 1.5, height: y2 - y1, fill: 'none', stroke: cor, 'stroke-width': c.z(1.4), 'stroke-dasharray': c.z(4) + ' ' + c.z(3) }, c.g);
+        else el('rect', { x: bx, y: y1, width: bw, height: y2 - y1, fill: hachura(c.defs, cor, C.fundo, c.z(6)), stroke: cor, 'stroke-width': c.z(1.2) }, c.g);
+        if (e.rotulo) c.t(cx, y1 - c.z(5), e.rotulo, 12, 700, C.ink2, 'middle');
+        acc += e.v;
+      });
+      if (b.rotulo !== false) c.t(cx, Y(acc) - c.z((b.extra && b.extra.some(function (e) { return e.rotulo; })) ? 19 : 5), b.rotulo || f(acc), 12.5, 800, C.ink, 'middle');
+      c.t(cx, bot + c.z(15), b.ano, 12, 600, C.ink2, 'middle');
+    });
+  } };
+
+  /* ---------- composição ---------- */
+  function compor(def, formato, escuro, largura0, altGraf) {
+    var F = {}, k; for (k in FORMATOS[formato]) F[k] = FORMATOS[formato][k];
+    if (formato === 'web') { F.W = largura0; F.P = largura0 < 420 ? 14 : 18; }
+    var L = lados(def), venc = vencedorDef(def), gr = def.grafico || {}, G = GRAF[gr.tipo] || GRAF.duelo;
+    var svg = el('svg', { xmlns: NS, role: 'img', 'font-family': FONTE });
+    var tt = el('title', null, svg), dd = el('desc', null, svg), defs = el('defs', null, svg);
+    var fundo = el('rect', { x: 0, y: 0, width: F.W, fill: (escuro ? ESCURO : CLARO).fundo, rx: formato === 'web' ? 12 : 0 }, svg);
+    var g = el('g', null, svg), c = ctxCard(svg, defs, g, F, escuro, L);
+    tt.textContent = venc ? def.tema + ': ' + L[venc].nome + ' à frente' : (def.titulo || def.tema);
+    dd.textContent = def.descricao || descreverDef(def, L, venc);
+    var P = F.P, W = F.W, x = P, w = W - 2 * P, y = P + (F.topo || 0);
+    var hG = altGraf != null ? altGraf : c.z(G.alt || 200);
+    if (F.colunas) {
+      var colW = Math.round(W * 0.46), xr = P + colW + c.z(18), wr = W - P - xr;
+      if (F.marca) y = blkMarca(c, x, y);
+      y = blkTitulo(c, x, y, colW, def, venc); y = blkCriterio(c, x, y, colW, def); y = blkManchete(c, x, y, colW, def);
+      // rodapé embaixo, largura total
+      var gr2 = el('g', null, svg), c2 = ctxCard(svg, defs, gr2, F, escuro, L);
+      var hR = blkRodape(c2, x, 0, w, def, F.url);
+      gr2.setAttribute('transform', 'translate(0,' + (F.H - P - hR) + ')');
+      var yr = blkGraficoTitulo(c, xr, P, wr, gr), fim = F.H - P - hR - c.z(10);
+      c._fimGraf = fim;
+      var yG = G.desenhar(c, xr, yr, wr, fim - yr, gr);
+      svg.setAttribute('width', W); svg.setAttribute('height', F.H); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + F.H); fundo.setAttribute('height', F.H);
+      return { svg: svg, h: F.H };
+    }
+    if (F.marca) y = blkMarca(c, x, y);
+    y = blkTitulo(c, x, y, w, def, venc);
+    y = blkCriterio(c, x, y, w, def);
+    y = blkManchete(c, x, y, w, def);
+    y = blkGraficoTitulo(c, x, y + c.z(4), w, gr);
+    c._fimGraf = y + hG;
+    var yAfter = G.desenhar(c, x, y, w, hG, gr);
+    y = G.flex ? y + hG : (yAfter || y + hG);
+    if (formato === 'web') {
+      y = blkRodape(c, x, y, w, def, false) + P;
+      svg.setAttribute('viewBox', '0 0 ' + W + ' ' + y); svg.setAttribute('width', W); svg.setAttribute('height', y); fundo.setAttribute('height', y);
+      return { svg: svg, h: y };
+    }
+    // formatos fixos: rodapé ancorado embaixo; o gráfico flexível ocupa a sobra
+    var gR = el('g', null, svg), cR = ctxCard(svg, defs, gR, F, escuro, L);
+    var hR2 = blkRodape(cR, x, 0, w, def, F.url), yR = F.H - P - (F.base || 0) - hR2;
+    gR.setAttribute('transform', 'translate(0,' + yR + ')');
+    svg.setAttribute('width', W); svg.setAttribute('height', F.H); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + F.H); fundo.setAttribute('height', F.H);
+    return { svg: svg, h: F.H, sobra: yR - c.z(10) - y, flex: G.flex, hG: hG };
+  }
+  function descreverDef(def, L, venc) {
+    var p = [];
+    if (venc) p.push(def.tema + ': ' + L[venc].nome + ' à frente (' + (def.criterio === 'menor' ? 'menor é melhor' : 'maior é melhor') + ').');
+    else p.push((def.titulo || def.tema) + '.');
+    if (def.manchete) p.push(def.manchete.valor + ' ' + def.manchete.texto + '.');
+    if (def.valores && def.formatoValores) { var f = fmtFn(def.formatoValores); p.push(L.b.nome + ': ' + f(def.valores.b) + '; ' + L.l.nome + ': ' + f(def.valores.l) + '.'); }
+    if (def.mudaria) p.push('O que mudaria o resultado: ' + def.mudaria + '.');
+    p.push('Fonte: ' + def.fonte + '.');
+    return p.join(' ');
+  }
+  function desenharCard(def, formato, escuro, largura0) {
+    formato = formato || 'web';
+    var r = compor(def, formato, escuro, largura0);
+    if (formato !== 'web' && r.flex && Math.abs(r.sobra) > 2) r = compor(def, formato, escuro, largura0, Math.max(r.hG * 0.6, r.hG + r.sobra));
+    if (formato !== 'web' && !r.flex && r.sobra < 0 && root.console) console.warn('[BPD.card] conteúdo maior que o formato', def.id, formato);
+    var svg = r.svg;
+    if (formato === 'web') { svg.style.display = 'block'; svg.style.width = '100%'; svg.style.height = 'auto'; }
+    else { svg.style.display = 'block'; svg.style.maxWidth = '100%'; svg.style.height = 'auto'; }
+    return svg;
+  }
+  function card(cont, def, formato) {
+    if (typeof cont === 'string') cont = document.querySelector(cont);
+    if (typeof def === 'object' && def.formato && !formato) formato = def.formato;
+    formato = formato || 'web';
+    var escuro = formato === 'web' && temaAtual() === TEMAS.dark;
+    var larg = Math.max(300, Math.min(760, Math.round(cont.clientWidth || 358)));
+    var svg = desenharCard(def, formato, escuro, larg);
+    while (cont.firstChild) cont.removeChild(cont.firstChild);
     cont.appendChild(svg);
     return svg;
+  }
+  var URL_FONTE = '/assets/fonts/inter-latin-var.woff2';
+  function cardPNG(def, formato, urlFonte) {
+    var tmp = document.createElement('div'); tmp.style.cssText = 'position:absolute;left:-99999px;top:0;width:1080px';
+    document.body.appendChild(tmp);
+    var svg = desenharCard(def, formato || 'feed', false, 1080); tmp.appendChild(svg);
+    return paraPNG(svg, 1, urlFonte || BPD.urlFonte || URL_FONTE).then(function (b) { document.body.removeChild(tmp); return b; }, function (e) { document.body.removeChild(tmp); throw e; });
+  }
+
+  /* ---------- montarCard: card inline + ações (sem segundo gráfico) ---------- */
+  var CARDS_MONTADOS = [];
+  function montarCard(cont, def, op) {
+    if (typeof cont === 'string') cont = document.querySelector(cont);
+    op = op || {};
+    while (cont.firstChild) cont.removeChild(cont.firstChild);
+    cont.classList.add('bpd-card');
+    var area = document.createElement('div'); area.className = 'bpd-card-img'; cont.appendChild(area);
+    card(area, def, 'web');
+    var acoes = document.createElement('div'); acoes.className = 'bpd-card-acoes'; cont.appendChild(acoes);
+    var st = document.createElement('span'); st.className = 'bpd-card-status'; st.setAttribute('role', 'status');
+    function track(n, p) { try { if (root.__track) root.__track(n, p); } catch (e) {} }
+    function urlCom(m) {
+      var u = (def.share && def.share.url) || (location.origin + location.pathname + (cont.id ? '#' + cont.id : ''));
+      return u + (u.indexOf('?') >= 0 ? '&' : '?') + 'o=' + m;
+    }
+    var texto0 = (def.share && def.share.texto) || descreverDef(def, lados(def), vencedorDef(def));
+    var bImg = document.createElement('button'); bImg.type = 'button'; bImg.className = 'bpd-btn bpd-btn--img'; bImg.textContent = 'Compartilhar imagem';
+    bImg.addEventListener('click', function () {
+      st.textContent = 'Gerando a imagem…';
+      track('share_click', { section: def.id, method: 'image', placement: 'card' });
+      cardPNG(def, op.formatoPNG || 'feed').then(function (blob) {
+        var nome = 'bora-pros-dados-' + (def.id || 'card') + '.png', file = null;
+        try { file = new File([blob], nome, { type: 'image/png' }); } catch (e) {}
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          return navigator.share({ files: [file], text: texto0 + ' ' + urlCom('img') }).then(function () { st.textContent = ''; track('share_success', { section: def.id, method: 'image' }); }, function () { st.textContent = ''; });
+        }
+        var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome; document.body.appendChild(a); a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+        st.textContent = 'Imagem baixada. Agora é só anexar na conversa.';
+        track('share_success', { section: def.id, method: 'download' });
+      }).catch(function () { st.textContent = 'Não deu para gerar a imagem agora.'; });
+    });
+    var bWa = document.createElement('a'); bWa.className = 'bpd-btn bpd-btn--wa'; bWa.textContent = 'WhatsApp'; bWa.target = '_blank'; bWa.rel = 'noopener';
+    bWa.href = 'https://wa.me/?text=' + encodeURIComponent(texto0 + ' ' + urlCom('wa'));
+    bWa.addEventListener('click', function () { track('share_click', { section: def.id, method: 'whatsapp', placement: 'card' }); });
+    acoes.appendChild(bImg); acoes.appendChild(bWa); acoes.appendChild(st);
+    if (def.saibaMais && def.saibaMais.length) {
+      var sm = document.createElement('details'); sm.className = 'bpd-card-mais';
+      var s1 = document.createElement('summary'); s1.textContent = 'Saiba mais'; sm.appendChild(s1);
+      def.saibaMais.forEach(function (p) { var pp = document.createElement('p'); pp.textContent = p; sm.appendChild(pp); });
+      cont.appendChild(sm);
+    }
+    if (def.tabela && op.tabela !== false) tabelaGemea(cont, def.tabela.cab, def.tabela.linhas, (def.titulo || def.tema));
+    var reg = { cont: cont, area: area, def: def, w: area.clientWidth };
+    CARDS_MONTADOS.push(reg);
+    return cont;
+  }
+  function redesenharCards(forcar) {
+    CARDS_MONTADOS.forEach(function (r) { if (!r.area.isConnected) return; if (forcar || Math.abs(r.area.clientWidth - r.w) > 4) { r.w = r.area.clientWidth; card(r.area, r.def, 'web'); } });
+  }
+  if (typeof root.addEventListener === 'function') {
+    var _tc; root.addEventListener('resize', function () { clearTimeout(_tc); _tc = setTimeout(function () { redesenharCards(false); }, 150); });
+    if (root.MutationObserver) new MutationObserver(function () { redesenharCards(true); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    if (root.matchMedia) { var mq2 = root.matchMedia('(prefers-color-scheme: dark)'); if (mq2.addEventListener) mq2.addEventListener('change', function () { redesenharCards(true); }); }
+  }
+  /* compatibilidade com a v0.2: cardSintese(el, {formato, titulo, sub, grupos, contexto, fecho, rodapeContagem, fonte}) */
+  function cardSintese(cont, o) {
+    return card(cont, { id: 'resumo', titulo: o.titulo, criterioTexto: o.sub, fonte: o.fonte, url: o.url, atualizado: o.atualizado,
+      grafico: { tipo: 'blocos', grupos: o.grupos, contexto: o.contexto, fecho: o.fecho, rodape: o.rodapeContagem } }, o.formato || 'web');
   }
 
   /* =====================================================================
@@ -1155,7 +1457,8 @@
   function cardSelecao(cont, o) {
     if (typeof cont === 'string') cont = document.querySelector(cont);
     while (cont.firstChild) cont.removeChild(cont.firstChild);
-    var F = FORMATOS[o.formato || 'feed'], W = F.W, H = F.H, P = F.P, T = TEMAS.light;
+    var F = FORMATOS[o.formato || 'feed'], W = F.W, H = F.H, P = F.P || 72, T = TEMAS.light;
+    var CARD = { fundo: '#fbfbf9', ink: '#18181b', ink2: '#3f3f46', muted: '#63636b', grid: '#e7e7e4' };
     var max = (o.formato === 'story') ? 9 : 6, itens = (o.itens || []).slice(0, max);
     var resto = (o.itens || []).length - itens.length + (o.resto || 0);
     var svg = el('svg', { xmlns: NS, width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'font-family': FONTE });
@@ -1169,7 +1472,7 @@
         (it.vencedor ? ' (' + L[it.vencedor].curto + ' à frente, ' + (it.criterioTexto || '') + ')' : ' (' + (it.criterioTexto || 'sem placar') + ')');
     }).join('. ') + '. ' + (o.rodape || []).join(' ');
     el('rect', { x: 0, y: 0, width: W, height: H, fill: CARD.fundo }, svg);
-    var g = el('g', null, svg), y = P + F.topo;
+    var g = el('g', null, svg), y = P + (F.topo || 0);
     cardTexto(g, P, y + 22, 'BORA PROS DADOS BRASIL', 24, 800, CARD.muted, 'start', 2);
     y += 52;
     quebra(titulo, 54, 800, W - 2 * P).forEach(function (ln) { y += 60; cardTexto(g, P, y - 12, ln, 54, 800, CARD.ink); });
@@ -1180,7 +1483,7 @@
     (o.rodape || []).forEach(function (t, i) { quebra(t, 21, i === 0 ? 700 : 400, W - 2 * P - 60).forEach(function (ln) { pe.push([ln, 21, i === 0 ? 700 : 400, i === 0 ? CARD.ink2 : CARD.muted]); }); });
     pe.push([(o.url || SITE) + (o.atualizado ? ' · atualizado em ' + o.atualizado : ''), 22, 700, CARD.ink2]);
     var altPe = pe.reduce(function (s, l) { return s + l[1] * 1.45; }, 0);
-    var yPe = H - P - F.base - altPe;
+    var yPe = H - P - (F.base || 0) - altPe;
     // linhas de duelo compacto: altura igual para todas
     var fim = yPe - 30 - (resto > 0 ? 44 : 0), n = Math.max(1, itens.length);
     var rh = Math.min(176, (fim - y) / n);
@@ -1238,8 +1541,9 @@
 
   root.BPD = {
     placar: placar, duelo: duelo, trajetoria: trajetoria, distribuicao: distribuicao,
-    promessas: promessas, resumo: resumo, card: card, cardSintese: cardSintese, cardSelecao: cardSelecao,
-    carregarFonte: function () { return Promise.all(['400', '600', '700', '800'].map(function (w) { return document.fonts.load(w + ' 20px InterVar'); })); }, paraPNG: paraPNG, redesenhar: function () { redesenhar(true); },
-    TEMAS: TEMAS, FORMATOS: FORMATOS, versao: '0.2.1'
+    promessas: promessas, resumo: resumo, card: card, montarCard: montarCard, cardPNG: cardPNG, cardSintese: cardSintese, cardSelecao: cardSelecao,
+    carregarFonte: function () { return Promise.all(['400', '600', '700', '800'].map(function (w) { return document.fonts.load(w + ' 20px InterVar'); })); },
+    paraPNG: paraPNG, redesenhar: function () { redesenhar(true); redesenharCards(true); },
+    TEMAS: TEMAS, FORMATOS: FORMATOS, STATUS: STATUS, urlFonte: '/assets/fonts/inter-latin-var.woff2', versao: '0.3.0'
   };
 })(typeof window !== 'undefined' ? window : this);

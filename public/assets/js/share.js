@@ -1,8 +1,12 @@
 /* ==== Bora pros dados Brasil — compartilhamento (share.js) — ES5, sem dependências, ok com a CSP ====
    <div class="share" data-share-section="inflacao" data-share-text="📊 Inflação (IPCA): ..." data-share-name="o dado de inflação"
      [data-share-path="/c/inflacao/" | data-share-anchor="cap-motor"] [data-share-placement="card|capitulo|placar|fim|barra"]
-     [data-share-variant="mini|bar"] [data-share-image="/assets/img/share/story-inflacao.jpg"] [data-share-lead="..."]></div>
-   section="auto" (barra): herda o .share da seção [data-track-section] em leitura. Eventos: share_click/_success/_cancel. */
+     [data-share-variant="mini|bar"] [data-share-image="/assets/img/share/story-inflacao.jpg"] [data-share-lead="..."]
+     [data-share-card="p-bolso"] (def do charts.js em window.CARDS_*) [data-share-fonte="IBGE …"]></div>
+   section="auto" (barra): herda o .share da seção [data-track-section] em leitura. Eventos: share_click/_success/_cancel.
+   "Copiar imagem": põe na área de transferência o PNG da seção (card do charts.js, gráfico SVG da seção ou cartão de
+   texto), sempre com rodapé "Bora pros dados Brasil · site/página#seção · fonte · atualizado em", mais o texto com o link.
+   Páginas podem registrar um gerador próprio: (window.__shareImgs = window.__shareImgs || {})['<âncora>'] = fn → Promise<Blob>. */
 (function () {
   var cfg = (typeof window.SITE_CONFIG === 'object' && window.SITE_CONFIG) || {};
   var PAGE = cfg.pageId || 'site';
@@ -12,6 +16,11 @@
   var NATIVE = typeof navigator.share === 'function';
   var FILES = false, files = {}, E = encodeURIComponent;
   try { FILES = !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'x.jpg', { type: 'image/jpeg' })] })); } catch (e) {}
+  /* imagem na área de transferência: ClipboardItem + clipboard.write (Chrome, Edge, Safari 13.1+, Firefox 127+) */
+  var IMGCLIP = false;
+  try { IMGCLIP = !!(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write && window.isSecureContext &&
+    (typeof ClipboardItem.supports !== 'function' || ClipboardItem.supports('image/png'))); } catch (e) {}
+  var SITE = BASE.replace(/^https?:\/\//, '');
 
   function track(n, p) { try { if (window.__track) window.__track(n, p); } catch (e) {} }
   function attr(b, k, d) { return b.getAttribute('data-share-' + k) || d || ''; }
@@ -58,6 +67,16 @@
     if (p) { p.hidden = !p.hidden; if (t) t.setAttribute('aria-expanded', p.hidden ? 'false' : 'true'); }
   }
 
+  function copyBtn() {
+    return IMGCLIP ? btn('copy', 'Copiar imagem', 'Copiar a imagem, com a fonte e o link do site') : btn('copy', 'Copiar', 'Copiar mensagem com o link');
+  }
+  var TOAST = null;
+  function toast(t) {
+    if (!TOAST) { TOAST = el('div', 'share-toast', '', { role: 'status', 'aria-live': 'polite' }); document.body.appendChild(TOAST); }
+    TOAST.textContent = t; TOAST.classList.add('is-on');
+    clearTimeout(TOAST.__t); TOAST.__t = setTimeout(function () { TOAST.classList.remove('is-on'); }, 4500);
+  }
+
   function render(b) {
     if (b.__share) return; b.__share = 1;
     var v = attr(b, 'variant', 'full'), row = el('div', 'share-row'), pan = el('div', 'share-panel'), what = attr(b, 'name', 'este dado');
@@ -67,10 +86,10 @@
       row.appendChild(NATIVE ? btn('native', 'Compartilhar', 'Compartilhar ' + what) :
         btn('more', 'Compartilhar', 'Mostrar opções para compartilhar ' + what));
       pan.appendChild(btn('whatsapp', 'WhatsApp', 'Enviar ' + what + ' pelo WhatsApp', 'share-btn--wa'));
-      pan.appendChild(btn('copy', 'Copiar', 'Copiar mensagem com o link'));
+      pan.appendChild(copyBtn());
     } else {
       row.appendChild(btn('whatsapp', 'WhatsApp', 'Enviar ' + what + ' pelo WhatsApp', 'share-btn--wa'));
-      row.appendChild(btn('copy', 'Copiar', 'Copiar mensagem com o link'));
+      row.appendChild(copyBtn());
       row.appendChild(NATIVE ? btn('native', 'Outros apps', 'Compartilhar em outros aplicativos') :
         btn('more', 'Mais', 'Mais opções para compartilhar'));
     }
@@ -94,7 +113,7 @@
     e.stopPropagation(); /* evita outbound_click duplicado no analytics.js */
     var m = t.getAttribute('data-m'), c = ctx(b), sec = secao(c);
     if (m === 'more') { e.preventDefault(); toggle(b); return; }
-    track('share_click', { method: m, section: sec, placement: attr(b, 'placement', attr(b, 'variant', 'full')) });
+    track('share_click', { method: m === 'copy' ? (IMGCLIP ? 'copy_image' : 'copy_text') : m, section: sec, placement: attr(b, 'placement', attr(b, 'variant', 'full')) });
     if (HREF[m]) { t.href = HREF[m](c); return; }
     e.preventDefault();
     if (m === 'copy') copy(b, c, sec);
@@ -113,11 +132,122 @@
     ta.value = txt; document.body.appendChild(ta); ta.select();
     try { ok = document.execCommand('copy'); } catch (e) {} document.body.removeChild(ta); return ok;
   }
+  /* Copiar: 1) imagem PNG + texto (ClipboardItem; a PROMISE do PNG vai direto, para o Safari manter o gesto);
+     2) se não houver suporte, permissão ou a imagem falhar: só o texto com o link; 3) execCommand (navegadores antigos). */
   function copy(b, c, sec) {
     var txt = msg(c, 'copy');
-    function ok() { say(b, 'Copiado! Agora é só colar na conversa.'); track('share_success', { method: 'copy', section: sec }); }
-    function fb() { if (legacyCopy(txt)) ok(); else say(b, 'Não deu para copiar. Use o botão WhatsApp.'); }
-    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt).then(ok, fb); else fb();
+    function okTxt() { toast('Copiamos o texto com o link. Agora é só colar na conversa.'); track('share_success', { method: 'copy_text', section: sec }); }
+    function legado() { if (legacyCopy(txt)) okTxt(); else toast('Não deu para copiar. Use o botão WhatsApp.'); }
+    function soTexto() {
+      if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) navigator.clipboard.writeText(txt).then(okTxt, legado);
+      else legado();
+    }
+    if (!IMGCLIP) { soTexto(); return; }
+    var item;
+    try { item = new ClipboardItem({ 'image/png': png(c).then(null, function () { return cartaoTexto(c, ref(c)); }), 'text/plain': new Blob([txt], { type: 'text/plain' }) }); } catch (e) { soTexto(); return; }
+    toast('Preparando a imagem…');
+    navigator.clipboard.write([item]).then(function () {
+      toast('Imagem copiada — cole no WhatsApp, e-mail ou documento');
+      track('share_success', { method: 'copy_image', section: sec });
+    }, function () { soTexto(); });
+  }
+
+  /* ---------- PNG da seção, sempre com rodapé de referência ao site ---------- */
+  var FONTE_CV = '"InterVar", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+  function ref(c) {
+    var a = attr(c, 'anchor'), alvo = a && document.getElementById(a), f = attr(c, 'fonte'), tm = document.querySelector('time[datetime]');
+    if (!f && alvo) {
+      var n = alvo.querySelector('.vrd-src, .sc-src, .q-resumo-pe, figcaption');
+      if (n) f = n.textContent.replace(/^\s*Fonte:\s*/i, '').split(' · ').filter(function (p) { return p && !/calcul|classific|atualizado|›/i.test(p); }).join(' · ');
+    }
+    if (!f) { var m = /Fonte:\s*([^.]+)/.exec(body(c)); f = m ? m[1] : ''; }
+    var d = tm && /\d{2}\/\d{2}\/\d{4}/.test(tm.textContent) ? tm.textContent.trim() : new Date().toLocaleDateString('pt-BR');
+    return { url: SITE + location.pathname + (a ? '#' + a : ''), fonte: f.replace(/\s+/g, ' ').trim(), data: d };
+  }
+  function semFonte(r) { return { url: r.url, fonte: '', data: r.data }; }
+  function acharDef(c) {
+    var id = attr(c, 'card'), k, i, L;
+    if (!id) return null;
+    for (k in window) {
+      if (!/^CARDS_/.test(k) || !(window[k] instanceof Array)) continue;
+      for (L = window[k], i = 0; i < L.length; i += 1) if (L[i] && L[i].id === id) return L[i];
+    }
+    return null;
+  }
+  function acharSvg(c) {
+    var a = attr(c, 'anchor'), alvo = (a && document.getElementById(a)) || (c.closest && c.closest('article, section'));
+    return alvo ? alvo.querySelector('.viz svg, .bpd-card-img svg, svg[role="img"]') : null;
+  }
+  function png(c) {
+    var r = ref(c), prov = window.__shareImgs && (window.__shareImgs[attr(c, 'anchor')] || window.__shareImgs[attr(c, 'section')]);
+    var BPD = window.BPD, def = acharDef(c), svg, k, d2 = {};
+    try {
+      /* imagem que já traz a linha "Fonte:" (resumo, gráficos do charts.js): o rodapé não repete a fonte */
+      if (prov) return Promise.resolve(prov()).then(function (bl) { return comRodape(bl, semFonte(r)); });
+      if (def && BPD && BPD.cardPNG) {         /* o card do charts.js já traz marca, fonte e "url · atualizado em" */
+        for (k in def) if (def.hasOwnProperty(k)) d2[k] = def[k];
+        d2.url = r.url; d2.atualizado = def.atualizado || r.data;
+        return BPD.cardPNG(d2, 'feed');
+      }
+      svg = acharSvg(c);
+      if (svg && BPD && BPD.paraPNG) {
+        var w = +svg.getAttribute('width') || (svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width) || 390;
+        var r2 = /Fonte/.test(svg.textContent || '') ? semFonte(r) : r;
+        return BPD.paraPNG(svg, Math.max(1, 1080 / w), BPD.urlFonte).then(function (bl) { return comRodape(bl, r2); });
+      }
+    } catch (e) {}
+    return cartaoTexto(c, r);
+  }
+  function bitmap(bl) {
+    if (window.createImageBitmap) return createImageBitmap(bl);
+    return new Promise(function (ok, no) {     /* CSP: img-src aceita data:, não blob: */
+      var fr = new FileReader();
+      fr.onload = function () { var im = new Image(); im.onload = function () { ok(im); }; im.onerror = no; im.src = fr.result; };
+      fr.onerror = no; fr.readAsDataURL(bl);
+    });
+  }
+  function quebrar(cx, t, max) {
+    var ws = String(t).split(/\s+/), out = [], l = '', i;
+    for (i = 0; i < ws.length; i += 1) {
+      var p = l ? l + ' ' + ws[i] : ws[i];
+      if (l && cx.measureText(p).width > max) { out.push(l); l = ws[i]; } else l = p;
+    }
+    if (l) out.push(l); return out;
+  }
+  /* canvas 1080 px: corpo (pinta) + faixa de rodapé neutra (≥ 90 px, textos de 26 px) */
+  function montar(hCorpo, pinta, r) {
+    var W = 1080, P = 48, cv = document.createElement('canvas'), cx = cv.getContext('2d'), ls = [], i;
+    cx.font = '700 26px ' + FONTE_CV;
+    quebrar(cx, 'Bora pros dados Brasil · ' + r.url, W - 2 * P).forEach(function (t) { ls.push(['700 26px ', '#18181b', t]); });
+    cx.font = '400 26px ' + FONTE_CV;
+    quebrar(cx, (r.fonte ? 'Fonte: ' + r.fonte + ' · ' : '') + 'atualizado em ' + r.data, W - 2 * P).forEach(function (t) { ls.push(['400 26px ', '#52525b', t]); });
+    var hR = Math.max(90, 24 + ls.length * 36 + 20);
+    cv.width = W; cv.height = Math.round(hCorpo + hR);
+    cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, W, cv.height);
+    pinta(cx, W);
+    cx.fillStyle = '#f4f4f5'; cx.fillRect(0, hCorpo, W, hR);
+    cx.fillStyle = '#d4d4d8'; cx.fillRect(0, hCorpo, W, 2);
+    cx.textBaseline = 'top';
+    for (i = 0; i < ls.length; i += 1) { cx.font = ls[i][0] + FONTE_CV; cx.fillStyle = ls[i][1]; cx.fillText(ls[i][2], P, hCorpo + 24 + i * 36); }
+    return new Promise(function (ok, no) { cv.toBlob(function (bl) { if (bl) ok(bl); else no(new Error('png')); }, 'image/png'); });
+  }
+  function comRodape(bl, r) {
+    return bitmap(bl).then(function (im) {
+      var h = Math.round(im.height * 1080 / im.width);
+      return montar(h, function (cx, W) { cx.drawImage(im, 0, 0, W, h); }, r);
+    });
+  }
+  /* seção sem card nem gráfico: cartão com o próprio texto de compartilhamento */
+  function cartaoTexto(c, r) {
+    var cv = document.createElement('canvas').getContext('2d'), P = 64, ls;
+    cv.font = '600 44px ' + FONTE_CV;
+    ls = quebrar(cv, body(c), 1080 - 2 * P);
+    return montar(P + 44 + ls.length * 60 + P, function (cx) {
+      cx.textBaseline = 'top';
+      cx.font = '800 24px ' + FONTE_CV; cx.fillStyle = '#02522b'; cx.fillText('BORA PROS DADOS BRASIL', P, P - 8);
+      cx.font = '600 44px ' + FONTE_CV; cx.fillStyle = '#18181b';
+      ls.forEach(function (t, i) { cx.fillText(t, P, P + 44 + i * 60); });
+    }, r);
   }
   function image(b, c, sec) {
     var src = attr(c, 'image');
@@ -146,7 +276,13 @@
   }
 
   function init(root) { var n = (root || document).querySelectorAll('.share'), i; for (i = 0; i < n.length; i += 1) render(n[i]); }
-  window.__share = { init: init };
+  /* para os blocos de ações das páginas (ex.: /balanco/ e /propostas/), que escondem o .share da seção e mostram botões próprios */
+  function copiarDe(sh) {
+    var c = ctx(sh), sec = secao(c);
+    track('share_click', { method: IMGCLIP ? 'copy_image' : 'copy_text', section: sec, placement: attr(sh, 'placement', 'card') });
+    copy(sh, c, sec);
+  }
+  window.__share = { init: init, copiar: copiarDe, copiaImagem: IMGCLIP };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { init(); });
   else init();
 })();
