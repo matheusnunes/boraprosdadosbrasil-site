@@ -759,3 +759,9 @@ html.ui-teclado { scroll-behavior: auto !important; }
 /* barra inferior: botões com rótulo do estado (aria-expanded) */
 .bbar-btn[aria-expanded="true"] { background: #f4f4f5; }
 .bbar-btn--pri[aria-expanded="true"] { background: var(--marca-2); }
+/* carrossel v0.3.5: cada card fica dentro de .bpd-car-slide; a altura igual passa pelo envoltório */
+@media (min-width: 761px) {
+  .bpd-car-slide { height: 100%; display: flex; flex-direction: column; min-width: 0; }
+  .bpd-car-slide > * { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; }
+  .bpd-car-slide > * > .bpd-card, .bpd-car-slide > * > .card-slot, .bpd-car-slide > .bpd-card { flex: 1 1 auto; display: flex; flex-direction: column; }
+}

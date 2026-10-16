@@ -68,7 +68,7 @@
   }
 
   function copyBtn() {
-    return IMGCLIP ? btn('copy', 'Copiar imagem', 'Copiar a imagem, com a fonte e o link do site') : btn('copy', 'Copiar', 'Copiar mensagem com o link');
+    return IMGCLIP ? btn('copy', 'Copiar imagem', 'Copiar imagem, com a fonte e o link do site') : btn('copy', 'Copiar', 'Copiar mensagem com o link');
   }
   var TOAST = null;
   function toast(t) {
