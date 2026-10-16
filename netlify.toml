@@ -98,3 +98,10 @@
   from = "/c/*"
   to = "/c/index.html"
   status = 200
+
+# Imagens de prévia de link (Open Graph) geradas por scripts/gen_og_cards.js: cache de 1 dia
+# (os robôs de prévia guardam a imagem por URL; quando o dado muda, o nome do arquivo segue o id da comparação)
+[[headers]]
+  for = "/og/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
