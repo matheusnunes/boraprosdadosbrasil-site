@@ -327,7 +327,7 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
     <span class="q-cred-selo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 3.5v6c0 5-3.4 8.8-8 10.5-4.6-1.7-8-5.5-8-10.5v-6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg> Só fontes oficiais</span>
     <span class="q-cred-fontes"><b>IBGE</b> · <b>Banco Central</b> · <b>Tesouro</b></span>
     <span class="q-cred-data">Atualizado em <time datetime="__UPDATED_ISO__">__UPDATED__</time> · dados até set/2026</span>
-    <span class="q-cred-links"><a href="#apendice">Como calculamos ›</a><a href="/fontes/">32 arquivos com SHA-256 ›</a><a href="#quem-fez">Quem fez ›</a></span>
+    <span class="q-cred-links"><a href="#apendice">Como calculamos ›</a><a href="/fontes/">50 arquivos com SHA-256 ›</a><a href="#quem-fez">Quem fez ›</a></span>
     <span class="q-cred-voto">Este site não indica voto.</span>
   </div>
 </div>
@@ -633,7 +633,7 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
       <figure class="card">
         <h3 class="figt">Ganho de renda por faixa, sem a inflação: P10 +37,7%, P50 +26,8%, P99 (estimativa) +10,2% (índice: Governo Bolsonaro = 100)</h3>
         <div class="viz" id="chartP"></div>
-        <p class="fig-fonte">Fonte: IBGE/SIDRA 7438 (limites dos percentis do rendimento domiciliar per capita), médias das janelas, R$ de dez/2025 · <b>Atenção:</b> estes limites ainda não estão entre os 32 arquivos de /fontes/, por isso este gráfico não pode ser refeito só com os arquivos publicados; não conta ponto.</p>
+        <p class="fig-fonte">Fonte: IBGE/SIDRA 7438 (limites dos percentis do rendimento domiciliar per capita), médias das janelas, R$ de dez/2025 · <b>Atenção:</b> estes limites ainda não estão entre os arquivos de /fontes/, por isso este gráfico não pode ser refeito só com os arquivos publicados; não conta ponto.</p>
         <details class="q-mais q-mais--plano">
           <summary><span class="ao-abrir">Como ler este gráfico</span><span class="ao-fechar">Fechar</span></summary>
           <div class="q-mais-corpo"><p>Imagine a população em fila, da menor para a maior renda por pessoa. P10 = limite de renda de quem está na posição dos 10% mais pobres; P50 = o meio da fila (a "mediana"); P99 = o topo da lente. Cada barra mostra quanto esse limite subiu do Governo Bolsonaro (2019–2022, índice 100) para o Governo Lula (2023–2025), sem a inflação; embaixo, o valor em reais de cada um. P99 é estimativa (Pareto calibrado entre P90 e P95), por isso a barra listrada. <b>Por que importa:</b> mostra se a melhora chegou a quem ganha menos ou ficou no topo.</p></div>
@@ -1324,7 +1324,7 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   <details class="q-mais"><summary data-track="detalhes_abertos" data-track-label="faq-media"><span class="ao-abrir">Por que média por ano?</span><span class="ao-fechar">Por que média por ano?</span></summary><div class="q-mais-corpo"><p>Um governo teve 4 anos na conta e o outro 3. A média por ano deixa a comparação justa.</p></div></details>
   <details class="q-mais"><summary data-track="detalhes_abertos" data-track-label="faq-selic"><span class="ao-abrir">Por que a Selic não conta ponto?</span><span class="ao-fechar">Por que a Selic não conta ponto?</span></summary><div class="q-mais-corpo"><p>É decidida pelo Banco Central para controlar a inflação. É ferramenta, não resultado de governo.</p></div></details>
   <details class="q-mais"><summary data-track="detalhes_abertos" data-track-label="faq-apertada"><span class="ao-abrir">O que quer dizer "apertada"?</span><span class="ao-fechar">O que quer dizer "apertada"?</span></summary><div class="q-mais-corpo"><p>Que outra conta razoável (outro período ou outra medida) muda ou quase muda o resultado. Mostramos qual.</p></div></details>
-  <details class="q-mais"><summary data-track="detalhes_abertos" data-track-label="faq-conferir"><span class="ao-abrir">Como confiro os números?</span><span class="ao-fechar">Como confiro os números?</span></summary><div class="q-mais-corpo"><p>Baixe os 32 arquivos oficiais em <a href="/fontes/">/fontes/</a>. Cada um tem uma impressão digital (SHA-256).</p></div></details>
+  <details class="q-mais"><summary data-track="detalhes_abertos" data-track-label="faq-conferir"><span class="ao-abrir">Como confiro os números?</span><span class="ao-fechar">Como confiro os números?</span></summary><div class="q-mais-corpo"><p>Baixe os 50 arquivos oficiais em <a href="/fontes/">/fontes/</a>. Cada um tem uma impressão digital (SHA-256).</p></div></details>
 </section>
 
 <section class="chap apx" id="apendice" data-track-section="apendice" data-track-name="Método">
@@ -1395,7 +1395,7 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
         <li><b>Renda:</b> rendimento domiciliar per capita real, série consolidada SIDRA 7531 (deflacionada pelo IPCA), valores reais; antes reconstruída de 7458/7457/7456 (referência nos dados). Extremos: 50% mais pobres × topo (mesma tabela).</li>
         <li><b>Empenhado × liquidado × pago:</b> os gastos aqui são valores <b>empenhados</b> (execução orçamentária até o bimestre); a base também contém liquidado e pago, empenhado não é caixa.</li>
         <li><b>Sustentabilidade:</b> p* = (r − g)/(1 + g) × d → 2,1% do PIB nos 12m (falta ≈ 2,7 p.p. ≈ R$ 365 bi/ano; sensibilidade: 1 p.p. de juro real ≈ 0,8 p.p. ≈ R$ 105 bi/ano).</li>
-        <li><b>Bases localizadas:</b> BCB/SGS (432/433/1/4380/7326/13762/4513/5727/5793/24369), IBGE/SIDRA (7435/7436/7438 + renda 7456-7458), RREO/RGF (Tesouro), Focus e NY Fed, ver FONTES.md §8.</li>
+        <li><b>Bases localizadas:</b> BCB/SGS (432/433/1/4380/7326/13762/4513/5727/5793/24369), IBGE/SIDRA (7435/7436/7438 + renda 7456-7458), RREO/RGF (Tesouro), Focus e NY Fed; lista completa com download em <a href="/fontes/">/fontes/</a>.</li>
         <li><b>Fatos × cálculos × interpretações:</b> números das fontes oficiais (fato); médias, deflações e fórmulas desta página (cálculo, como acima); quem fica à frente em cada quesito (interpretação, sempre com a regra escrita).</li>
       </ul>
     </div>

@@ -121,7 +121,7 @@
     comparativo: '📊 Governo Bolsonaro (2019-22) × Governo Lula (2023-25), só dados oficiais: na economia e renda, Lula à frente (crescimento, inflação, emprego, proteção social); nas contas públicas, Bolsonaro à frente (controle do gasto, dívida, conta de juros). Fontes: IBGE, Banco Central, Tesouro.',
     propostas: '📊 Planos de governo de 2026 registrados no TSE: em quantos temas o plano diz COMO vai fazer (instrumento nomeado)? Flávio Bolsonaro em 1 de 19 × Lula em 11 de 19. Programas já em execução contam como caminho, o que favorece quem governa.',
     balanco: '📊 Promessas dos planos registrados no TSE, mesma régua para os dois (Gov. Bolsonaro × Gov. Lula, mandato em curso até 30/09/2026): cumpridas 15,2% × 35,3%; só as verificáveis 22,7% × 38,7%; cumpridas + parciais 27,3% × 50,0%.',
-    fontes: '📊 Os 32 arquivos oficiais (TSE, Banco Central, IBGE, Tesouro e Fed) por trás das análises do Bora pros dados Brasil, com impressão digital SHA-256 para conferir.'
+    fontes: '📊 Os 50 arquivos oficiais (TSE, Banco Central, IBGE, Tesouro, Fed, Congresso e STF) por trás das análises do Bora pros dados Brasil, com impressão digital SHA-256 para conferir.'
   };
   var ICO = {
     resumo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>',
