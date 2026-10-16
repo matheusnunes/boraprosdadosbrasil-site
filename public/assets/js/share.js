@@ -539,7 +539,9 @@
     for (i = 0; i < bs.length; i += 1) {
       b = bs[i]; if (b.__wa) continue; b.__wa = 1;
       sh = b.closest('.share') || shareDe(b); if (!sh) continue;
-      if (IMGWA && !b.closest('.share')) {   /* rótulo do autor (o ui.js respeita): contém o texto visível (WCAG 2.5.3) */
+      if (IMGWA && !b.closest('.share') && b.children.length) {   /* botão com ícone (charts.js v0.4): mantém o texto visível */
+        b.setAttribute('aria-label', 'Enviar imagem no WhatsApp: ' + (String(b.getAttribute('aria-label') || '').replace(/^[^:]*:\s*/, '') || attr(sh, 'name', 'este card')));
+      } else if (IMGWA && !b.closest('.share')) {   /* rótulo do autor (o ui.js respeita): contém o texto visível (WCAG 2.5.3) */
         b.setAttribute('data-curto', 'WhatsApp'); b.setAttribute('data-longo', 'Enviar imagem no WhatsApp');
         b.textContent = estreito() ? 'WhatsApp' : 'Enviar imagem no WhatsApp'; b.removeAttribute('data-a11y-rotulo'); b.removeAttribute('data-a11y-txt');
         b.setAttribute('aria-label', 'Enviar imagem no WhatsApp: ' + attr(sh, 'name', 'este card'));
@@ -698,8 +700,44 @@
     track('share_click', { method: IMGCLIP ? 'copy_image' : 'copy_text', section: sec, placement: attr(sh, 'placement', 'card') });
     copy(sh, c, sec);
   }
-  window.__share = { init: init, copiar: copiarDe, copiaImagem: IMGCLIP, whatsapp: function (el) { var sh = el && (el.closest && el.closest('.share') || shareDe(el)); if (sh) whatsapp(sh, null, null, 'card'); },
-    textoWhatsApp: function (el) { var sh = el && (el.matches && el.matches('.share') ? el : shareDe(el)); return sh ? textoWhats(ctx(sh)) : ''; }, imagemWhatsApp: IMGWA };
+  /* API para o charts.js (v0.4: menu ⋯ e deck): cada função aceita o .share da seção, um elemento do card ou a def */
+  function paraShare(x) {
+    if (!x) return null;
+    if (x.nodeType === 1) return (x.matches && x.matches('.share')) ? x : ((x.closest && x.closest('.share')) || shareDe(x));
+    if (typeof x !== 'object' || !x.id) return null;
+    var R = window.__shareDefs = window.__shareDefs || {}, id = String(x.id), q = window.CSS && CSS.escape ? CSS.escape(id) : id;
+    var ex = document.querySelector('.share[data-share-anchor="' + q + '"], .share[data-share-card="' + q + '"]');
+    if (ex) { R[ex.getAttribute('data-share-anchor') || id] = x; return ex; }
+    var v = el('div', 'share', '', { 'data-share-anchor': id, 'data-share-section': id, 'data-share-name': x.tema || x.titulo || 'este card',
+      'data-share-text': (x.share && x.share.texto) || x.titulo || x.tema || document.title });
+    R[id] = x; return v;                       /* .share virtual (fora do DOM): só carrega âncora, texto e def */
+  }
+  function compartilharImagem(sh) {             /* "Compartilhar imagem": arquivo + texto pela folha nativa; sem suporte, baixa */
+    var c = ctx(sh), sec = secao(c), f = sh.__png;
+    track('share_click', { method: 'image', section: sec, placement: attr(sh, 'placement', 'card') });
+    function ir(arq) {
+      if (arq && navigator.canShare && navigator.canShare({ files: [arq] })) {
+        navigator.share({ files: [arq], text: textoCurto(c) }).then(function () { track('share_success', { method: 'image', section: sec }); }, function (err) {
+          if (err && err.name === 'AbortError') track('share_cancel', { method: 'image', section: sec });
+        });
+        return;
+      }
+      if (arq) { baixar(arq, arq.name); toast('Imagem baixada. Agora \u00e9 s\u00f3 anexar na conversa.'); track('share_success', { method: 'download', section: sec }); }
+    }
+    if (f) { ir(f); return; }
+    toast('Gerando a imagem\u2026');
+    png(c).then(null, function () { return cartaoTexto(c, ref(c)); }).then(function (bl) {
+      var arq = null; try { arq = sh.__png = new File([bl], 'bora-pros-dados-' + slug(c) + '.png', { type: 'image/png' }); } catch (e) {}
+      ir(arq);
+    }, function () { toast('N\u00e3o deu para gerar a imagem agora.'); });
+  }
+  function api(fn) { return function (x) { var sh = paraShare(x); if (sh) fn(sh); return !!sh; }; }
+  window.__share = { init: init, copiaImagem: IMGCLIP, imagemWhatsApp: IMGWA,
+    copiar: api(copiarDe),
+    stories: api(function (sh) { stories(sh, null, 'card'); }),
+    whatsapp: api(function (sh) { whatsapp(sh, null, null, 'card'); }),
+    compartilhar: api(compartilharImagem),
+    textoWhatsApp: function (x) { var sh = paraShare(x); return sh ? textoWhats(ctx(sh)) : ''; } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { init(); });
   else init();
 })();
