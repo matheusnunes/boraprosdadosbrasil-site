@@ -20,6 +20,10 @@
   var IMGCLIP = false;
   try { IMGCLIP = !!(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write && window.isSecureContext &&
     (typeof ClipboardItem.supports !== 'function' || ClipboardItem.supports('image/png'))); } catch (e) {}
+  /* WhatsApp com imagem: só no celular (a folha nativa lista o WhatsApp) e com suporte a arquivos PNG */
+  var IMGWA = false;
+  try { IMGWA = !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'x.png', { type: 'image/png' })] }) &&
+    window.matchMedia && window.matchMedia('(pointer: coarse)').matches); } catch (e) {}
   var SITE = BASE.replace(/^https?:\/\//, '');
 
   function track(n, p) { try { if (window.__track) window.__track(n, p); } catch (e) {} }
@@ -36,7 +40,7 @@
   function body(b) { return attr(b, 'text', document.title); }
   function msg(b, m) { return body(b) + ' ' + CTA + ' ' + link(b, m); }
   var HREF = {
-    whatsapp: function (b) { return 'https://wa.me/?text=' + E(msg(b, 'whatsapp')); },
+    whatsapp: function (b) { return 'https://wa.me/?text=' + E(textoWhats(b)); },
     telegram: function (b) { return 'https://t.me/share/url?url=' + E(link(b, 'telegram')) + '&text=' + E(body(b)); },
     x: function (b) { return 'https://twitter.com/intent/tweet?text=' + E(msg(b, 'x')); },
     facebook: function (b) { return 'https://www.facebook.com/sharer/sharer.php?u=' + E(link(b, 'facebook')); }
@@ -88,10 +92,10 @@
     if (v === 'mini') {
       row.appendChild(NATIVE ? btn('native', 'Compartilhar', 'Compartilhar ' + what) :
         btn('more', 'Compartilhar', 'Mostrar opções para compartilhar ' + what));
-      pan.appendChild(btn('whatsapp', 'WhatsApp', 'Enviar ' + what + ' pelo WhatsApp', 'share-btn--wa'));
+      pan.appendChild(btn('whatsapp', IMGWA ? 'Enviar imagem no WhatsApp' : 'WhatsApp', (IMGWA ? 'Enviar imagem no WhatsApp: ' : 'Enviar pelo WhatsApp: ') + what, 'share-btn--wa'));
       pan.appendChild(copyBtn());
     } else {
-      row.appendChild(btn('whatsapp', 'WhatsApp', 'Enviar ' + what + ' pelo WhatsApp', 'share-btn--wa'));
+      row.appendChild(btn('whatsapp', IMGWA ? 'Enviar imagem no WhatsApp' : 'WhatsApp', (IMGWA ? 'Enviar imagem no WhatsApp: ' : 'Enviar pelo WhatsApp: ') + what, 'share-btn--wa'));
       row.appendChild(copyBtn());
       row.appendChild(NATIVE ? btn('native', 'Outros apps', 'Compartilhar em outros aplicativos') :
         btn('more', 'Mais', 'Mais opções para compartilhar'));
@@ -116,6 +120,7 @@
     e.stopPropagation(); /* evita outbound_click duplicado no analytics.js */
     var m = t.getAttribute('data-m'), c = ctx(b), sec = secao(c);
     if (m === 'more') { e.preventDefault(); toggle(b); return; }
+    if (m === 'whatsapp') { whatsapp(b, e, t, attr(b, 'placement', attr(b, 'variant', 'full'))); return; }
     track('share_click', { method: m === 'copy' ? (IMGCLIP ? 'copy_image' : 'copy_text') : m, section: sec, placement: attr(b, 'placement', attr(b, 'variant', 'full')) });
     if (HREF[m]) { t.href = HREF[m](c); return; }
     e.preventDefault();
@@ -190,6 +195,7 @@
     var id = attr(c, 'card'), k, i, L, R = window.__shareDefs;
     /* def registrada pela página para a âncora/seção (ex.: home, que ajusta as defs antes do montarCard) */
     if (R && (R[attr(c, 'anchor')] || R[attr(c, 'section')])) return R[attr(c, 'anchor')] || R[attr(c, 'section')];
+    if (!id) id = attr(c, 'anchor') || attr(c, 'section');
     if (!id) return null;
     for (k in window) {
       if (!/^CARDS_/.test(k) || !(window[k] instanceof Array)) continue;
@@ -298,14 +304,218 @@
     }, { passive: true });
   }
 
-  function init(root) { var n = (root || document).querySelectorAll('.share'), i; regiao(); for (i = 0; i < n.length; i += 1) render(n[i]); }
+  /* ================= WhatsApp: imagem do card (celular) ou texto formatado do WhatsApp =================
+     O texto sai dos MESMOS dados dos cards (defs CARDS_* / __shareDefs) e, para formatar os valores,
+     do registro /dados/comparacoes.json; nada é digitado à mão. 🔵 = Bolsonaro/Flávio, 🟪 = Lula (como no site);
+     ✅ só marca quem fica à frente pela regra do card; contexto e planos 2026 ficam sem ✅. */
+  var EMO = { graf: '\uD83D\uDCCA', b: '\uD83D\uDD35', l: '\uD83D\uDFEA', ok: '\u2705', bal: '\u2696\uFE0F', pin: '\uD83D\uDCCC', seta: '\uD83D\uDC49', info: '\u2139\uFE0F' };
+  var REG = null;
+  function carregarRegistro() {
+    if (REG !== null || !window.fetch) return; REG = [];
+    fetch('/dados/comparacoes.json').then(function (r) { return r.json(); }).then(function (j) { REG = (j && j.comparacoes) || []; }, function () {});
+  }
+  function norm(t) { return String(t || '').toLowerCase().replace(/\s*\(.*\)\s*/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function regDe(c, def) {
+    var a = attr(c, 'anchor'), pg = location.pathname, tema = norm(def && def.tema), i, it, achado = null;
+    for (i = 0; REG && i < REG.length; i += 1) {
+      it = REG[i]; if (it.pagina !== pg || it.status === 'descontinuado') continue;
+      if (a && it.ancora_card === a) return it;
+      if (!achado && tema && norm(it.tema_matriz).indexOf(tema) === 0) achado = it;
+    }
+    return achado;
+  }
+  var RNUM = /([+\u2212-]?)(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d+))?/;
+  function numBR(v, casas) {
+    var p = Math.abs(v).toFixed(casas).split('.');
+    p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return p.join(',');
+  }
+  function lerNum(s) {
+    var m = RNUM.exec(s || ''); if (!m) return NaN;
+    var n = parseFloat(m[2].replace(/\./g, '') + '.' + (m[3] || '0'));
+    return (m[1] === '-' || m[1] === '\u2212') ? -n : n;
+  }
+  function comPadrao(padrao, v) {          /* troca o 1º número do padrão por v, com as mesmas casas e unidade */
+    var m = RNUM.exec(padrao || ''); if (!m) return null;
+    var casas = m[3] ? m[3].length : 0, sinal = v < 0 ? '\u2212' : (m[1] === '+' ? '+' : '');
+    return (padrao.slice(0, m.index) + sinal + numBR(v, casas) + padrao.slice(m.index + m[0].length)).replace(/\s*\(.*\)\s*$/, '');
+  }
+  function valorTexto(v, padraoReg, padraoCard) {
+    if (padraoReg && Math.abs(lerNum(padraoReg) - v) < 1e-9) return padraoReg;
+    var p = padraoReg ? comPadrao(padraoReg, v) : null;
+    if (!p && padraoCard && /^[^\d]*\d[\d.,]*[^\d]*$/.test(padraoCard)) p = comPadrao(padraoCard, v);
+    return p || numBR(v, Math.abs(v - Math.round(v)) < 1e-9 ? 0 : (Math.abs(v * 10 - Math.round(v * 10)) < 1e-9 ? 1 : 2));
+  }
+  function vencedor(def) {
+    if (!def || !def.valores || (def.criterio !== 'menor' && def.criterio !== 'maior')) return null;
+    var b = def.valores.b, l = def.valores.l; if (b === l) return null;
+    return (def.criterio === 'menor') === (b < l) ? 'b' : 'l';
+  }
+  function nomes(def, reg) {
+    var d = { b: { nome: 'Governo Bolsonaro' }, l: { nome: 'Governo Lula' } };
+    return (def && def.lados) || (reg && reg.lados) || d;
+  }
+  function periodo(reg, k) {
+    var p = reg && reg.lados && reg.lados[k] && reg.lados[k].periodo;
+    return p ? String(p).replace(/\s*\(média anual\)/, '').replace(/\s*\(([^)]*)\)/g, ' \u00b7 $1').replace(/(\d)-(\d)/g, '$1\u2013$2') : '';
+  }
+  function pct(n, t, casas) { return t ? numBR(n / t * 100, casas) + '%' : '\u2013'; }
+  function cardsIrmaos(def) {
+    var k, L; for (k in window) { if (!/^CARDS_/.test(k) || !(window[k] instanceof Array)) continue; L = window[k]; if (L.indexOf(def) >= 0 || L.some(function (x) { return x && x.id === def.id; })) return L; }
+    return [];
+  }
+  /* corpo do texto, por tipo de card */
+  function linhasCard(def, reg, L, venc) {
+    var g = def.grafico || {}, out = [], i;
+    if (g.tipo === 'blocos') {
+      (g.grupos || []).forEach(function (gp) {
+        out.push('*' + gp.titulo + ':* ' + EMO[gp.vencedor] + ' ' + L[gp.vencedor].nome + ' \u00e0 frente');
+        gp.itens.forEach(function (q) { out.push(EMO.ok + ' ' + q.nome + (q.apertada ? ' _(apertada)_' : '')); });
+        out.push('');
+      });
+      (g.contexto || []).forEach(function (q) { out.push(EMO.info + ' ' + q.nome + ': ' + (q.nota || 'contexto, n\u00e3o conta ponto')); });
+      if (g.fecho) out.push('*' + g.fecho + '*');
+      return out;
+    }
+    if (g.tipo === 'placarPromessas') { var irm = cardsIrmaos(def).filter(function (x) { return x && x.grafico && x.grafico.tipo === 'pares'; })[0]; if (irm) { def = irm; g = irm.grafico; } }
+    if (g.tipo === 'pares') {
+      var f = g.formato || {};
+      out.push(EMO.b + ' ' + L.b.nome + ' \u00d7 ' + EMO.l + ' ' + L.l.nome);
+      (g.grupos || []).forEach(function (gp) {
+        var fb = valorTexto(gp.b, null, null), fl = valorTexto(gp.l, null, null);
+        if (f.casas != null) { fb = numBR(gp.b, f.casas); fl = numBR(gp.l, f.casas); }
+        out.push('\u2022 ' + gp.rotulo + (gp.sub ? ' _(' + gp.sub + ')_' : '') + ': *' + (f.prefixo || '') + fb + (f.sufixo || '') + '* \u00d7 *' + (f.prefixo || '') + fl + (f.sufixo || '') + '*');
+      });
+      return out;
+    }
+    if (g.tipo === 'empilhadas' && g.linhas) {
+      var cb = g.linhas.b.contagens, cl = g.linhas.l.contagens, cats = g.categorias || [], tb = 0, tl = 0, k;
+      for (k in cb) tb += cb[k]; for (k in cl) tl += cl[k];
+      out.push(EMO.b + ' ' + L.b.nome + ' \u00d7 ' + EMO.l + ' ' + L.l.nome);
+      if (cb.cumprida != null) {             /* promessas: as três leituras, como no site */
+        out.push('\u2022 Cumpridas, de todas: *' + pct(cb.cumprida, tb, 0) + '* \u00d7 *' + pct(cl.cumprida, tl, 0) + '* (' + cb.cumprida + ' de ' + tb + ' \u00d7 ' + cl.cumprida + ' de ' + tl + ')');
+        out.push('\u2022 S\u00f3 as verific\u00e1veis: *' + pct(cb.cumprida, tb - (cb.sem || 0), 0) + '* \u00d7 *' + pct(cl.cumprida, tl - (cl.sem || 0), 0) + '*');
+        out.push('\u2022 Cumpridas + parciais: *' + pct(cb.cumprida + (cb.parcial || 0), tb, 0) + '* \u00d7 *' + pct(cl.cumprida + (cl.parcial || 0), tl, 0) + '*');
+        if (cl.andamento || cb.andamento) out.push('\u2022 Em andamento: ' + (cb.andamento || 0) + ' \u00d7 ' + (cl.andamento || 0));
+      } else {
+        for (i = 0; i < cats.length; i += 1) out.push('\u2022 ' + cats[i].nome + ': *' + (cb[cats[i].id] || 0) + '* \u00d7 *' + (cl[cats[i].id] || 0) + '* de ' + tb);
+      }
+      return out;
+    }
+    if (!def.valores && reg && reg.lados && reg.lados.b.valor) {   /* contexto (ex.: Selic): valores do registro, sem ✅ */
+      out.push(EMO.b + ' ' + L.b.nome + (periodo(reg, 'b') ? ' (' + periodo(reg, 'b') + ')' : '') + ': *' + reg.lados.b.valor + '*');
+      out.push(EMO.l + ' ' + L.l.nome + (periodo(reg, 'l') ? ' (' + periodo(reg, 'l') + ')' : '') + ': *' + reg.lados.l.valor + '*');
+    }
+    if (def.valores) {
+      var mv = def.manchete && def.manchete.valor;
+      var vb = valorTexto(def.valores.b, reg && reg.lados.b.valor, mv), vl = valorTexto(def.valores.l, reg && reg.lados.l.valor, mv);
+      var pb = periodo(reg, 'b'), pl = periodo(reg, 'l');
+      out.push(EMO.b + ' ' + L.b.nome + (pb ? ' (' + pb + ')' : '') + ': *' + vb + '*' + (venc === 'b' ? ' ' + EMO.ok : ''));
+      out.push(EMO.l + ' ' + L.l.nome + (pl ? ' (' + pl + ')' : '') + ': *' + vl + '*' + (venc === 'l' ? ' ' + EMO.ok : ''));
+    }
+    return out;
+  }
+  function textoWhats(c, m) {
+    var def = acharDef(c), reg = def ? regDe(c, def) : null, url = link(c, m || 'whatsapp');
+    if (!def) return body(c) + '\n\n' + EMO.seta + ' ' + CTA + ' ' + url;
+    var L = nomes(def, reg), venc = vencedor(def), tema = def.tema || def.titulo || '', t = [];
+    t.push(EMO.graf + ' *' + (venc ? tema + ': ' + L[venc].nome + ' \u00e0 frente' : (def.titulo || tema)) + '*');
+    var crit = def.criterioTexto || (def.criterio === 'menor' ? 'menor \u00e9 melhor' : def.criterio === 'maior' ? 'maior \u00e9 melhor' : '');
+    if (crit || def.detalhe) t.push('_' + [crit, def.detalhe].filter(Boolean).join(' \u00b7 ') + '_');
+    t.push('');
+    t = t.concat(linhasCard(def, reg, L, venc));
+    if (t[t.length - 1] !== '') t.push('');
+    if (venc && def.forca === 'apertada') t.push(EMO.bal + ' Diferen\u00e7a apertada' + (def.mudaria ? ': ' + def.mudaria : ''));
+    else if (venc && def.forca === 'clara') t.push(EMO.bal + ' Diferen\u00e7a clara');
+    if (!venc && def.nota && !(def.grafico && def.grafico.tipo === 'blocos')) t.push(EMO.info + ' ' + def.nota);
+    t.push(EMO.pin + ' Fonte: ' + (def.fonte || (reg && reg.fonte) || ''));
+    t.push('');
+    t.push(EMO.seta + ' Veja o gr\u00e1fico e os dados: ' + url);
+    t.push('_Bora pros dados Brasil \u00b7 n\u00e3o indica voto_');
+    return t.join('\n');
+  }
+  function textoCurto(c) {
+    var linhas = textoWhats(c, 'image').split('\n');
+    return linhas[0] + '\n' + EMO.seta + ' ' + link(c, 'image');
+  }
+
+  /* pré-gera o PNG (com rodapé) quando o card entra na tela: o Safari só aceita o share no mesmo toque */
+  var FILA = [], OCUPADO = false;
+  function proximo() {
+    if (OCUPADO || !FILA.length) return; OCUPADO = true;
+    var sh = FILA.shift(), c = ctx(sh);
+    png(c).then(null, function () { return cartaoTexto(c, ref(c)); }).then(function (bl) {
+      try { sh.__png = new File([bl], 'bora-pros-dados-' + String(secao(c)).replace(/[^a-z0-9-]/gi, '') + '.png', { type: 'image/png' }); } catch (e) {}
+      OCUPADO = false; proximo();
+    }, function () { OCUPADO = false; proximo(); });
+  }
+  function preparar(sh) { if (!IMGWA || !sh || sh.__png || sh.__pngFila) return; sh.__pngFila = 1; FILA.push(sh); proximo(); }
+  var IO_WA = null;
+  function vigiar(el, sh) {
+    if (!IMGWA || !sh) return;
+    if (!IO_WA && 'IntersectionObserver' in window) IO_WA = new IntersectionObserver(function (es) {
+      es.forEach(function (en) { if (en.isIntersecting) { IO_WA.unobserve(en.target); preparar(en.target.__waShare); } });
+    }, { rootMargin: '200px 0px' });
+    el.__waShare = sh; if (IO_WA) IO_WA.observe(el); else preparar(sh);
+  }
+  function shareDe(el) {      /* o .share (às vezes escondido) do mesmo card/seção guarda texto, âncora e card */
+    var box = el.closest && (el.closest('article') || el.closest('section'));
+    return box ? box.querySelector('.share[data-share-text]') : null;
+  }
+  function abrir(u) { var w = null; try { w = window.open(u, '_blank', 'noopener'); } catch (e) {} if (!w) location.href = u; }
+  function whatsapp(sh, e, alvo, placement) {
+    var c = ctx(sh), sec = secao(c), f = IMGWA && sh.__png;
+    if (e) e.stopPropagation();      /* evita share_click/outbound duplicados dos outros ouvintes */
+    if (f) {
+      if (e) e.preventDefault();
+      track('share_click', { method: 'whatsapp_image', section: sec, placement: placement });
+      navigator.share({ files: [f], text: textoCurto(c) }).then(function () { track('share_success', { method: 'whatsapp_image', section: sec }); }, function (err) {
+        if (err && err.name === 'AbortError') { track('share_cancel', { method: 'whatsapp_image', section: sec }); return; }
+        track('share_click', { method: 'whatsapp_text', section: sec, placement: placement }); abrir('https://wa.me/?text=' + E(textoWhats(c)));
+      });
+      return;
+    }
+    if (IMGWA) preparar(sh);
+    track('share_click', { method: 'whatsapp_text', section: sec, placement: placement });
+    var u = 'https://wa.me/?text=' + E(textoWhats(c));
+    if (alvo && alvo.tagName === 'A') { alvo.href = u; alvo.target = '_blank'; alvo.rel = 'noopener'; return; }
+    if (e) e.preventDefault(); abrir(u);
+  }
+  /* botões [WhatsApp] montados fora do share.js (BPD.montarCard e ações das páginas): mesmo comportamento */
+  function ligarBotoesWa() {
+    var bs = document.querySelectorAll('.bpd-btn--wa, .share .share-btn--wa'), i, b, sh;
+    for (i = 0; i < bs.length; i += 1) {
+      b = bs[i]; if (b.__wa) continue; b.__wa = 1;
+      sh = b.closest('.share') || shareDe(b); if (!sh) continue;
+      if (IMGWA && !b.closest('.share')) {   /* rótulo do autor (o ui.js respeita): começa pelo texto visível (WCAG 2.5.3) */
+        b.textContent = 'Enviar imagem no WhatsApp'; b.removeAttribute('data-a11y-rotulo'); b.removeAttribute('data-a11y-txt');
+        b.setAttribute('aria-label', 'Enviar imagem no WhatsApp: ' + attr(sh, 'name', 'este card'));
+      }
+      vigiar(b, sh);
+    }
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest ? e.target.closest('.bpd-btn--wa') : null; if (!a) return;
+    var sh = shareDe(a); if (!sh) return;
+    whatsapp(sh, e, a, 'card');
+  }, true);
+
+  function init(root) {
+    var n = (root || document).querySelectorAll('.share'), i; regiao(); carregarRegistro();
+    for (i = 0; i < n.length; i += 1) render(n[i]);
+    ligarBotoesWa();
+  }
+  if (window.MutationObserver) {      /* cards montados depois (charts.js) recebem o mesmo WhatsApp */
+    var _mo = null;
+    new MutationObserver(function () { clearTimeout(_mo); _mo = setTimeout(ligarBotoesWa, 250); }).observe(document.documentElement, { childList: true, subtree: true });
+  }
   /* para os blocos de ações das páginas (ex.: /balanco/ e /propostas/), que escondem o .share da seção e mostram botões próprios */
   function copiarDe(sh) {
     var c = ctx(sh), sec = secao(c);
     track('share_click', { method: IMGCLIP ? 'copy_image' : 'copy_text', section: sec, placement: attr(sh, 'placement', 'card') });
     copy(sh, c, sec);
   }
-  window.__share = { init: init, copiar: copiarDe, copiaImagem: IMGCLIP };
+  window.__share = { init: init, copiar: copiarDe, copiaImagem: IMGCLIP, whatsapp: function (el) { var sh = el && (el.closest && el.closest('.share') || shareDe(el)); if (sh) whatsapp(sh, null, null, 'card'); },
+    textoWhatsApp: function (el) { var sh = el && (el.matches && el.matches('.share') ? el : shareDe(el)); return sh ? textoWhats(ctx(sh)) : ''; }, imagemWhatsApp: IMGWA };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { init(); });
   else init();
 })();
