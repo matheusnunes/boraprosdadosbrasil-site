@@ -44,6 +44,7 @@ try{history.replaceState(null,'',location.pathname+'?'+resto.join('&')+location.
 <script defer src="/assets/js/catalogo.js"></script>
 </head>
 <body class="cat-page">
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <header class="sitebar">
   <div class="sb-in">
     <a class="sb-brand" href="/" aria-label="Bora pros dados Brasil, início"><img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil" width="200" height="113"></a>
@@ -56,9 +57,36 @@ try{history.replaceState(null,'',location.pathname+'?'+resto.join('&')+location.
     </nav>
   </div>
 </header>
-<main class="cat-wrap" id="topo">
+<main class="cat-wrap" id="conteudo" tabindex="-1">
   <div data-catalogo="selecao"><p class="cat-note">Carregando a seleção…</p></div>
   <noscript><p>Esta página precisa de JavaScript. Veja todas as comparações em <a href="/comparacoes/">Comparações</a>.</p></noscript>
 </main>
+<footer class="sitefoot">
+  <div class="sf-in">
+    <div class="sf-brand">
+      <img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil">
+      <p>Análises descritivas com dados públicos oficiais do Brasil, sem juízo político. Tudo com fonte aberta e os arquivos originais disponíveis para download.</p>
+    </div>
+    <div class="sf-col" id="quem-fez"><h2>Quem sou</h2>
+      <p>Profissional da área de tecnologia há 16 anos e atuo como Gerente de Desenvolvimento de Software. Lidero o time responsável pela plataformização e disponibilização de dados por diferentes meios em uma Big Tech brasileira, referência no mercado, atuando em um ambiente de altíssima volumetria e escala.</p>
+    </div>
+    <div class="sf-col-group">
+    <div class="sf-col"><h2>Análises</h2>
+      <a href="/">Governo Lula × Bolsonaro</a>
+      <a href="/propostas/">Propostas 2026</a>
+      <a href="/balanco/">Promessas e Realizações Lula × Bolsonaro</a>
+      <a href="/comparacoes/">Comparações</a>
+    </div>
+    <div class="sf-col"><h2>Método e dados</h2>
+      <a href="/sobre/">Sobre e método</a>
+      <a href="/#apendice">Como calculamos</a>
+      <a href="/fontes/">Dados abertos (50 arquivos)</a>
+      <a href="/dados/comparacoes.json">Registro das comparações (JSON)</a>
+      <a href="/dados/SHA256SUMS.txt">Checksums (SHA-256)</a>
+    </div>
+    </div>
+</div>
+  <div class="sf-base">© 2026 Bora pros dados Brasil · dados públicos oficiais · atualizado em <time datetime="__UPDATED_ISO__">__UPDATED__</time> · <a href="/dados/SHA256SUMS.txt">integridade dos arquivos (SHA-256)</a></div>
+</footer>
 </body>
 </html>

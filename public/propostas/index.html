@@ -447,7 +447,7 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
   .filters .f:nth-child(4){grid-area:busca;grid-column:1 / -1}
   .filters .f:nth-child(5){grid-area:status}
   .filters .f:nth-child(6){grid-area:limpa;align-self:end}
-  .filters .f:nth-child(5) label,.filters .f:nth-child(6) label{display:none}
+  .filters .f:nth-child(5) label,.filters .f:nth-child(6) label,.filters .f:nth-child(5) .f-esp,.filters .f:nth-child(6) .f-esp{display:none}
   .filters .f:nth-child(5) .search-status{min-height:0;font-size:13.5px}
   .fullbar .fullbtn{width:100%;min-height:44px}
 }
@@ -1120,14 +1120,14 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
         <select id="f-rot"><option value="">Todos</option><option value="ok">Ferramenta nomeada</option><option value="mid">Parcial</option><option value="no">Só intenção</option></select></div>
       <div class="f"><label for="f-busca">Busca (ignora acentos)</label>
         <input id="f-busca" type="text" placeholder="ex.: desmatamento, salário mínimo…"></div>
-      <div class="f"><label>&nbsp;</label>
+      <div class="f"><span class="f-esp" aria-hidden="true">&nbsp;</span>
         <span class="search-status" id="cat-status" aria-live="polite">38 de 38 propostas</span></div>
-      <div class="f"><label>&nbsp;</label>
-        <button class="ghost-btn" id="f-clear">Limpar filtros</button></div>
+      <div class="f"><span class="f-esp" aria-hidden="true">&nbsp;</span>
+        <button class="ghost-btn" type="button" id="f-clear">Limpar filtros</button></div>
     </div>
     <div class="tablewrap">
       <table class="cat">
-        <thead><tr><th>Candidato</th><th>Tema</th><th>Proposta</th><th>Página</th><th>Rótulo do “como”</th><th></th></tr></thead>
+        <thead><tr><th>Candidato</th><th>Tema</th><th>Proposta</th><th>Página</th><th>Rótulo do “como”</th><th><span class="vh">Ações</span></th></tr></thead>
         <tbody id="cat-body"></tbody>
       </table>
     </div>
@@ -1465,11 +1465,11 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
         + '<span class="tr-snip">' + esc(snip) + '</span></td>'
         + '<td class="small">' + esc(it.pags) + '</td>'
         + '<td><span class="chip ' + ROTCLS[it.rot] + ' sm">' + esc(ROTS[it.rot]) + '</span></td>'
-        + '<td><button class="detail-btn cat-det" type="button" data-id="' + esc(it.id) + '">detalhes</button></td>'
+        + '<td><button class="detail-btn cat-det" type="button" data-id="' + esc(it.id) + '" aria-label="Detalhes de ' + esc(it.id) + ', ' + esc(it.sub) + '">detalhes</button></td>'
         + '</tr>');
     }
     catBody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6" class="empty-row">Nenhum item com esses filtros. <button type="button" class="ghost-btn" data-limpar>Limpar filtros</button></td></tr>';
-    catStatus.textContent = shown + ' de ' + DATA.length + ' propostas';
+    catStatus.textContent = shown > limite ? 'Mostrando ' + limite + ' de ' + shown + ' propostas' : shown + ' de ' + DATA.length + ' propostas';
     var falta = Math.max(0, shown - limite);
     catMais.hidden = !falta;
     catMais.textContent = 'Mostrar mais ' + Math.min(PASSO, falta);
@@ -1485,7 +1485,12 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   fBusca.addEventListener('input', filtra);
   document.getElementById('f-clear').addEventListener('click', limpa);
   catBody.addEventListener('click', function(e){ if (e.target.closest && e.target.closest('[data-limpar]')) limpa(); });
-  catMais.addEventListener('click', function(){ limite += PASSO; renderCat(); });
+  catMais.addEventListener('click', function(){
+    var antes = limite; limite += PASSO; renderCat();
+    /* foco na 1ª linha nova (leitor de tela e teclado continuam de onde a lista cresceu) */
+    var nova = catBody.querySelectorAll('tr')[antes];
+    if (nova){ nova.setAttribute('tabindex', '-1'); nova.focus(); }
+  });
   if (CELULAR.addEventListener) CELULAR.addEventListener('change', filtra);
   renderCat();
   var mcat = document.getElementById('mcat'), mcatBody = document.getElementById('mcat-body'),
