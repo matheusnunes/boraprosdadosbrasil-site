@@ -71,6 +71,11 @@
     if (p) { p.hidden = !p.hidden; if (t) t.setAttribute('aria-expanded', p.hidden ? 'false' : 'true'); }
   }
 
+  function curtoLongo(b, curto) { b.setAttribute('data-curto', curto); b.setAttribute('data-longo', b.textContent); if (estreito()) b.textContent = curto; return b; }
+  function storiesBtn() {
+    var b = btn('stories', '', 'Compartilhar nos Stories do Instagram');
+    b.innerHTML = ICO_STORY + '<span>Stories</span>'; return b;
+  }
   function copyBtn() {
     /* o nome acessível começa pelo texto visível do botão (WCAG 2.5.3) */
     return IMGCLIP ? btn('copy', 'Copiar imagem', 'Copiar imagem, com a fonte e o link do site') : btn('copy', 'Copiar', 'Copiar o texto com o link e baixar a imagem');
@@ -94,9 +99,11 @@
         btn('more', 'Compartilhar', 'Mostrar opções para compartilhar ' + what));
       pan.appendChild(btn('whatsapp', IMGWA ? 'Enviar imagem no WhatsApp' : 'WhatsApp', (IMGWA ? 'Enviar imagem no WhatsApp: ' : 'Enviar pelo WhatsApp: ') + what, 'share-btn--wa'));
       pan.appendChild(copyBtn());
+      pan.appendChild(storiesBtn());
     } else {
-      row.appendChild(btn('whatsapp', IMGWA ? 'Enviar imagem no WhatsApp' : 'WhatsApp', (IMGWA ? 'Enviar imagem no WhatsApp: ' : 'Enviar pelo WhatsApp: ') + what, 'share-btn--wa'));
-      row.appendChild(copyBtn());
+      row.appendChild(curtoLongo(btn('whatsapp', IMGWA ? 'Enviar imagem no WhatsApp' : 'WhatsApp', (IMGWA ? 'Enviar imagem no WhatsApp: ' : 'Enviar pelo WhatsApp: ') + what, 'share-btn--wa'), 'WhatsApp'));
+      row.appendChild(curtoLongo(copyBtn(), 'Copiar'));
+      if (v === 'full') row.appendChild(storiesBtn());
       row.appendChild(NATIVE ? btn('native', 'Outros apps', 'Compartilhar em outros aplicativos') :
         btn('more', 'Mais', 'Mais opções para compartilhar'));
     }
@@ -121,6 +128,7 @@
     var m = t.getAttribute('data-m'), c = ctx(b), sec = secao(c);
     if (m === 'more') { e.preventDefault(); toggle(b); return; }
     if (m === 'whatsapp') { whatsapp(b, e, t, attr(b, 'placement', attr(b, 'variant', 'full'))); return; }
+    if (m === 'stories') { stories(b, e, attr(b, 'placement', attr(b, 'variant', 'full'))); return; }
     track('share_click', { method: m === 'copy' ? (IMGCLIP ? 'copy_image' : 'copy_text') : m, section: sec, placement: attr(b, 'placement', attr(b, 'variant', 'full')) });
     if (HREF[m]) { t.href = HREF[m](c); return; }
     e.preventDefault();
@@ -440,22 +448,27 @@
 
   /* pré-gera o PNG (com rodapé) quando o card entra na tela: o Safari só aceita o share no mesmo toque */
   var FILA = [], OCUPADO = false;
+  function slug(c) { return String(secao(c)).replace(/[^a-z0-9-]/gi, ''); }
   function proximo() {
     if (OCUPADO || !FILA.length) return; OCUPADO = true;
-    var sh = FILA.shift(), c = ctx(sh);
-    png(c).then(null, function () { return cartaoTexto(c, ref(c)); }).then(function (bl) {
-      try { sh.__png = new File([bl], 'bora-pros-dados-' + String(secao(c)).replace(/[^a-z0-9-]/gi, '') + '.png', { type: 'image/png' }); } catch (e) {}
+    var it = FILA.shift(), sh = it.sh, c = ctx(sh), story = it.tipo === 'story';
+    (story ? pngStory(c) : png(c).then(null, function () { return cartaoTexto(c, ref(c)); })).then(function (bl) {
+      try {
+        if (story) sh.__story = new File([bl], 'bora-' + slug(c) + '-stories.png', { type: 'image/png' });
+        else sh.__png = new File([bl], 'bora-pros-dados-' + slug(c) + '.png', { type: 'image/png' });
+      } catch (e) {}
       OCUPADO = false; proximo();
     }, function () { OCUPADO = false; proximo(); });
   }
-  function preparar(sh) { if (!IMGWA || !sh || sh.__png || sh.__pngFila) return; sh.__pngFila = 1; FILA.push(sh); proximo(); }
+  function preparar(sh) { if (!IMGWA || !sh || sh.__png || sh.__pngFila) return; sh.__pngFila = 1; FILA.push({ sh: sh, tipo: 'wa' }); proximo(); }
+  function prepararStory(sh) { if (!IMGWA || !sh || sh.__story || sh.__storyFila) return; sh.__storyFila = 1; FILA.push({ sh: sh, tipo: 'story' }); proximo(); }
   var IO_WA = null;
   function vigiar(el, sh) {
     if (!IMGWA || !sh) return;
     if (!IO_WA && 'IntersectionObserver' in window) IO_WA = new IntersectionObserver(function (es) {
-      es.forEach(function (en) { if (en.isIntersecting) { IO_WA.unobserve(en.target); preparar(en.target.__waShare); } });
+      es.forEach(function (en) { if (en.isIntersecting) { IO_WA.unobserve(en.target); preparar(en.target.__waShare); prepararStory(en.target.__waShare); } });
     }, { rootMargin: '200px 0px' });
-    el.__waShare = sh; if (IO_WA) IO_WA.observe(el); else preparar(sh);
+    el.__waShare = sh; if (IO_WA) IO_WA.observe(el); else { preparar(sh); prepararStory(sh); }
   }
   function shareDe(el) {      /* o .share (às vezes escondido) do mesmo card/seção guarda texto, âncora e card */
     var box = el.closest && (el.closest('article') || el.closest('section'));
@@ -486,13 +499,144 @@
     for (i = 0; i < bs.length; i += 1) {
       b = bs[i]; if (b.__wa) continue; b.__wa = 1;
       sh = b.closest('.share') || shareDe(b); if (!sh) continue;
-      if (IMGWA && !b.closest('.share')) {   /* rótulo do autor (o ui.js respeita): começa pelo texto visível (WCAG 2.5.3) */
-        b.textContent = 'Enviar imagem no WhatsApp'; b.removeAttribute('data-a11y-rotulo'); b.removeAttribute('data-a11y-txt');
+      if (IMGWA && !b.closest('.share')) {   /* rótulo do autor (o ui.js respeita): contém o texto visível (WCAG 2.5.3) */
+        b.setAttribute('data-curto', 'WhatsApp'); b.setAttribute('data-longo', 'Enviar imagem no WhatsApp');
+        b.textContent = estreito() ? 'WhatsApp' : 'Enviar imagem no WhatsApp'; b.removeAttribute('data-a11y-rotulo'); b.removeAttribute('data-a11y-txt');
         b.setAttribute('aria-label', 'Enviar imagem no WhatsApp: ' + attr(sh, 'name', 'este card'));
       }
       vigiar(b, sh);
     }
+    linhasDeAcoes();
   }
+  /* ================= Stories do Instagram =================
+     Celular com arquivos: no MESMO toque, copia o link da seção (UTM instagram/story) e abre a folha nativa só com
+     o PNG 1080×1920 (sem texto: o Instagram ignora). Computador: baixa o PNG e copia o link. */
+  var MQ_ESTREITO = window.matchMedia ? window.matchMedia('(max-width: 400px)') : null;
+  function estreito() { return !!(MQ_ESTREITO && MQ_ESTREITO.matches); }
+  function linkStory(c) {
+    var a = attr(c, 'anchor');
+    return BASE + location.pathname + '?utm_source=instagram&utm_medium=story&utm_campaign=' + E(PAGE) + '&utm_content=' + E(secao(c)) + (a ? '#' + a : '');
+  }
+  function pngStory(c) {
+    var r = ref(c), def = acharDef(c), BPD = window.BPD, k, d2 = {};
+    if (def && BPD && BPD.cardPNG) {          /* formato 'story' do charts.js: 1080×1920 com 250 px livres em cima e embaixo */
+      for (k in def) if (def.hasOwnProperty(k)) d2[k] = def[k];
+      d2.url = r.url; d2.atualizado = def.atualizado || r.data;
+      return BPD.cardPNG(d2, 'story');
+    }
+    return png(c).then(null, function () { return cartaoTexto(c, r); }).then(emStory);
+  }
+  function emStory(bl) {                       /* imagem com rodapé, centrada entre as faixas livres */
+    return bitmap(bl).then(function (im) {
+      var W = 1080, H = 1920, T = 250, cv = document.createElement('canvas'), cx = cv.getContext('2d');
+      var esc = Math.min((W - 96) / im.width, (H - 2 * T - 48) / im.height), w = Math.round(im.width * esc), h = Math.round(im.height * esc);
+      cv.width = W; cv.height = H; cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, W, H);
+      cx.drawImage(im, Math.round((W - w) / 2), Math.round(T + (H - 2 * T - h) / 2), w, h);
+      return new Promise(function (ok, no) { cv.toBlob(function (b) { if (b) ok(b); else no(new Error('png')); }, 'image/png'); });
+    });
+  }
+  function copiarTexto(t) {
+    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+      return navigator.clipboard.writeText(t).then(function () { return true; }, function () { return legacyCopy(t); });
+    }
+    return Promise.resolve(legacyCopy(t));
+  }
+  var AVISO_LINK = 'Link copiado. No Instagram, escolha Stories e cole o link no adesivo \u201cLink\u201d.';
+  function stories(sh, e, placement) {
+    var c = ctx(sh), sec = secao(c), url = linkStory(c), f = IMGWA && sh.__story;
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    track('share_click', { method: 'instagram_story', section: sec, placement: placement });
+    var copiou = copiarTexto(url);            /* chamado já no toque, antes do share */
+    function semLink(ok) { return ok ? '' : ' Copie o link: ' + url; }
+    function compartilhar(arq) {
+      return navigator.share({ files: [arq] }).then(function () {
+        track('share_success', { method: 'instagram_story', section: sec });
+      }, function (err) {
+        if (err && err.name === 'AbortError') { track('share_cancel', { method: 'instagram_story', section: sec }); return; }
+        toast('N\u00e3o deu para abrir a lista de apps agora. Toque de novo em \u201cStories\u201d.');
+      });
+    }
+    if (f) {
+      compartilhar(f);
+      copiou.then(function (ok) { toast(ok ? AVISO_LINK : 'No Instagram, escolha Stories e use no adesivo \u201cLink\u201d este link: ' + url); });
+      return;
+    }
+    toast('Preparando a imagem dos Stories\u2026');
+    pngStory(c).then(function (bl) {
+      var nome = 'bora-' + slug(c) + '-stories.png', arq = null;
+      if (IMGWA) {                              /* celular: imagem ainda não estava pronta; tenta e, se o navegador recusar, o 2º toque funciona */
+        try { arq = sh.__story = new File([bl], nome, { type: 'image/png' }); } catch (x) {}
+        if (arq) { compartilhar(arq); copiou.then(function (ok) { toast(ok ? AVISO_LINK : 'Use no adesivo \u201cLink\u201d: ' + url); }); return; }
+      }
+      baixar(bl, nome);
+      track('share_success', { method: 'instagram_story', section: sec });
+      copiou.then(function (ok) {
+        toast('Imagem baixada. Os Stories s\u00e3o publicados pelo app no celular: envie a imagem para o seu telefone e cole o link no adesivo \u201cLink\u201d.' + semLink(ok));
+      });
+    }, function () { toast('N\u00e3o deu para gerar a imagem agora.'); });
+  }
+  var ICO_STORY = '<svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9" stroke-dasharray="4 3"/><path d="M12 8v8M8 12h8"/></svg>';
+  function botaoStories(sh, cls) {
+    var b = el('button', cls, '', { type: 'button', 'aria-label': 'Compartilhar nos Stories do Instagram', 'data-curto': 'Stories', 'data-longo': 'Stories' });
+    b.innerHTML = ICO_STORY + '<span>Stories</span>';
+    b.addEventListener('click', function (e) { stories(sh, e, 'card'); });
+    return b;
+  }
+  /* linhas de ações dos cards: + [Stories]; se não couber em 2 linhas (ou transbordar), [Copiar] e [Stories] vão para [Mais ▾] */
+  var NLINHA = 0;
+  function linhaCabe(row) {
+    var bs = row.querySelectorAll(':scope > .bpd-btn'), tops = {}, n = 0, i;
+    if (!row.clientWidth) return true;
+    if (row.scrollWidth > row.clientWidth + 1) return false;
+    for (i = 0; i < bs.length; i += 1) { var t = Math.round(bs[i].offsetTop / 8); if (!tops[t]) { tops[t] = 1; n += 1; } }
+    return n <= 1 || (n <= 2 && !estreito() && row.offsetWidth > 400);
+  }
+  function arrumarLinha(row) {
+    var sh = shareDe(row); if (!sh) return;
+    var st = row.__st || (row.__st = botaoStories(sh, 'bpd-btn bpd-btn--stories'));
+    var cp = row.__cp || (row.__cp = row.querySelector('.bpd-btn--copiar'));
+    var stat = row.querySelector('.bpd-card-status');
+    /* 1) tudo na linha */
+    if (cp) row.insertBefore(cp, row.__cpAntes && row.__cpAntes.parentNode === row ? row.__cpAntes : stat);
+    row.insertBefore(st, stat);
+    if (row.__mais) { row.__mais.hidden = true; row.__painel.hidden = true; row.__mais.setAttribute('aria-expanded', 'false'); }
+    if (linhaCabe(row)) return;
+    /* 2) não coube: [Mais ▾] com [Copiar] e [Stories] num painel logo abaixo */
+    if (!row.__mais) {
+      NLINHA += 1;
+      var id = 'bpd-mais-' + NLINHA;
+      var m = el('button', 'bpd-btn bpd-btn--mais', 'Mais \u25be', { type: 'button', 'aria-expanded': 'false', 'aria-controls': id, 'aria-label': 'Mais op\u00e7\u00f5es: copiar imagem e Stories' });
+      var pn = el('div', 'bpd-mais-painel', '', { id: id }); pn.hidden = true;
+      m.addEventListener('click', function () { var ab = pn.hidden; pn.hidden = !ab; m.setAttribute('aria-expanded', ab ? 'true' : 'false'); if (ab) { var f1 = pn.querySelector('button'); if (f1) f1.focus(); } });
+      pn.addEventListener('keydown', function (e) { if (e.key === 'Escape') { pn.hidden = true; m.setAttribute('aria-expanded', 'false'); m.focus(); } });
+      row.__mais = m; row.__painel = pn;
+    }
+    row.__mais.hidden = false;
+    row.insertBefore(row.__mais, stat);
+    if (row.__painel.parentNode !== row.parentNode || row.__painel.previousSibling !== row) row.parentNode.insertBefore(row.__painel, row.nextSibling);
+    if (cp) row.__painel.appendChild(cp);
+    row.__painel.appendChild(st);
+  }
+  function rotulosCurtos() {
+    var bs = document.querySelectorAll('[data-curto][data-longo]'), i, t;
+    for (i = 0; i < bs.length; i += 1) { t = estreito() ? bs[i].getAttribute('data-curto') : bs[i].getAttribute('data-longo'); if (bs[i].children.length === 0 && bs[i].textContent !== t) bs[i].textContent = t; }
+  }
+  function linhasDeAcoes(todas) {    /* sem "todas": só as linhas novas (evita mexer no DOM a cada mutação) */
+    rotulosCurtos();
+    var rows = document.querySelectorAll('.bpd-card-acoes'), i;
+    for (i = 0; i < rows.length; i += 1) {
+      if (rows[i].__ok && !todas) continue; rows[i].__ok = 1;
+      if (!rows[i].__cpAntes) { var c0 = rows[i].querySelector('.bpd-btn--copiar'); rows[i].__cpAntes = c0 ? c0.nextSibling : null; }
+      arrumarLinha(rows[i]);
+    }
+  }
+  var _rz = null;
+  var _larg = window.innerWidth;
+  window.addEventListener('resize', function () {
+    if (window.innerWidth === _larg) return; _larg = window.innerWidth;   /* ignora a barra do navegador que some/aparece */
+    clearTimeout(_rz); _rz = setTimeout(function () { linhasDeAcoes(true); }, 200);
+  });
+
   document.addEventListener('click', function (e) {
     var a = e.target && e.target.closest ? e.target.closest('.bpd-btn--wa') : null; if (!a) return;
     var sh = shareDe(a); if (!sh) return;
