@@ -480,7 +480,7 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
   .filters .f:nth-child(4){grid-area:busca;grid-column:1 / -1}
   .filters .f:nth-child(5){grid-area:status}
   .filters .f:nth-child(6){grid-area:limpa;align-self:end}
-  .filters .f:nth-child(5) label,.filters .f:nth-child(6) label{display:none}
+  .filters .f:nth-child(5) label,.filters .f:nth-child(6) label,.filters .f:nth-child(5) .f-esp,.filters .f:nth-child(6) .f-esp{display:none}
   .filters .f:nth-child(5) .search-status{min-height:0;font-size:13.5px}
   .fullbar .fullbtn{width:100%;min-height:44px}
 }
@@ -871,10 +871,10 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
         <select id="f-cat"><option value="">Todas</option><option value="ok">Cumprida</option><option value="mid">Parcial</option><option value="no">Não cumprida</option><option value="run">Em andamento</option><option value="na">Sem evidência oficial</option></select></div>
       <div class="f"><label for="f-busca">Busca (ignora acentos)</label>
         <input id="f-busca" type="text" placeholder="ex.: desmatamento, salário mínimo…"></div>
-      <div class="f"><label>&nbsp;</label>
+      <div class="f"><span class="f-esp" aria-hidden="true">&nbsp;</span>
         <span class="search-status" id="cat-status" aria-live="polite">67 de 67 promessas</span></div>
-      <div class="f"><label>&nbsp;</label>
-        <button class="ghost-btn" id="f-clear">Limpar filtros</button></div>
+      <div class="f"><span class="f-esp" aria-hidden="true">&nbsp;</span>
+        <button class="ghost-btn" type="button" id="f-clear">Limpar filtros</button></div>
     </div>
     <div class="tablewrap">
       <table class="cat">
@@ -1143,11 +1143,11 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
         + '<span class="tr-snip">' + esc(it.trecho.length > 150 ? it.trecho.slice(0,150) + '…' : it.trecho) + '</span></td>'
         + '<td class="small">' + esc(it.pag) + '</td>'
         + '<td><span class="chip ' + CATS[it.cat].c + ' sm">' + esc(labelOf(it)) + '</span></td>'
-        + '<td><button class="detail-btn" data-id="' + it.id + '">detalhes</button></td>'
+        + '<td><button class="detail-btn" type="button" data-id="' + it.id + '" aria-label="Detalhes de ' + esc(it.id) + ', ' + esc(it.titulo) + '">detalhes</button></td>'
         + '</tr>');
     }
     catBody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6" class="empty-row">Nenhum item com esses filtros. <button type="button" class="ghost-btn" data-limpar>Limpar filtros</button></td></tr>';
-    catStatus.textContent = shown + ' de ' + PROM.length + ' promessas';
+    catStatus.textContent = shown > limite ? 'Mostrando ' + limite + ' de ' + shown + ' promessas' : shown + ' de ' + PROM.length + ' promessas';
     var falta = Math.max(0, shown - limite);
     catMais.hidden = !falta;
     catMais.textContent = 'Mostrar mais ' + Math.min(PASSO, falta);
@@ -1161,7 +1161,12 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
   fBusca.addEventListener('input', filtra);
   document.getElementById('f-clear').addEventListener('click', limpa);
   catBody.addEventListener('click', function(e){ if (e.target.closest && e.target.closest('[data-limpar]')) limpa(); });
-  catMais.addEventListener('click', function(){ limite += PASSO; renderCatalog(); });
+  catMais.addEventListener('click', function(){
+    var antes = limite; limite += PASSO; renderCatalog();
+    /* foco na 1ª linha nova (leitor de tela e teclado continuam de onde a lista cresceu) */
+    var nova = catBody.querySelectorAll('tr')[antes];
+    if (nova){ nova.setAttribute('tabindex', '-1'); nova.focus(); }
+  });
   if (CELULAR.addEventListener) CELULAR.addEventListener('change', filtra);
 
   /* ---------- 2. tema a tema ---------- */
