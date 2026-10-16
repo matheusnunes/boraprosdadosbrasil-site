@@ -27,7 +27,8 @@ PAGES = [
     ('/', 'index.html', 'Governo Bolsonaro (2019-2022) × Governo Lula (2023-2026): comparativo em dados oficiais'),
     ('/propostas/', 'propostas/index.html', 'Propostas 2026: Lula × Flávio Bolsonaro (planos de governo registrados no TSE, 2º turno)'),
     ('/balanco/', 'balanco/index.html', 'Promessas e realizações: planos de Bolsonaro (2018) e Lula (2022) × o que foi cumprido'),
-    ('/fontes/', 'fontes/index.html', 'Fontes e dados: os 32 arquivos originais'),
+    ('/fontes/', 'fontes/index.html', 'Fontes e dados: os 50 arquivos originais'),
+    ('/sobre/', 'sobre/index.html', 'Sobre e método: quem fez, as regras e como reportar um erro'),
 ]
 
 
@@ -150,7 +151,7 @@ esc = lambda s: html.escape(str(s), quote=False)
 
 # rótulos (os mesmos do JS das páginas)
 PROP_CAND = {'lula': ('Lula', 'lula', 'Lula (PT)'), 'flavio': ('Flávio', 'flavio', 'Flávio Bolsonaro (PL)')}
-PROP_ROT = {'ok': ('caminho explícito', 'chip-ok'), 'mid': ('parcial', 'chip-partial'), 'no': ('sem caminho', 'chip-warn')}
+PROP_ROT = {'ok': ('ferramenta nomeada', 'chip-ok'), 'mid': ('parcial', 'chip-partial'), 'no': ('só intenção', 'chip-warn')}
 PROP_TEMA = {'bolso': 'Bolso', 'seguranca': 'Segurança', 'servicos': 'Serviços', 'economia': 'Economia', 'ambiente': 'Ambiente e instituições'}
 BAL_CAND = {'bolsonaro': ('Bolsonaro', 'bolso', 'Bolsonaro, plano de 2018'), 'lula': ('Lula', 'lula', 'Lula, plano de 2022')}
 BAL_CAT = {'ok': ('Cumprida', 'chip-ok'), 'mid': ('Parcial', 'chip-mid'), 'no': ('Não cumprida', 'chip-no'),
@@ -231,8 +232,11 @@ FONTE_ORG = {
     'fonte-ibge': ('Instituto Brasileiro de Geografia e Estatística (IBGE)', 'https://sidra.ibge.gov.br/'),
     'fonte-tesouro-siconfi': ('Secretaria do Tesouro Nacional', 'https://www.tesourotransparente.gov.br/'),
     'fonte-federal-reserve': ('Federal Reserve Bank of New York', 'https://markets.newyorkfed.org/'),
+    'fonte-tesouro-rtn': ('Secretaria do Tesouro Nacional', 'https://www.tesourotransparente.gov.br/'),
+    'fonte-legislacao-fiscal': ('Presidência da República, Congresso Nacional e STF', 'https://www.planalto.gov.br/'),
 }
-MIME = {'pdf': 'application/pdf', 'zip': 'application/zip', 'json': 'application/json', 'jsonl': 'application/x-ndjson'}
+MIME = {'pdf': 'application/pdf', 'zip': 'application/zip', 'json': 'application/json', 'jsonl': 'application/x-ndjson',
+        'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'htm': 'text/html', 'html': 'text/html'}
 
 
 def fontes_datasets(t, site_url, modified):
@@ -274,9 +278,9 @@ def fontes_datasets(t, site_url, modified):
         '@context': 'https://schema.org',
         '@type': 'DataCatalog',
         '@id': f'{site_url}/fontes/#catalogo',
-        'name': 'Bora pros dados Brasil: fontes primárias das análises (32 arquivos oficiais)',
-        'description': 'Arquivos originais, sem tratamento, do TSE, Banco Central, IBGE, Tesouro Nacional e Federal Reserve '
-                       'usados nas análises Governo Lula × Bolsonaro, Propostas 2026 e Promessas e Realizações, com hash SHA-256.',
+        'name': 'Bora pros dados Brasil: fontes primárias das análises (50 arquivos oficiais)',
+        'description': 'Arquivos originais, sem tratamento, do TSE, Banco Central, IBGE, Tesouro Nacional, Federal Reserve, '
+                       'Planalto, Congresso e STF usados nas análises Governo Lula × Bolsonaro, Propostas 2026 e Promessas e Realizações, com hash SHA-256.',
         'url': f'{site_url}/fontes/',
         'inLanguage': 'pt-BR',
         'dateModified': modified,
@@ -302,8 +306,8 @@ def llms_full(site_url, texts, prop_data, bal_data, dates):
         out += ['', '---', '', f'## Página: {title}', f'URL: {site_url}{url}', f'Atualizada em: {mod[:10]}', '', txt, '']
         if url == '/propostas/' and prop_data:
             out += ['', '### Catálogo completo das propostas (38; 19 por candidato)',
-                    'Rótulo do “como”: caminho explícito = o plano nomeia o instrumento; parcial = instrumento para parte da medida; '
-                    'sem caminho = só declara a intenção. “pág.” = página do PDF registrado no TSE.', '']
+                    'Rótulo do “como”: ferramenta nomeada = o plano nomeia o instrumento; parcial = instrumento para parte da medida; '
+                    'só intenção = só declara a intenção. “pág.” = página do PDF registrado no TSE.', '']
             for it in prop_data:
                 out += [f'- [{it["id"]}] {PROP_CAND[it["cand"]][2]} · {it["sub"]} — rótulo: {PROP_ROT[it["rot"]][0]} (pág. {it["pags"]})',
                         f'  - O que promete: {it["what"]}', f'  - Como diz que vai fazer: {it["how"]}']
@@ -347,7 +351,10 @@ def main():
     upd_br = '%s/%s/%s' % (upd_iso[8:10], upd_iso[5:7], upd_iso[:4])
 
     n_tok = 0
+    DADOS_DIST = DIST / 'dados'
     for p in DIST.rglob('*'):
+        if DADOS_DIST in p.parents:
+            continue  # arquivos oficiais: copiados sem nenhuma alteração (o SHA-256 tem de bater)
         if p.is_file() and p.suffix.lower() in ('.html', '.xml', '.txt', '.json', '.css', '.js', '.svg'):
             s = p.read_text(encoding='utf-8')
             o = s
@@ -397,7 +404,7 @@ def main():
     # llms-full.txt (texto integral, para buscadores de IA)
     (DIST / 'llms-full.txt').write_text(llms_full(site_url, texts, prop_data, bal_data, dates), encoding='utf-8')
 
-    sobra = [str(p.relative_to(DIST)) for p in DIST.rglob('*') if p.is_file()
+    sobra = [str(p.relative_to(DIST)) for p in DIST.rglob('*') if p.is_file() and DADOS_DIST not in p.parents
              and p.suffix.lower() in ('.html', '.xml', '.txt') and any(t in p.read_text(encoding='utf-8') for t in TOKENS)]
     if sobra:
         warns.append('tokens não substituídos em: ' + ', '.join(sobra))
@@ -415,6 +422,8 @@ def main():
     # validação de links internos e dos JSON-LD
     missing, checked, n_ld = [], 0, 0
     for p in DIST.rglob('*.html'):
+        if DADOS_DIST in p.parents:
+            continue  # páginas oficiais arquivadas (STF etc.): os links delas não são do site
         t = p.read_text(encoding='utf-8')
         for m in re.finditer(r'(?:href|src)="(/[^"#?]*|[^"#?]*\.(?:css|js|png|jpg|ico|txt))"', t):
             u = m.group(1)

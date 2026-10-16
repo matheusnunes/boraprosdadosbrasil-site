@@ -53,3 +53,11 @@
     Content-Type = "text/plain; charset=utf-8"
     X-Robots-Tag = "noindex"
     Cache-Control = "public, max-age=3600"
+
+# Páginas oficiais arquivadas em /dados/legislacao-fiscal/ (Planalto, STF): são HTML de terceiros,
+# com scripts próprios: servidas como download, para não rodarem como página deste site.
+[[headers]]
+  for = "/dados/legislacao-fiscal/*"
+  [headers.values]
+    Content-Disposition = "attachment"
+    X-Robots-Tag = "noindex"
