@@ -716,13 +716,7 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
       <div id="placar-mapa"></div>
       <figcaption><strong>Fonte:</strong> catálogo desta página (67 promessas; planos registrados no TSE e vereditos em fontes oficiais) · <strong>Unidade:</strong> promessas de cada governo no tema · <strong>Nota:</strong> mandato de Lula em curso, corte em 30/09/2026.</figcaption>
     </figure>
-    <details class="q-mais" id="placar-mais">
-      <summary data-track="detalhes_abertos" data-track-label="placar-ver-mais"><span class="ao-abrir">Ver mais: a contagem de cada categoria, em número e %</span><span class="ao-fechar">Fechar</span></summary>
-      <div class="q-mais-corpo">
-    <p class="note">Antes de comparar: o mandato do Lula ainda está em curso, e cada governo tem um conjunto diferente de promessas (33 × 34). Por isso compare as porcentagens, não as quantidades. As contas foram feitas a partir do catálogo desta página (nenhum número de terceiros é usado).</p>
-    <div class="verdict2" id="placar-boxes"></div>
-      </div>
-    </details>
+    <div class="verdict2" id="placar-boxes" hidden style="display:none"></div>
   </section>
 
   <section class="chap" id="cap-bolso" data-track-section="cap-bolso" data-track-name="Bolso">
@@ -745,10 +739,8 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
     <details class="q-mais sc-mais">
       <summary data-track="detalhes_abertos" data-track-label="saiba-cap-bolso"><span class="ao-abrir">Saiba mais: as promessas de cada tema</span><span class="ao-fechar">Fechar</span></summary>
       <div class="q-mais-corpo">
-    <p class="note">Contagem dos dois lados: parciais 0 × 1 · em andamento: não se aplica × 0.</p>
     <div id="tema-impostos"></div>
     <div id="tema-trabalho"></div>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Governo Bolsonaro</b></span>, 0 cumpridas, 0 parciais, 4 não cumpridas e 3 sem evidência oficial (de 7). <span class="gl"><b>Governo Lula</b></span>, 5 cumpridas, 1 parcial, 0 em andamento, 1 não cumprida até 30/09/2026 e 0 sem evidência oficial (de 7).</div>
       </div>
     </details>
   </section>
@@ -773,11 +765,9 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
     <details class="q-mais sc-mais">
       <summary data-track="detalhes_abertos" data-track-label="saiba-cap-servicos"><span class="ao-abrir">Saiba mais: as promessas de cada tema</span><span class="ao-fechar">Fechar</span></summary>
       <div class="q-mais-corpo">
-    <p class="note">Contagem dos dois lados: parciais 3 × 4 · em andamento: não se aplica × 3.</p>
     <div id="tema-social"></div>
     <div id="tema-saude"></div>
     <div id="tema-educacao"></div>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Governo Bolsonaro</b></span>, 0 cumpridas, 3 parciais, 1 não cumprida e 1 sem evidência oficial (de 5). <span class="gl"><b>Governo Lula</b></span>, 4 cumpridas, 4 parciais, 3 em andamento, 0 não cumpridas até 30/09/2026 e 1 sem evidência oficial (de 12).</div>
       </div>
     </details>
   </section>
@@ -802,10 +792,8 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
     <details class="q-mais sc-mais">
       <summary data-track="detalhes_abertos" data-track-label="saiba-cap-estado"><span class="ao-abrir">Saiba mais: as promessas de cada tema</span><span class="ao-fechar">Fechar</span></summary>
       <div class="q-mais-corpo">
-    <p class="note">Contagem dos dois lados: parciais 0 × 0 · em andamento: não se aplica × 5.</p>
     <div id="tema-estado"></div>
     <div id="tema-infraenergia"></div>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Governo Bolsonaro</b></span>, 5 cumpridas, 0 parciais, 3 não cumpridas e 5 sem evidência oficial (de 13). <span class="gl"><b>Governo Lula</b></span>, 1 cumprida, 0 parciais, 5 em andamento, 0 não cumpridas até 30/09/2026 e 1 sem evidência oficial (de 7).</div>
       </div>
     </details>
   </section>
@@ -830,11 +818,9 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
     <details class="q-mais sc-mais">
       <summary data-track="detalhes_abertos" data-track-label="saiba-cap-seguranca"><span class="ao-abrir">Saiba mais: as promessas de cada tema</span><span class="ao-fechar">Fechar</span></summary>
       <div class="q-mais-corpo">
-    <p class="note">Contagem dos dois lados: parciais 1 × 0 · em andamento: não se aplica × 4.</p>
     <div id="tema-seguranca"></div>
     <div id="tema-meioambiente"></div>
     <div id="tema-instituicoes"></div>
-    <div class="saldo"><b>→ Saldo da seção:</b> <span class="gb"><b>Governo Bolsonaro</b></span>, 0 cumpridas, 1 parcial, 5 não cumpridas e 2 sem evidência oficial (de 8; nenhuma promessa verificável de meio ambiente no plano de 2018). <span class="gl"><b>Governo Lula</b></span>, 2 cumpridas, 0 parciais, 4 em andamento, 1 não cumprida até 30/09/2026 e 1 sem evidência oficial (de 8).</div>
       </div>
     </details>
   </section>
@@ -1192,7 +1178,7 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
       var t = TEMAS[i];
       var el = document.getElementById('tema-' + t.k);
       if (el) el.innerHTML = '<details class="tema-row"><summary data-track="detalhes_abertos" data-track-label="tema-' + t.k + '"><span class="tr-t">' + esc(t.l) + '</span><span class="tr-s">'
-        + '<span class="tr-lbl">cumpridas:</span>' + resumoTema(t.k, 'bolsonaro') + resumoTema(t.k, 'lula') + '</span></summary><div class="grid2">' + cardFor(t.k,'bolsonaro') + cardFor(t.k,'lula') + '</div></details>';
+        + '</span></summary><div class="grid2">' + cardFor(t.k,'bolsonaro') + cardFor(t.k,'lula') + '</div></details>';
     }
   }
 
