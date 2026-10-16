@@ -1049,9 +1049,10 @@
   function mancheteCurta(def) {
     var m = def.manchete; if (!m) return null;
     if (m.curta) return m.curta;
-    var t = m.texto || '', mm = t.match(/contra [^,(;]*/);
-    if (mm) return mm[0].replace(/\s+$/, '');
-    return t.split(/[(.;]/)[0].replace(/\s+$/, '');
+    // v0.4.1: vírgula decimal ("1,4%") e ponto de milhar ("R$ 1.478") não cortam a frase; corta em ";", " (", ", " ou ". "
+    var t = m.texto || '', mm = t.match(/contra (?:[^,(;.]|[,.](?=\d))*/);
+    if (mm) return mm[0].replace(/[\s,.]+$/, '');
+    return t.split(/;|\s\(|,\s|\.\s|\.$/)[0].replace(/\s+$/, '');
   }
   function blkMancheteCompacta(c, x, y, w, def) {
     if (!def.manchete) return y;
@@ -1551,6 +1552,7 @@
       y = blkCriterioCompacto(c, x, y, w, def);
       y = blkMancheteCompacta(c, x, y, w, def);
       var grC = {}, kk; for (kk in gr) grC[kk] = gr[kk]; grC.sub = gr.subCompacto || null;
+      if (grC.tipo === 'barras') grC.periodos = null;   // os anos já estão no eixo: legenda "● Bolsonaro  ■ Lula" numa linha
       if (grC.tipo === 'blocos') { grC.rodape = null; }
       y = blkGraficoTitulo(c, x, y + c.z(2), w, grC);
       c._fimGraf = y + hG;
@@ -2326,6 +2328,6 @@
     carregarFonte: function () { return Promise.all(['400', '600', '700', '800'].map(function (w) { return document.fonts.load(w + ' 20px InterVar'); })); },
     detalhes: detalhes, deck: deck, folha: folha,
     paraPNG: paraPNG, carregarLogo: carregarLogo, urlLogo: '/assets/img/logo-800.png', redesenhar: function () { redesenhar(true); redesenharCards(true); },
-    TEMAS: TEMAS, FORMATOS: FORMATOS, STATUS: STATUS, urlFonte: '/assets/fonts/inter-latin-var.woff2', versao: '0.4.0'
+    TEMAS: TEMAS, FORMATOS: FORMATOS, STATUS: STATUS, urlFonte: '/assets/fonts/inter-latin-var.woff2', versao: '0.4.1'
   };
 })(typeof window !== 'undefined' ? window : this);
