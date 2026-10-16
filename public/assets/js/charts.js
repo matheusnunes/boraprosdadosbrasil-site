@@ -1025,59 +1025,6 @@
     });
   } };
 
-
-  /* série no calendário, linhas NEUTRAS (contexto externo: tinta e cinza, nunca as cores dos lados) com faixas de governo
-   * gr = {x:['2019-01',…], series:[{nome, v:[…], estilo:'ink'|'ctx'}], faixas:[{lado, de, ate}] (índices), yMin?, yMax?,
-   *       formato, formatoEixo, anotacoes:[{i, texto}], rotuloX?:function(s){} } — acrescentado pela home (16/10/2026) */
-  GRAF.serie = { flex: true, alt: 190, desenhar: function (c, x, y, w, h, gr) {
-    var C = c.C, f = fmtFn(gr.formato), fy = fmtFn(gr.formatoEixo || gr.formato), n = gr.x.length - 1;
-    var todos = []; gr.series.forEach(function (s) { s.v.forEach(function (v) { if (v != null) todos.push(v); }); });
-    var lo = gr.yMin != null ? gr.yMin : Math.min(0, Math.min.apply(null, todos)), hi = gr.yMax != null ? gr.yMax : Math.max.apply(null, todos) * 1.08;
-    var ticks = cardTicks(lo, hi, 4).filter(function (t) { return t >= lo - 1e-9; }); hi = Math.max(hi, ticks[ticks.length - 1]);
-    if (lo !== 0) { c.q('Atenção: o eixo começa em ' + fy(lo) + ', não em zero', 12.5, 600, w).forEach(function (ln) { c.t(x, y + c.z(12), ln, 12.5, 600, C.ink2); y += c.z(17); h -= c.z(17); }); }
-    if (gr.series.length > 1) {
-      var lx = x;
-      gr.series.forEach(function (s) {
-        el('line', { x1: lx, x2: lx + c.z(16), y1: y + c.z(9), y2: y + c.z(9), stroke: s.estilo === 'ctx' ? C.muted : C.ink, 'stroke-width': c.z(2.4), 'stroke-dasharray': s.estilo === 'ctx' ? c.z(4) + ' ' + c.z(3) : null }, c.g);
-        c.t(lx + c.z(20), y + c.z(13), s.nome, 12.5, 600, C.ink2); lx += c.z(32) + c.w(s.nome, 12.5, 600);
-      });
-      y += c.z(20); h -= c.z(20);
-    }
-    var fimLab = gr.series.map(function (s) { return f(s.v[s.v.length - 1]); });
-    var axW = Math.max.apply(null, ticks.map(function (t) { return c.w(fy(t), 12.5); })) + c.z(6);
-    var endW = Math.max.apply(null, fimLab.map(function (l) { return c.w(l, 13, 800); })) + c.z(10);
-    var pl = x + axW + c.z(6), pr = x + w - endW, top = y + c.z(24), bot = y + h - c.z(18);
-    var X = function (i) { return pl + i / n * (pr - pl); }, Y = function (v) { return bot - (v - lo) / (hi - lo) * (bot - top); };
-    (gr.faixas || []).forEach(function (fx) {
-      var xa = X(fx.de), xb = X(fx.ate);
-      el('rect', { x: xa, y: top - c.z(22), width: Math.max(0, xb - xa), height: bot - top + c.z(22), fill: fx.lado === 'b' ? 'rgba(20,121,176,.09)' : 'rgba(114,80,251,.09)' }, c.g);
-      c.marca(fx.lado, xa + c.z(9), top - c.z(11), 7);
-      c.t(xa + c.z(16), top - c.z(7), c.L[fx.lado].curto, 12.5, 700, C.ink2);
-    });
-    ticks.forEach(function (t) {
-      el('line', { x1: pl, x2: pr, y1: Y(t), y2: Y(t), stroke: C.grid, 'stroke-width': c.z(1) }, c.g);
-      c.t(pl - c.z(6), Y(t) + c.z(4.5), fy(t), 12.5, 400, C.muted, 'end');
-    });
-    var rx = gr.rotuloX || function (s) { return s.slice(5, 7) === '01' && (+s.slice(0, 4)) % 2 === 1 ? s.slice(0, 4) : ''; };
-    gr.x.forEach(function (s, i) { var r = rx(s); if (r) c.t(X(i), bot + c.z(15), r, 12.5, 400, C.muted, 'middle'); });
-    (gr.anotacoes || []).forEach(function (a, j) {
-      var xa = X(a.i), lw = c.w(a.texto, 12.5, 600), dir = xa + lw + c.z(6) > pr, dy = c.z(18 * j);
-      el('line', { x1: xa, x2: xa, y1: top, y2: bot, stroke: C.axis, 'stroke-width': c.z(1) }, c.g);
-      el('rect', { x: dir ? xa - lw - c.z(6) : xa + c.z(2), y: top + c.z(2) + dy, width: lw + c.z(4), height: c.z(16), fill: C.fundo, opacity: 0.85 }, c.g);
-      c.t(dir ? xa - c.z(4) : xa + c.z(4), top + c.z(14) + dy, a.texto, 12.5, 600, C.ink2, dir ? 'end' : 'start');
-    });
-    var fins = [];
-    gr.series.forEach(function (s, k) {
-      var d = '';
-      s.v.forEach(function (v, i) { if (v != null) d += (d ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(v).toFixed(1); });
-      el('path', { d: d, fill: 'none', stroke: s.estilo === 'ctx' ? C.muted : C.ink, 'stroke-width': c.z(s.estilo === 'ctx' ? 2.2 : 2.6), 'stroke-dasharray': s.estilo === 'ctx' ? c.z(5) + ' ' + c.z(4) : null, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, c.g);
-      fins.push({ y: Y(s.v[s.v.length - 1]), lab: fimLab[k] });
-    });
-    fins.sort(function (a, b) { return a.y - b.y; });
-    if (fins.length > 1 && fins[1].y - fins[0].y < c.z(16)) { var m = (fins[0].y + fins[1].y) / 2; fins[0].y = m - c.z(8); fins[1].y = m + c.z(8); }
-    fins.forEach(function (fi) { c.t(pr + c.z(6), fi.y + c.z(4.5), fi.lab, 13, 800, C.ink); });
-  } };
-
   /* linha anual com faixas de governo (anos de calendário) */
   GRAF.anual = { flex: true, alt: 200, desenhar: function (c, x, y, w, h, gr) {
     var C = c.C, f = fmtFn(gr.formato), fy = fmtFn(gr.formatoEixo || gr.formato), anos = gr.anos, n = anos.length - 1;
@@ -1128,6 +1075,68 @@
         c.t(anc === 'start' ? X(i) - c.z(4) : anc === 'end' ? X(i) + c.z(4) : X(i), ly, lab, 13, 800, C.ink, anc);
       }
     });
+  } };
+
+  /* série no calendário, linhas NEUTRAS (contexto externo: tinta e cinza, nunca as cores dos lados) com faixas de governo
+   * gr = {x:['2019-01',…], series:[{nome, v:[…], estilo:'ink'|'ctx'}], faixas:[{lado, de, ate}] (índices), yMin?, yMax?,
+   *       formato, formatoEixo, anotacoes:[{i, texto}], rotuloX?:function(s){} } — acrescentado pela home (16/10/2026); revisado na v0.3.6 */
+  GRAF.serie = { flex: true, alt: 190, desenhar: function (c, x, y, w, h, gr) {
+    var C = c.C, f = fmtFn(gr.formato), fy = fmtFn(gr.formatoEixo || gr.formato), n = gr.x.length - 1;
+    var todos = []; gr.series.forEach(function (s) { s.v.forEach(function (v) { if (v != null) todos.push(v); }); });
+    var lo = gr.yMin != null ? gr.yMin : Math.min(0, Math.min.apply(null, todos)), hi = gr.yMax != null ? gr.yMax : Math.max.apply(null, todos) * 1.08;
+    var ticks = cardTicks(lo, hi, 4).filter(function (t) { return t >= lo - 1e-9; }); hi = Math.max(hi, ticks[ticks.length - 1]);
+    if (lo !== 0) { c.q('Atenção: o eixo começa em ' + fy(lo) + ', não em zero', 12.5, 600, w).forEach(function (ln) { c.t(x, y + c.z(12), ln, 12.5, 600, C.ink2); y += c.z(17); h -= c.z(17); }); }
+    if (gr.series.length > 1) {
+      var lx = x;
+      gr.series.forEach(function (s) {
+        el('line', { x1: lx, x2: lx + c.z(16), y1: y + c.z(9), y2: y + c.z(9), stroke: s.estilo === 'ctx' ? C.muted : C.ink, 'stroke-width': c.z(2.4), 'stroke-dasharray': s.estilo === 'ctx' ? c.z(4) + ' ' + c.z(3) : null }, c.g);
+        c.t(lx + c.z(20), y + c.z(13), s.nome, 12.5, 600, C.ink2); lx += c.z(32) + c.w(s.nome, 12.5, 600);
+      });
+      y += c.z(20); h -= c.z(20);
+    }
+    var ultimo = function (s) { for (var j = s.v.length - 1; j >= 0; j--) if (s.v[j] != null) return j; return 0; };
+    var fimLab = gr.series.map(function (s) { return f(s.v[ultimo(s)]); });
+    var axW = Math.max.apply(null, ticks.map(function (t) { return c.w(fy(t), 12.5); })) + c.z(6);
+    var endW = Math.max.apply(null, fimLab.map(function (l) { return c.w(l, 13, 800); })) + c.z(10);
+    var pl = x + axW + c.z(6), pr = x + w - endW, top = y + c.z(24), bot = y + h - c.z(18);
+    var X = function (i) { return pl + i / n * (pr - pl); }, Y = function (v) { return bot - (v - lo) / (hi - lo) * (bot - top); };
+    (gr.faixas || []).forEach(function (fx) {
+      var xa = X(fx.de), xb = X(fx.ate);
+      el('rect', { x: xa, y: top - c.z(22), width: Math.max(0, xb - xa), height: bot - top + c.z(22), fill: fx.lado === 'b' ? 'rgba(20,121,176,.09)' : 'rgba(114,80,251,.09)' }, c.g);
+      if (c.w(c.L[fx.lado].curto, 12.5, 700) + c.z(20) <= xb - xa) {   // rótulo só se couber na faixa
+        c.marca(fx.lado, xa + c.z(9), top - c.z(11), 7);
+        c.t(xa + c.z(16), top - c.z(7), c.L[fx.lado].curto, 12.5, 700, C.ink2);
+      }
+    });
+    ticks.forEach(function (t) {
+      el('line', { x1: pl, x2: pr, y1: Y(t), y2: Y(t), stroke: C.grid, 'stroke-width': c.z(1) }, c.g);
+      c.t(pl - c.z(6), Y(t) + c.z(4.5), fy(t), 12.5, 400, C.muted, 'end');
+    });
+    var rx = gr.rotuloX || function (s) { return s.slice(5, 7) === '01' && (+s.slice(0, 4)) % 2 === 1 ? s.slice(0, 4) : ''; };
+    var ultX = -1e9;
+    gr.x.forEach(function (s, i) {
+      var r = rx(s); if (!r) return; var lw = c.w(r, 12.5), ini = i === 0, esq = ini ? X(i) : X(i) - lw / 2;
+      if (esq < ultX + c.z(4) || esq + lw > x + w) return;
+      c.t(X(i), bot + c.z(15), r, 12.5, 400, C.muted, ini ? 'start' : 'middle'); ultX = esq + lw;
+    });
+    (gr.anotacoes || []).forEach(function (a, j) {
+      var xa = X(a.i), lw = c.w(a.texto, 12.5, 600), dir = xa + lw + c.z(6) > pr, dy = c.z(18 * j);
+      el('line', { x1: xa, x2: xa, y1: top, y2: bot, stroke: C.axis, 'stroke-width': c.z(1) }, c.g);
+      el('rect', { x: dir ? xa - lw - c.z(6) : xa + c.z(2), y: top + c.z(2) + dy, width: lw + c.z(4), height: c.z(16), fill: C.fundo, opacity: 0.85 }, c.g);
+      c.t(dir ? xa - c.z(4) : xa + c.z(4), top + c.z(14) + dy, a.texto, 12.5, 600, C.ink2, dir ? 'end' : 'start');
+    });
+    var fins = [];
+    gr.series.forEach(function (s, k) {
+      var d = '';
+      s.v.forEach(function (v, i) { if (v != null) d += (d ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(v).toFixed(1); });
+      el('path', { d: d, fill: 'none', stroke: s.estilo === 'ctx' ? C.muted : C.ink, 'stroke-width': c.z(s.estilo === 'ctx' ? 2.2 : 2.6), 'stroke-dasharray': s.estilo === 'ctx' ? c.z(5) + ' ' + c.z(4) : null, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, c.g);
+      var j = ultimo(s);
+      el('circle', { cx: X(j), cy: Y(s.v[j]), r: c.z(3.5), fill: s.estilo === 'ctx' ? C.muted : C.ink, stroke: C.fundo, 'stroke-width': c.z(1.5) }, c.g);
+      fins.push({ y: Y(s.v[j]), lab: fimLab[k] });
+    });
+    fins.sort(function (a, b) { return a.y - b.y; });
+    if (fins.length > 1 && fins[1].y - fins[0].y < c.z(16)) { var m = (fins[0].y + fins[1].y) / 2; fins[0].y = m - c.z(8); fins[1].y = m + c.z(8); }
+    fins.forEach(function (fi) { c.t(pr + c.z(6), fi.y + c.z(4.5), fi.lab, 13, 800, C.ink); });
   } };
 
   /* barras ano a ano de mandato (1º ano × 1º ano ...) */
@@ -1437,6 +1446,14 @@
     }
     if (def.manchete) p.push(def.manchete.valor + ' ' + def.manchete.texto + '.');
     if (def.valores && def.formatoValores) { var f = fmtFn(def.formatoValores); p.push(L.b.nome + ': ' + f(def.valores.b) + '; ' + L.l.nome + ': ' + f(def.valores.l) + '.'); }
+    if (def.grafico && def.grafico.tipo === 'serie') {
+      var gs = def.grafico, fs2 = fmtFn(gs.formato);
+      gs.series.forEach(function (sr) {
+        var i0 = 0, i1 = sr.v.length - 1; while (i0 < i1 && sr.v[i0] == null) i0++; while (i1 > i0 && sr.v[i1] == null) i1--;
+        var mx = -Infinity, imx = i0; sr.v.forEach(function (v, i) { if (v != null && v > mx) { mx = v; imx = i; } });
+        p.push(sr.nome + ': ' + fs2(sr.v[i0]) + ' em ' + gs.x[i0] + ', máximo de ' + fs2(mx) + ' em ' + gs.x[imx] + ', ' + fs2(sr.v[i1]) + ' em ' + gs.x[i1] + '.');
+      });
+    }
     if (def.mudaria) p.push('O que mudaria o resultado: ' + def.mudaria + '.');
     p.push('Fonte: ' + def.fonte + '.');
     return p.join(' ');
@@ -1748,6 +1765,6 @@
     promessas: promessas, resumo: resumo, card: card, montarCard: montarCard, carrossel: carrossel, cardPNG: cardPNG, cardSintese: cardSintese, cardSelecao: cardSelecao,
     carregarFonte: function () { return Promise.all(['400', '600', '700', '800'].map(function (w) { return document.fonts.load(w + ' 20px InterVar'); })); },
     paraPNG: paraPNG, redesenhar: function () { redesenhar(true); redesenharCards(true); },
-    TEMAS: TEMAS, FORMATOS: FORMATOS, STATUS: STATUS, urlFonte: '/assets/fonts/inter-latin-var.woff2', versao: '0.3.5'
+    TEMAS: TEMAS, FORMATOS: FORMATOS, STATUS: STATUS, urlFonte: '/assets/fonts/inter-latin-var.woff2', versao: '0.3.6'
   };
 })(typeof window !== 'undefined' ? window : this);
