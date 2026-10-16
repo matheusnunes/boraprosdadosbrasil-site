@@ -8,6 +8,8 @@
  *   BPD.distribuicao(el, opts)  ganho real por faixa de renda (P10…P99)
  *   BPD.promessas(el, opts)     barra 100% empilhada por categoria (cumprida/parcial/…)
  *   BPD.resumo(el, opts)        "Resumo em 1 minuto": placar + duelos compactos numa só imagem
+ *   BPD.card / cardSintese      cards para compartilhar (feed, story, og) e fechamento de carrossel
+ *   BPD.cardSelecao(el, opts)   imagem única de uma seleção /c/1-3-5 (título neutro, contexto no rodapé)
  *   BPD.paraPNG(svg, escala)    Promise<Blob> PNG da imagem (para compartilhar)
  *
  * Cada função devolve o <svg>. O SVG traz <title>/<desc> (leitor de tela) e, se
@@ -756,26 +758,487 @@
     });
   }
 
-  /* ---------- exportar PNG (para o botão "compartilhar imagem") ---------- */
-  function paraPNG(svg, escala) {
+  /* ---------- exportar PNG (para o botão "compartilhar imagem") ----------
+   * paraPNG(svg, escala, urlFonte?): com urlFonte (ex.: '/assets/fonts/inter-latin-var.woff2') a fonte
+   * vai embutida no SVG antes de rasterizar; sem ela, o navegador usa a fonte do sistema no PNG. */
+  var _fonte64 = {};
+  function fonteBase64(url) {
+    if (_fonte64[url]) return Promise.resolve(_fonte64[url]);
+    return fetch(url).then(function (r) { return r.arrayBuffer(); }).then(function (buf) {
+      var b = new Uint8Array(buf), s = '', i;
+      for (i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
+      _fonte64[url] = btoa(s); return _fonte64[url];
+    });
+  }
+  function paraPNG(svg, escala, urlFonte) {
     escala = escala || 2;
     var w = +svg.getAttribute('width'), h = +svg.getAttribute('height');
-    var xml = new XMLSerializer().serializeToString(svg);
-    var url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
-    return new Promise(function (ok, erro) {
-      var img = new Image();
-      img.onload = function () {
-        var cv = document.createElement('canvas'); cv.width = w * escala; cv.height = h * escala;
-        var cx = cv.getContext('2d'); cx.scale(escala, escala); cx.drawImage(img, 0, 0);
-        cv.toBlob(function (b) { b ? ok(b) : erro(new Error('toBlob falhou')); }, 'image/png');
-      };
-      img.onerror = erro; img.src = url;
+    var prep = urlFonte ? fonteBase64(urlFonte) : Promise.resolve(null);
+    return prep.then(function (b64) {
+      var clone = svg.cloneNode(true);
+      clone.setAttribute('width', w); clone.setAttribute('height', h);
+      clone.removeAttribute('style');
+      if (b64) {
+        var st = document.createElementNS(NS, 'style');
+        st.textContent = "@font-face{font-family:'InterVar';font-weight:100 900;src:url(data:font/woff2;base64," + b64 + ") format('woff2')}";
+        clone.insertBefore(st, clone.firstChild);
+      }
+      var xml = new XMLSerializer().serializeToString(clone);
+      var url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+      return new Promise(function (ok, erro) {
+        var img = new Image();
+        img.onload = function () {
+          var cv = document.createElement('canvas'); cv.width = w * escala; cv.height = h * escala;
+          var cx = cv.getContext('2d'); cx.scale(escala, escala); cx.drawImage(img, 0, 0);
+          cv.toBlob(function (b) { b ? ok(b) : erro(new Error('toBlob falhou')); }, 'image/png');
+        };
+        img.onerror = erro; img.src = url;
+      });
     });
+  }
+
+  /* =====================================================================
+   * CARD para compartilhar (feed 1080×1350 · story 1080×1920 · og 1200×630)
+   * BPD.card(el, {
+   *   formato: 'feed'|'story'|'og', variante: 'trajetoria'|'barras'|'duelo',
+   *   indicador: 'Inflação', criterio: 'menor'|'maior', criterioTexto?,
+   *   destaque: { rotulo, sub, valores:{b,l}, formato, periodo:{b,l} },   // decide o vencedor
+   *   manchete: { valor: '4,6%', texto: '...' },                            // número do lado à frente
+   *   grafico: { titulo, sub, ... dados da variante },
+   *   fonte, periodo, dados (até quando), url, atualizado, provisorio, nota, lados
+   * })
+   * O vencedor é calculado pelo critério sobre destaque.valores (o título nunca é digitado à mão).
+   * Sempre tema claro (é imagem para circular fora do site). Tamanho real em px: exporta 1:1.
+   * ===================================================================== */
+  var FORMATOS = {
+    feed: { W: 1080, H: 1350, P: 72, topo: 0, base: 0, k: 1 },
+    story: { W: 1080, H: 1920, P: 72, topo: 250, base: 250, k: 1 },
+    og: { W: 1200, H: 630, P: 44, topo: 0, base: 0, k: 0.62 }
+  };
+  var CARD = { fundo: '#fbfbf9', ink: '#18181b', ink2: '#3f3f46', muted: '#63636b', grid: '#e7e7e4', axis: '#a1a1aa', area: 'rgba(113,113,122,.16)' };
+
+  function cardTexto(g, x, y, s, size, weight, fill, anchor, ls) {
+    var t = texto(g, x, y, s, { size: size, weight: weight, fill: fill, anchor: anchor });
+    if (ls) t.setAttribute('letter-spacing', ls);
+    return t;
+  }
+  function cardTicks(lo, hi, n) {
+    var span = hi - lo, passo = Math.pow(10, Math.floor(Math.log(span / n) / Math.LN10)), err = span / n / passo;
+    passo *= err >= 7.5 ? 10 : err >= 3.5 ? 5 : err >= 1.5 ? 2 : 1;
+    var t = [], v = Math.floor(lo / passo) * passo;
+    for (; v <= hi + passo * 0.001; v += passo) t.push(+v.toFixed(6));
+    return t;
+  }
+  function cardHatch(defs, cor, id) {
+    var pat = el('pattern', { id: id, patternUnits: 'userSpaceOnUse', width: 14, height: 14, patternTransform: 'rotate(45)' }, defs);
+    el('rect', { width: 14, height: 14, fill: '#ffffff' }, pat);
+    el('rect', { width: 7, height: 14, fill: cor }, pat);
+    return 'url(#' + id + ')';
+  }
+
+  /* -- variante 1: trajetória sobreposta ("meses desde a posse") -- */
+  function cardTrajetoria(g, defs, x, y, w, h, k, gr, L, T) {
+    var f = fmtFn(gr.formato), n = Math.max(gr.b.length, gr.l.length) - 1;
+    var todos = gr.b.concat(gr.l).filter(function (v) { return v != null; });
+    var lo = Math.min(0, Math.min.apply(null, todos)), hi = Math.max(0, Math.max.apply(null, todos));
+    var ticks = cardTicks(lo, hi, 4); lo = Math.min(lo, ticks[0]); hi = Math.max(hi, ticks[ticks.length - 1]);
+    var fy = fmtFn(gr.formatoEixo || gr.formato);
+    var axW = Math.max.apply(null, ticks.map(function (t) { return largura(fy(t), 24 * k, 400); })) + 14 * k;
+    var endW = 230 * k, pl = x + axW, pr = x + w - endW, top = y + 10 * k, bot = y + h - 44 * k;
+    var X = function (i) { return pl + i / n * (pr - pl); }, Y = function (v) { return bot - (v - lo) / (hi - lo) * (bot - top); };
+    ticks.forEach(function (t) {
+      el('line', { x1: pl, x2: pr, y1: Y(t), y2: Y(t), stroke: t === 0 ? CARD.axis : CARD.grid, 'stroke-width': t === 0 ? 2 * k : 1.5 * k }, g);
+      cardTexto(g, pl - 12 * k, Y(t) + 8 * k, fy(t), 24 * k, 400, CARD.muted, 'end');
+    });
+    var passoX = gr.passoX || 12;
+    for (var i = 0; i <= n; i += passoX) cardTexto(g, X(i) - (i === 0 ? 4 * k : 0), bot + 32 * k, i === 0 ? 'Posse' : String(i), 24 * k, 400, CARD.muted, i === 0 ? 'start' : 'middle');
+    if (gr.rotuloX) cardTexto(g, pr, bot + 32 * k + 30 * k, gr.rotuloX, 22 * k, 400, CARD.muted, 'end');
+    // área entre as curvas (neutra: cinza, nunca a cor de um lado)
+    var m = Math.min(gr.b.length, gr.l.length) - 1, d = '';
+    for (i = 0; i <= m; i++) d += (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(gr.b[i]).toFixed(1);
+    for (i = m; i >= 0; i--) d += 'L' + X(i).toFixed(1) + ',' + Y(gr.l[i]).toFixed(1);
+    el('path', { d: d + 'Z', fill: CARD.area }, g);
+    if (gr.marcaMes != null) {
+      el('line', { x1: X(gr.marcaMes), x2: X(gr.marcaMes), y1: top, y2: bot, stroke: CARD.axis, 'stroke-width': 1.5 * k, 'stroke-dasharray': (6 * k) + ' ' + (5 * k) }, g);
+      if (gr.marcaTexto) cardTexto(g, X(gr.marcaMes) - 8 * k, bot - 12 * k, gr.marcaTexto, 22 * k, 600, CARD.ink2, 'end');
+    }
+    var fins = [];
+    ORDEM.forEach(function (lado) {
+      var v = gr[lado], dd = '';
+      v.forEach(function (val, j) { if (val != null) dd += (dd ? 'L' : 'M') + X(j).toFixed(1) + ',' + Y(val).toFixed(1); });
+      el('path', { d: dd, fill: 'none', stroke: T[lado], 'stroke-width': 6 * k, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, g);
+      var j = v.length - 1; marca(g, lado, X(j), Y(v[j]), 18 * k, T);
+      fins.push({ lado: lado, x: X(j), y: Y(v[j]), v: v[j] });
+    });
+    // rótulo direto no fim da linha (afasta os dois se colidirem; fio liga ao ponto)
+    fins.sort(function (a, b) { return a.y - b.y; });
+    var alt = (gr.fim ? 124 : 80) * k, lim0 = top + 24 * k, lim1 = bot - (gr.fim ? 60 : 34) * k;
+    fins[0].ly = fins[0].y; fins[1].ly = fins[1].y;
+    if (fins[1].ly - fins[0].ly < alt) { var mid = (fins[0].y + fins[1].y) / 2; fins[0].ly = mid - alt / 2; fins[1].ly = mid + alt / 2; }
+    if (fins[1].ly > lim1) { fins[1].ly = lim1; fins[0].ly = Math.min(fins[0].ly, lim1 - alt); }
+    if (fins[0].ly < lim0) { fins[0].ly = lim0; fins[1].ly = Math.max(fins[1].ly, lim0 + alt); }
+    fins.forEach(function (fi) {
+      var ly = fi.ly != null ? fi.ly : fi.y, lx = pr + 26 * k;
+      el('line', { x1: fi.x + 12 * k, x2: lx - 6 * k, y1: fi.y, y2: ly, stroke: CARD.axis, 'stroke-width': 1.5 * k }, g);
+      cardTexto(g, lx, ly - 10 * k, L[fi.lado].curto.toUpperCase(), 20 * k, 700, CARD.ink2, 'start', 1 * k);
+      cardTexto(g, lx, ly + 30 * k, f(fi.v), 40 * k, 800, CARD.ink, 'start');
+      if (gr.fim && gr.fim[fi.lado]) cardTexto(g, lx, ly + 56 * k, gr.fim[fi.lado], 20 * k, 400, CARD.muted, 'start');
+    });
+  }
+
+  /* -- variante 2: barras ano a ano de mandato (1º ano × 1º ano ...) -- */
+  function cardBarras(g, defs, x, y, w, h, k, gr, L, T) {
+    var f = fmtFn(gr.formato), G = gr.grupos;
+    var vals = []; G.forEach(function (q) { vals.push(q.b.v, q.l.v); });
+    var hi = Math.max.apply(null, vals), ticks = cardTicks(0, hi * 1.2, 4); hi = Math.max(ticks[ticks.length - 1], hi * 1.2);
+    var fy = fmtFn(gr.formatoEixo || gr.formato);
+    var axW = Math.max.apply(null, ticks.map(function (t) { return largura(fy(t), 22 * k, 400); })) + 14 * k;
+    // legenda com forma
+    var lx = x + axW;
+    ORDEM.forEach(function (lado) {
+      marca(g, lado, lx + 9 * k, y + 12 * k, 18 * k, T);
+      var s = L[lado].nome + (L[lado].periodo ? ' · ' + L[lado].periodo : '');
+      cardTexto(g, lx + 26 * k, y + 20 * k, s, 22 * k, 600, CARD.ink2);
+      lx += largura(s, 22 * k, 600) + 60 * k;
+    });
+    var pl = x + axW, pr = x + w, top = y + 92 * k, bot = y + h - 70 * k;
+    var Y = function (v) { return bot - v / hi * (bot - top); };
+    ticks.forEach(function (t) {
+      el('line', { x1: pl, x2: pr, y1: Y(t), y2: Y(t), stroke: t === 0 ? CARD.axis : CARD.grid, 'stroke-width': (t === 0 ? 2 : 1.5) * k }, g);
+      cardTexto(g, pl - 12 * k, Y(t) + 8 * k, fy(t), 22 * k, 400, CARD.muted, 'end');
+    });
+    var gw = (pr - pl) / G.length, bw = Math.min(110 * k, gw * 0.34), gap = 8 * k;
+    G.forEach(function (q, gi) {
+      var cx = pl + gw * gi + gw / 2;
+      ORDEM.forEach(function (lado, li) {
+        var bx = li === 0 ? cx - gap / 2 - bw : cx + gap / 2, it = q[lado];
+        var fill = q.parcial ? cardHatch(defs, T[lado], 'h' + lado + gi + Math.random().toString(36).slice(2, 6)) : T[lado];
+        var yb = Y(it.v), r = Math.min(6 * k, bw / 2);
+        el('path', { d: 'M' + bx + ',' + bot + 'V' + (yb + r) + 'Q' + bx + ',' + yb + ' ' + (bx + r) + ',' + yb + 'H' + (bx + bw - r) + 'Q' + (bx + bw) + ',' + yb + ' ' + (bx + bw) + ',' + (yb + r) + 'V' + bot + 'Z', fill: fill, stroke: q.parcial ? T[lado] : 'none', 'stroke-width': 2 * k }, g);
+        cardTexto(g, bx + bw / 2, yb - 12 * k, f(it.v), 28 * k, 800, CARD.ink, 'middle');
+        cardTexto(g, bx + bw / 2, bot + 30 * k, it.rot, 22 * k, lado === 'l' || lado === 'b' ? 600 : 400, CARD.ink2, 'middle');
+      });
+      cardTexto(g, cx, bot + 60 * k, q.rotulo + (q.parcial ? ' · ' + q.parcial : ''), 21 * k, 400, CARD.muted, 'middle');
+    });
+  }
+
+  /* -- variante 3: duelo (dois valores, barras horizontais a partir de zero) -- */
+  function cardDuelo(g, defs, x, y, w, h, k, gr, L, T, venc) {
+    var f = fmtFn(gr.formato), vals = ORDEM.map(function (l) { return gr.valores[l]; });
+    var hi = Math.max.apply(null, vals), labW = Math.max.apply(null, vals.map(function (v) { return largura(f(v), 56 * k, 800); })) + 24 * k;
+    var pl = x, pr = x + w - labW, bh = Math.min(96 * k, h / 5), yy = y + 20 * k;
+    ORDEM.forEach(function (lado) {
+      marca(g, lado, x + 12 * k, yy + 14 * k, 22 * k, T);
+      cardTexto(g, x + 34 * k, yy + 24 * k, L[lado].nome + (L[lado].periodo ? ' · ' + L[lado].periodo : ''), 28 * k, 700, CARD.ink);
+      if (venc === lado) {
+        var sw = largura('✓ à frente', 22 * k, 700) + 26 * k, sh = 36 * k;
+        el('rect', { x: x + w - sw, y: yy - 4 * k, width: sw, height: sh, rx: sh / 2, fill: T[lado] }, g);
+        cardTexto(g, x + w - sw / 2, yy - 4 * k + sh * 0.68, '✓ à frente', 22 * k, 700, '#ffffff', 'middle');
+      }
+      yy += 44 * k;
+      barra(g, pl, pl + Math.max(4, gr.valores[lado] / hi * (pr - pl)), yy, bh, T[lado]);
+      cardTexto(g, pl + gr.valores[lado] / hi * (pr - pl) + 16 * k, yy + bh / 2 + 20 * k, f(gr.valores[lado]), 56 * k, 800, CARD.ink);
+      yy += bh + 10 * k;
+      if (gr.sub && gr.sub[lado]) { cardTexto(g, x, yy + 26 * k, gr.sub[lado], 26 * k, 400, CARD.ink2); yy += 40 * k; }
+      yy += 34 * k;
+    });
+  }
+
+  function desenharCard(cont, o) {
+    var F = FORMATOS[o.formato || 'feed'], W = F.W, H = F.H, P = F.P, k = F.k, T = TEMAS.light, L = lados(o);
+    var dv = o.destaque, fd = fmtFn(dv.formato);
+    var venc = vencedor({ criterio: o.criterio, valores: dv.valores, titulo: o.indicador });
+    var svg = el('svg', { xmlns: NS, width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'font-family': FONTE });
+    svg.style.display = 'block'; svg.style.width = '100%'; svg.style.height = 'auto';
+    var titulo = o.indicador + ': ' + (venc ? L[venc].nome + ' à frente' : 'sem vencedor');
+    var tt = el('title', null, svg); tt.textContent = titulo;
+    var dd = el('desc', null, svg);
+    dd.textContent = titulo + '. ' + (dv.rotulo || '') + ': ' + L.b.nome + ' ' + fd(dv.valores.b) + '; ' + L.l.nome + ' ' + fd(dv.valores.l) + '. Critério: ' + textoCriterio(o) + '. Fonte: ' + o.fonte + '.';
+    var defs = el('defs', null, svg);
+    el('rect', { x: 0, y: 0, width: W, height: H, fill: CARD.fundo }, svg);
+    var g = el('g', null, svg);
+    var og = o.formato === 'og';
+    var colW = og ? 560 : W - 2 * P;           // coluna de texto
+    var y = P + F.topo;
+
+    // 1. marca + selo provisório
+    cardTexto(g, P, y + 22 * k + (og ? 4 : 0), 'BORA PROS DADOS BRASIL', (og ? 18 : 24 * k), 800, CARD.muted, 'start', 2 * k);
+    if (o.provisorio) {
+      var ps = 'PROVISÓRIO · aguardando checagem', pw = largura(ps, 20 * (og ? 0.85 : k), 700) + 28;
+      el('rect', { x: W - P - pw, y: y - 6, width: pw, height: 40 * (og ? 0.85 : 1), rx: 8, fill: '#ffffff', stroke: CARD.ink2, 'stroke-width': 2, 'stroke-dasharray': '7 5' }, g);
+      cardTexto(g, W - P - pw / 2, y + 20 * (og ? 0.85 : 1), ps, 20 * (og ? 0.85 : k), 700, CARD.ink2, 'middle');
+    }
+    y += (og ? 48 : 70 * k);
+
+    // 2. título neutro: "<Indicador>:" + linha do vencedor com forma e sublinhado na cor do lado (mesmo desenho p/ os dois)
+    // tamanho do título: o maior em que "<nome mais longo dos dois lados> à frente" cabe numa linha (igual p/ qualquer vencedor)
+    var ts = og ? 40 : 66;
+    var maisLongo = largura(L.b.nome + ' à frente', 10, 800) > largura(L.l.nome + ' à frente', 10, 800) ? L.b.nome : L.l.nome;
+    while (ts > (og ? 28 : 40) && largura(maisLongo + ' à frente', ts, 800) + ts * 0.82 > colW) ts -= 2;
+    var lh = ts * 1.12;
+    quebra(o.indicador + ':', ts, 800, colW).forEach(function (ln) { y += lh; cardTexto(g, P, y - ts * 0.22, ln, ts, 800, CARD.ink); });
+    if (venc) {
+      var nomeV = L[venc].nome + ' à frente';
+      var linhasV = quebra(nomeV, ts, 800, colW - ts * 0.9);
+      linhasV.forEach(function (ln, j) {
+        y += lh;
+        if (j === 0) marca(g, venc, P + ts * 0.32, y - ts * 0.55, ts * 0.52, T);
+        var tx = P + ts * 0.82;
+        cardTexto(g, tx, y - ts * 0.22, ln, ts, 800, CARD.ink);
+        el('rect', { x: tx, y: y - ts * 0.08, width: largura(ln, ts, 800), height: ts * 0.1, rx: ts * 0.05, fill: T[venc] }, g);
+      });
+    }
+    y += og ? 14 : 22 * k;
+    // critério
+    var cs = og ? 18 : 28;
+    cardTexto(g, P, y + cs, textoCriterio(o) + (o.criterioDetalhe ? ' · ' + o.criterioDetalhe : ''), cs, 600, CARD.ink2);
+    y += cs + (og ? 18 : 34);
+
+    // 3. manchete numérica (valor do lado à frente + frase com os dois lados)
+    if (o.manchete) {
+      var ms = og ? 76 : (o.formato === 'story' ? 140 : 116), mw = largura(o.manchete.valor, ms, 800);
+      var tx2 = P + mw + (og ? 18 : 32), tw = (og ? P + colW : W - P) - tx2, tl = quebra(o.manchete.texto, og ? 17 : 28, 400, tw);
+      var bloco = Math.max(ms * 0.95, tl.length * (og ? 22 : 36));
+      cardTexto(g, P, y + ms * 0.82, o.manchete.valor, ms, 800, CARD.ink);
+      tl.forEach(function (ln, j) { cardTexto(g, tx2, y + (og ? 22 : 36) * (j + 1) + Math.max(0, (ms * 0.82 - tl.length * (og ? 22 : 36)) / 2), ln, og ? 17 : 28, j === 0 ? 700 : 400, j === 0 ? CARD.ink : CARD.ink2); });
+      y += bloco + (og ? 16 : 30);
+    }
+
+    // rodapé (de baixo para cima): fonte/URL, depois "comparação em destaque"
+    var fs = og ? 15 : 22, linhasF = [];
+    var fonteTxt = 'Fonte: ' + o.fonte + (o.periodo ? ' · Período: ' + o.periodo : '') + (o.dados ? ' · Dados até ' + o.dados : '');
+    linhasF = quebra(fonteTxt, fs, 400, W - 2 * P);
+    var urlTxt = (o.url || SITE) + (o.atualizado ? ' · atualizado em ' + o.atualizado : '');
+    var yRod = H - P - F.base - (linhasF.length + 1) * (fs * 1.4);
+    if (o.nota) { var nl = quebra(o.nota, fs, 400, W - 2 * P); yRod -= nl.length * fs * 1.4 + 6; }
+    var yF = yRod;
+    if (o.nota) quebra(o.nota, fs, 400, W - 2 * P).forEach(function (ln) { yF += fs * 1.4; cardTexto(g, P, yF, ln, fs, 400, CARD.ink2); });
+    if (o.nota) yF += 6;
+    linhasF.forEach(function (ln) { yF += fs * 1.4; cardTexto(g, P, yF, ln, fs, 400, CARD.muted); });
+    yF += fs * 1.4; cardTexto(g, P, yF, urlTxt, fs, 700, CARD.ink2);
+
+    // comparação em destaque (dois lados, colunas iguais, mesmo desenho; selo "✓ à frente" no lado à frente)
+    var dx0 = P, dW = og ? colW : W - 2 * P, nsz = og ? 14 : 22, dH = og ? 132 : 184, yD;
+    yD = og ? y + 4 : yRod - dH - 24;
+    el('line', { x1: dx0, x2: dx0 + dW, y1: yD, y2: yD, stroke: CARD.ink2, 'stroke-width': og ? 1.5 : 2.5 }, g);
+    var rot = (dv.rotulo || 'Comparação em destaque').toUpperCase();
+    cardTexto(g, dx0, yD + (og ? 22 : 38), rot, og ? 15 : 22, 800, CARD.ink, 'start', 1);
+    if (dv.sub) cardTexto(g, dx0 + largura(rot, og ? 15 : 22, 800) + rot.length + (og ? 14 : 20), yD + (og ? 22 : 38), dv.sub, og ? 14 : 22, 400, CARD.muted);
+    var y2 = yD + (og ? 50 : 84), cw = (dW - (og ? 16 : 32)) / 2;
+    var sw2 = largura('✓ à frente', nsz, 700) + (og ? 16 : 26), sh2 = og ? 22 : 36;
+    // valor: mesmo tamanho nos dois lados, o maior que couber
+    var ds = og ? 40 : 64;
+    ORDEM.forEach(function (lado) { while (largura(fd(dv.valores[lado]), ds, 800) > cw && ds > 24) ds -= 2; });
+    ORDEM.forEach(function (lado, i) {
+      var cx = dx0 + i * (cw + (og ? 16 : 32)), per = dv.periodo && dv.periodo[lado] ? ' · ' + dv.periodo[lado] : '';
+      var nm = L[lado].curto + per;
+      if (largura(nm, nsz, 600) + (og ? 18 : 26) + sw2 + 8 > cw) nm = L[lado].curto; // mesma regra p/ os dois lados
+      marca(g, lado, cx + (og ? 6 : 9), y2 - (og ? 5 : 8), og ? 12 : 18, T);
+      cardTexto(g, cx + (og ? 18 : 26), y2, nm, nsz, 600, CARD.ink2);
+      if (venc === lado) {
+        el('rect', { x: cx + cw - sw2, y: y2 - sh2 * 0.72, width: sw2, height: sh2, rx: sh2 / 2, fill: T[lado] }, g);
+        cardTexto(g, cx + cw - sw2 / 2, y2 - sh2 * 0.72 + sh2 * 0.68, '✓ à frente', nsz, 700, '#ffffff', 'middle');
+      }
+      var vy = y2 + ds * 1.0 + (og ? 6 : 12);
+      cardTexto(g, cx, vy, fd(dv.valores[lado]), ds, 800, CARD.ink);
+      el('rect', { x: cx, y: vy + (og ? 10 : 18), width: cw, height: og ? 4 : 6, rx: 2, fill: T[lado] }, g);
+    });
+
+    // 4. gráfico no espaço que sobra
+    var gr = o.grafico || {}, gx, gy, gw, gh;
+    if (og) { gx = P + colW + 36; gy = P + 4 + (o.provisorio ? 44 : 0); gw = W - P - gx; gh = yRod - gy - 16; }
+    else { gx = P; gy = y; gw = W - 2 * P; gh = yD - y - 26; }
+    if (gr.titulo) { cardTexto(g, gx, gy + (og ? 16 : 24), gr.titulo.toUpperCase(), og ? 15 : 23, 800, CARD.ink, 'start', 1); gy += og ? 24 : 36; gh -= og ? 24 : 36; }
+    if (gr.sub) { quebra(gr.sub, og ? 14 : 22, 400, gw).forEach(function (ln) { cardTexto(g, gx, gy + (og ? 16 : 24), ln, og ? 14 : 22, 400, CARD.muted); gy += og ? 20 : 30; gh -= og ? 20 : 30; }); }
+    gy += og ? 6 : 14; gh -= og ? 6 : 14;
+    var kk = og ? 0.62 : k;
+    if (o.variante === 'barras') cardBarras(g, defs, gx, gy, gw, gh, kk, gr, L, T);
+    else if (o.variante === 'duelo') cardDuelo(g, defs, gx, gy, gw, gh, kk, gr, L, T, venc);
+    else cardTrajetoria(g, defs, gx, gy, gw, gh, kk, gr, L, T);
+    return svg;
+  }
+  function card(cont, o) {
+    if (typeof cont === 'string') cont = document.querySelector(cont);
+    while (cont.firstChild) cont.removeChild(cont.firstChild);
+    var svg = desenharCard(cont, o);
+    cont.appendChild(svg);
+    return svg;
+  }
+
+  /* =====================================================================
+   * CARD-SÍNTESE (fechamento de carrossel) — decisão do dono: a soma de pontos NUNCA é manchete.
+   * Dois blocos de MESMO tamanho, um por área, cada um com "<Governo X> à frente" no mesmo desenho do título
+   * dos cards; quesitos em grade 2×2 (blocos com 3 ou 4 itens ficam com a mesma altura); selo "apertada"
+   * idêntico para os dois lados. A contagem só aparece em texto pequeno no rodapé (opts.rodapeContagem).
+   * BPD.cardSintese(el, {formato, titulo, sub, grupos:[{titulo, vencedor:'b'|'l', itens:[{nome, apertada}]}],
+   *                      contexto:[{nome, nota}], fecho, rodapeContagem, fonte, url, atualizado})
+   * ===================================================================== */
+  function cardSintese(cont, o) {
+    if (typeof cont === 'string') cont = document.querySelector(cont);
+    while (cont.firstChild) cont.removeChild(cont.firstChild);
+    var F = FORMATOS[o.formato || 'feed'], W = F.W, H = F.H, P = F.P, T = TEMAS.light, L = lados(o);
+    var svg = el('svg', { xmlns: NS, width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'font-family': FONTE });
+    svg.style.display = 'block'; svg.style.width = '100%'; svg.style.height = 'auto';
+    var grupos = o.grupos.slice().sort(function (a, b) { return ORDEM.indexOf(a.vencedor) - ORDEM.indexOf(b.vencedor); }); // ordem fixa
+    var tt = el('title', null, svg); tt.textContent = o.titulo;
+    var dd = el('desc', null, svg);
+    dd.textContent = grupos.map(function (gr) { return gr.titulo + ': ' + L[gr.vencedor].nome + ' à frente (' + gr.itens.map(function (q) { return q.nome + (q.apertada ? ', apertada' : ''); }).join('; ') + ')'; }).join('. ') + '.';
+    el('rect', { x: 0, y: 0, width: W, height: H, fill: CARD.fundo }, svg);
+    var g = el('g', null, svg), y = P + F.topo;
+    cardTexto(g, P, y + 22, 'BORA PROS DADOS BRASIL', 24, 800, CARD.muted, 'start', 2);
+    y += 64;
+    quebra(o.titulo, 56, 800, W - 2 * P).forEach(function (ln) { y += 62; cardTexto(g, P, y - 12, ln, 56, 800, CARD.ink); });
+    if (o.sub) { y += 6; quebra(o.sub, 26, 400, W - 2 * P).forEach(function (ln) { y += 34; cardTexto(g, P, y - 6, ln, 26, 400, CARD.ink2); }); }
+    y += 30;
+    // tamanho do "<Governo> à frente": o do nome mais longo, igual nos dois blocos
+    var bw = W - 2 * P, pad = 28, ts = 44;
+    var longo = largura(L.b.nome, 10, 800) > largura(L.l.nome, 10, 800) ? L.b.nome : L.l.nome;
+    while (ts > 30 && largura(longo + ' à frente', ts, 800) + ts * 0.8 > bw - 2 * pad) ts -= 2;
+    var maxItens = Math.max.apply(null, grupos.map(function (gr) { return gr.itens.length; }));
+    var linhasGrade = Math.ceil(maxItens / 2), th = 64, tg = 12;
+    var altBloco = pad + 30 + ts * 1.25 + 22 + linhasGrade * (th + tg) - tg + pad;
+    var swA = largura('apertada', 20, 700) + 24;
+    grupos.forEach(function (gr) {
+      var k = gr.vencedor, x0 = P;
+      el('rect', { x: x0 + 1, y: y + 1, width: bw - 2, height: altBloco - 2, rx: 18, fill: '#ffffff', stroke: CARD.grid, 'stroke-width': 2 }, g);
+      el('rect', { x: x0, y: y, width: 10, height: altBloco, rx: 5, fill: T[k] }, g);
+      var yy = y + pad;
+      cardTexto(g, x0 + pad + 8, yy + 22, gr.titulo.toUpperCase(), 24, 800, CARD.ink2, 'start', 1.5);
+      yy += 30 + ts * 1.1;
+      marca(g, k, x0 + pad + 8 + ts * 0.3, yy - ts * 0.36, ts * 0.5, T);
+      var tx = x0 + pad + 8 + ts * 0.75, nm = L[k].nome + ' à frente';
+      cardTexto(g, tx, yy, nm, ts, 800, CARD.ink);
+      el('rect', { x: tx, y: yy + ts * 0.14, width: largura(nm, ts, 800), height: ts * 0.1, rx: ts * 0.05, fill: T[k] }, g);
+      yy += 22 + ts * 0.15;
+      var cw = (bw - 2 * pad - 8 - tg) / 2;
+      gr.itens.forEach(function (q, i) {
+        var cx = x0 + pad + 8 + (i % 2) * (cw + tg), cy = yy + Math.floor(i / 2) * (th + tg);
+        el('rect', { x: cx, y: cy, width: cw, height: th, rx: 12, fill: T[k] }, g);
+        var tam = 26, rot = '✓ ' + q.nome, livre = cw - 36 - (q.apertada ? swA + 10 : 0);
+        while (tam > 18 && largura(rot, tam, 700) > livre) tam -= 1;
+        cardTexto(g, cx + 16, cy + th / 2 + tam * 0.36, rot, tam, 700, '#ffffff');
+        if (q.apertada) {
+          var sh = 32, sx = cx + cw - swA - 12, sy = cy + (th - sh) / 2;
+          el('rect', { x: sx, y: sy, width: swA, height: sh, rx: sh / 2, fill: '#ffffff' }, g);
+          cardTexto(g, sx + swA / 2, sy + sh * 0.7, 'apertada', 20, 700, T[k], 'middle');
+        }
+      });
+      y += altBloco + 24;
+    });
+    (o.contexto || []).forEach(function (q) {
+      el('rect', { x: P + 1, y: y + 1, width: W - 2 * P - 2, height: 54, rx: 12, fill: 'none', stroke: CARD.axis, 'stroke-width': 2, 'stroke-dasharray': '8 6' }, g);
+      cardTexto(g, P + 18, y + 36, q.nome + ': ' + (q.nota || 'contexto, não conta ponto'), 24, 600, CARD.ink2);
+      y += 66;
+    });
+    // rodapé: fecho + contagem em texto pequeno + legenda do "apertada" + fonte + URL
+    var fs = 22, pe = [];
+    if (o.rodapeContagem) pe = pe.concat(quebra(o.rodapeContagem, 20, 400, W - 2 * P).map(function (t) { return [t, 20, 400, CARD.muted]; }));
+    pe = pe.concat(quebra('Fonte: ' + o.fonte, fs, 400, W - 2 * P).map(function (t) { return [t, fs, 400, CARD.muted]; }));
+    pe.push([(o.url || SITE) + (o.atualizado ? ' · atualizado em ' + o.atualizado : ''), fs, 700, CARD.ink2]);
+    var yR = H - P - F.base - pe.reduce(function (s2, l) { return s2 + l[1] * 1.4; }, 0);
+    if (o.fecho) { var fl = quebra(o.fecho, 30, 700, W - 2 * P), yf = yR - fl.length * 40 - 14; fl.forEach(function (ln) { yf += 40; cardTexto(g, P, yf, ln, 30, 700, CARD.ink); }); }
+    pe.forEach(function (l) { yR += l[1] * 1.4; cardTexto(g, P, yR, l[0], l[1], l[2], l[3]); });
+    cont.appendChild(svg);
+    return svg;
+  }
+
+  /* =====================================================================
+   * CARD DE SELEÇÃO (imagem única de uma seleção /c/1-3-5) — 96-revisao-dataviz §3.
+   * Título neutro e fixo (nunca "X à frente em N"); uma linha de duelo compacto por item, na ordem dos ids;
+   * selo "✓ à frente" idêntico para os dois lados; "apertada" vazado igual para os dois; contagem só em texto
+   * pequeno no rodapé, junto de "Seleção feita por quem compartilhou" e do resumo do site inteiro.
+   * BPD.cardSelecao(el, {formato:'feed'|'story', titulo, sub, itens:[{tema, criterioTexto, valores:{b,l},
+   *   formato, vencedor:'b'|'l'|null, apertada, lados:{b:{curto},l:{curto}}, periodo}], resto, rodape:[...], url, atualizado})
+   * feed (1080×1350) até 6 itens; story (1080×1920) até 9; o que passar vira "e mais K no link".
+   * ===================================================================== */
+  function cardSelecao(cont, o) {
+    if (typeof cont === 'string') cont = document.querySelector(cont);
+    while (cont.firstChild) cont.removeChild(cont.firstChild);
+    var F = FORMATOS[o.formato || 'feed'], W = F.W, H = F.H, P = F.P, T = TEMAS.light;
+    var max = (o.formato === 'story') ? 9 : 6, itens = (o.itens || []).slice(0, max);
+    var resto = (o.itens || []).length - itens.length + (o.resto || 0);
+    var svg = el('svg', { xmlns: NS, width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'font-family': FONTE });
+    svg.style.display = 'block'; svg.style.width = '100%'; svg.style.height = 'auto';
+    var titulo = o.titulo || 'Comparações escolhidas, com dados oficiais';
+    var tt = el('title', null, svg); tt.textContent = titulo;
+    var dd = el('desc', null, svg);
+    dd.textContent = itens.map(function (it) {
+      var f = fmtFn(it.formato), L = lados(it);
+      return it.tema + ': ' + L.b.curto + ' ' + f(it.valores.b) + ', ' + L.l.curto + ' ' + f(it.valores.l) +
+        (it.vencedor ? ' (' + L[it.vencedor].curto + ' à frente, ' + (it.criterioTexto || '') + ')' : ' (' + (it.criterioTexto || 'sem placar') + ')');
+    }).join('. ') + '. ' + (o.rodape || []).join(' ');
+    el('rect', { x: 0, y: 0, width: W, height: H, fill: CARD.fundo }, svg);
+    var g = el('g', null, svg), y = P + F.topo;
+    cardTexto(g, P, y + 22, 'BORA PROS DADOS BRASIL', 24, 800, CARD.muted, 'start', 2);
+    y += 52;
+    quebra(titulo, 54, 800, W - 2 * P).forEach(function (ln) { y += 60; cardTexto(g, P, y - 12, ln, 54, 800, CARD.ink); });
+    if (o.sub) { y += 4; quebra(o.sub, 26, 400, W - 2 * P).forEach(function (ln) { y += 34; cardTexto(g, P, y - 6, ln, 26, 400, CARD.ink2); }); }
+    y += 26;
+    // rodapé (de baixo para cima)
+    var pe = [];
+    (o.rodape || []).forEach(function (t, i) { quebra(t, 21, i === 0 ? 700 : 400, W - 2 * P).forEach(function (ln) { pe.push([ln, 21, i === 0 ? 700 : 400, i === 0 ? CARD.ink2 : CARD.muted]); }); });
+    pe.push([(o.url || SITE) + (o.atualizado ? ' · atualizado em ' + o.atualizado : ''), 22, 700, CARD.ink2]);
+    var altPe = pe.reduce(function (s, l) { return s + l[1] * 1.45; }, 0);
+    var yPe = H - P - F.base - altPe;
+    // linhas de duelo compacto: altura igual para todas
+    var fim = yPe - 30 - (resto > 0 ? 44 : 0), n = Math.max(1, itens.length);
+    var rh = Math.min(176, (fim - y) / n);
+    var nomeW = 0;
+    itens.forEach(function (it) { var L = lados(it); ORDEM.forEach(function (k) { nomeW = Math.max(nomeW, largura(L[k].curto, 24, 600)); }); });
+    nomeW += 40;
+    var seloTxt = '✓ à frente', sw = largura(seloTxt, 20, 700) + 24, sh = 32;
+    itens.forEach(function (it, idx) {
+      var f = fmtFn(it.formato), L = lados(it), y0 = y + idx * rh;
+      el('line', { x1: P, x2: W - P, y1: y0, y2: y0, stroke: CARD.grid, 'stroke-width': 2 }, g);
+      var tamT = 30, tema = it.tema;
+      var critTxt = (it.criterioTexto || '') + (it.periodo ? ' · ' + it.periodo : '');
+      var wCrit = largura(critTxt, 20, 600) + (it.apertada ? largura('apertada', 18, 700) + 34 : 0);
+      while (tamT > 22 && largura(tema, tamT, 800) + wCrit + 24 > W - 2 * P) tamT -= 1;
+      cardTexto(g, P, y0 + 44, tema, tamT, 800, CARD.ink);
+      var xc = W - P;
+      if (it.apertada) {
+        var aw = largura('apertada', 18, 700) + 22;
+        el('rect', { x: xc - aw, y: y0 + 22, width: aw, height: 30, rx: 15, fill: '#ffffff', stroke: CARD.ink2, 'stroke-width': 2 }, g);
+        cardTexto(g, xc - aw / 2, y0 + 43, 'apertada', 18, 700, CARD.ink2, 'middle');
+        xc -= aw + 10;
+      }
+      cardTexto(g, xc, y0 + 43, critTxt, 20, 600, CARD.muted, 'end');
+      var vals = ORDEM.map(function (k) { return it.valores[k]; });
+      var lo = Math.min(0, Math.min.apply(null, vals)), hi = Math.max(0, Math.max.apply(null, vals));
+      var labW = Math.max.apply(null, vals.map(function (v) { return largura(f(v), 28, 800); })) + 16 + sw + 10;
+      var pl = P + nomeW + (lo < 0 ? labW * 0.6 : 0), pr = W - P - (hi > 0 ? labW : 0);
+      var X = function (v) { return pl + (v - lo) / ((hi - lo) || 1) * (pr - pl); };
+      var bh = Math.min(30, (rh - 70) / 2 - 8), yy = y0 + 64;
+      ORDEM.forEach(function (k) {
+        var v = it.valores[k], xa = X(0), xb = X(v);
+        if (Math.abs(xb - xa) < 3) xb = xa + (v < 0 ? -3 : 3);
+        marca(g, k, P + 12, yy + bh / 2, 20, T);
+        cardTexto(g, P + 30, yy + bh / 2 + 8, L[k].curto, 24, 600, CARD.ink2);
+        barra(g, Math.min(xa, xb), Math.max(xa, xb), yy, bh, T[k]);
+        var tx = v < 0 ? xb - 12 : xb + 12;
+        var vt = f(v);
+        cardTexto(g, tx, yy + bh / 2 + 10, vt, 28, 800, CARD.ink, v < 0 ? 'end' : 'start');
+        if (it.vencedor === k) {
+          var sx = v < 0 ? xa + 12 : tx + largura(vt, 28, 800) + 12;
+          el('rect', { x: sx, y: yy + bh / 2 - sh / 2, width: sw, height: sh, rx: sh / 2, fill: T[k] }, g);
+          cardTexto(g, sx + sw / 2, yy + bh / 2 + 7, seloTxt, 20, 700, '#ffffff', 'middle');
+        }
+        if (lo < 0) el('line', { x1: X(0), x2: X(0), y1: yy - 4, y2: yy + bh + 4, stroke: CARD.ink2, 'stroke-width': 2 }, g);
+        yy += bh + 12;
+      });
+    });
+    var yFim = y + itens.length * rh;
+    el('line', { x1: P, x2: W - P, y1: yFim, y2: yFim, stroke: CARD.grid, 'stroke-width': 2 }, g);
+    if (resto > 0) cardTexto(g, P, yFim + 36, 'e mais ' + resto + (resto === 1 ? ' comparação' : ' comparações') + ' no link', 24, 700, CARD.ink2);
+    pe.forEach(function (l) { yPe += l[1] * 1.45; cardTexto(g, P, yPe - 4, l[0], l[1], l[2], l[3]); });
+    cont.appendChild(svg);
+    return svg;
   }
 
   root.BPD = {
     placar: placar, duelo: duelo, trajetoria: trajetoria, distribuicao: distribuicao,
-    promessas: promessas, resumo: resumo, paraPNG: paraPNG, redesenhar: function () { redesenhar(true); },
-    TEMAS: TEMAS, versao: '0.1.0'
+    promessas: promessas, resumo: resumo, card: card, cardSintese: cardSintese, cardSelecao: cardSelecao,
+    carregarFonte: function () { return Promise.all(['400', '600', '700', '800'].map(function (w) { return document.fonts.load(w + ' 20px InterVar'); })); }, paraPNG: paraPNG, redesenhar: function () { redesenhar(true); },
+    TEMAS: TEMAS, FORMATOS: FORMATOS, versao: '0.2.1'
   };
 })(typeof window !== 'undefined' ? window : this);

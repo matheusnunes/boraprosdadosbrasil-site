@@ -1,31 +1,45 @@
-/* ==== Bora pros dados Brasil — catálogo "Meus dados" (catalogo.js) — ES5, sem dependências, ok com a CSP ====
-   Lê o registro único /dados/comparacoes.json e monta:
-     <div data-catalogo="lista">   catálogo com filtros, estrela (favoritar) e "Compartilhar minha seleção"
-     <div data-catalogo="selecao"> página de chegada do link /c/1-3-5 (também aceita ?ids=1-3-5 e #1-3-5)
-   Favoritos: sessionStorage (somem ao fechar a aba). Opção explícita "Lembrar neste aparelho" → localStorage.
-   Integração futura (estrela nos cards .vrd das páginas): window.BPDCatalogo.favoritos.{tem,alternar,lista}
-   e o evento 'bpd:favoritos' no document (detail: {ids}). Reaproveita BPD.duelo (charts.js) e __share (share.js).
-   Eventos GA (via window.__track): favorite_add/_remove, catalog_filter, selection_share_open, selection_share,
-   selection_view, selection_save_all, favorites_remember. Todo texto entra via textContent. */
+/* ==== Bora pros dados Brasil — "Comparações" e "Minha lista" (catalogo.js) — ES5, sem dependências, ok com a CSP ====
+   Três modos, escolhidos pelo HTML:
+     <div data-catalogo="lista">    página /comparacoes/: filtros, linhas/cartões, estrela, compartilhar a lista
+     <div data-catalogo="selecao">  página de chegada /c/1-3-5 (também ?ids=1-3-5, #1-3-5 e /c/<slug>/)
+     <script id="bpd-ancoras">      páginas de análise: estrela nos cartões (mapa cartão → comparação, injetado pelo build)
+   Modelo de cartão (99-principios-imagem): o cartão É o gráfico (título com o veredito uma vez, números uma vez,
+   régua e força impressas na imagem, fonte dentro); embaixo só [imagem] [compartilhar] [Saiba mais], recolhido.
+   Lista do usuário ("Minha lista"): sessionStorage; opção explícita "Lembrar neste aparelho" → localStorage.
+   API para integração: window.BPDCatalogo.{favoritos, parseIds, caminhoSelecao}; evento 'bpd:favoritos' (detail.ids).
+   Eventos GA (window.__track): favorite_add/_remove, favorites_remember, favorites_clear, catalog_filter,
+   selection_share_open, selection_share, selection_view, selection_save_all, card_image. Sem consentimento
+   registrado, os eventos de lista vão sem o número da comparação (LGPD). Todo texto entra via textContent. */
 (function () {
   'use strict';
+  var D = document, W = window;
   var URL_REG = '/dados/comparacoes.json';
-  var MAX_SEL = 12;                       // limite de itens num link de seleção
   var KEY = 'bpd:meus-dados:v1', KEY_LEMBRAR = 'bpd:meus-dados:lembrar';
-  var ORDEM = ['b', 'l'];                 // ordem fixa (cronológica), nunca pela vitória
-  var D = document;
+  var ORDEM = ['b', 'l'];                  // ordem fixa (cronológica), nunca pela vitória
+  var ANALISE = { comparativo: 'Governos', propostas: 'Planos 2026', balanco: 'Promessas' };
+  var ANALISE_URL = { governos: 'comparativo', planos: 'propostas', promessas: 'balanco' };
+  var CFG_SITE = W.SITE_CONFIG || {};
+  var BASE = /^https?:\/\//.test(CFG_SITE.siteUrl || '') ? CFG_SITE.siteUrl.replace(/\/$/, '') : location.origin;
+  var CEL = W.matchMedia ? W.matchMedia('(max-width: 899px)') : { matches: false };
+  var REG = null, CFG = { max_selecao: 12, impacto_filtro: false };
 
-  function track(n, p) { try { if (window.__track) window.__track(n, p || {}); } catch (e) {} }
+  /* ------------------------------------------------------------------ utilidades */
   function el(tag, cls, txt, at) {
     var n = D.createElement(tag), k; if (cls) n.className = cls; if (txt != null) n.textContent = txt;
-    if (at) for (k in at) if (at.hasOwnProperty(k)) n.setAttribute(k, at[k]); return n;
+    if (at) for (k in at) if (at.hasOwnProperty(k) && at[k] != null) n.setAttribute(k, at[k]); return n;
   }
   function add(p) { for (var i = 1; i < arguments.length; i += 1) if (arguments[i]) p.appendChild(arguments[i]); return p; }
+  function consentido() {           // LGPD: com banner, só manda o número da comparação depois do "aceito"
+    if (CFG_SITE.consent !== 'banner') return true;
+    try { return W.localStorage.getItem('bpb_consent_v1') === 'yes'; } catch (e) { return false; }
+  }
+  function track(n, p) { try { if (W.__track) W.__track(n, p || {}); } catch (e) {} }
+  function trackLista(n, p) { if (!consentido()) { delete p.comparacao_id; delete p.slug; delete p.ids; } track(n, p); }
+  function dataBR(iso) { var m = /^(\d{4})-(\d\d)-(\d\d)/.exec(iso || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : (iso || ''); }
 
-  /* ------------------------------------------------------------------ favoritos */
-  function store(kind) { try { var s = window[kind]; s.setItem('__t', '1'); s.removeItem('__t'); return s; } catch (e) { return null; } }
-  var SS = store('sessionStorage'), LS = store('localStorage');
-  var mem = [];                           // reserva quando o navegador bloqueia o armazenamento
+  /* ------------------------------------------------------------------ Minha lista (favoritos) */
+  function store(kind) { try { var s = W[kind]; s.setItem('__t', '1'); s.removeItem('__t'); return s; } catch (e) { return null; } }
+  var SS = store('sessionStorage'), LS = store('localStorage'), mem = [];
   function lembrando() { try { return !!LS && LS.getItem(KEY_LEMBRAR) === '1'; } catch (e) { return false; } }
   function onde() { return lembrando() ? LS : SS; }
   function ler() {
@@ -41,16 +55,12 @@
   var favoritos = {
     lista: ler,
     tem: function (id) { return ler().indexOf(id) >= 0; },
-    alternar: function (id) {
-      var ids = ler(), i = ids.indexOf(id), on = i < 0;
-      if (on) ids.push(id); else ids.splice(i, 1);
-      gravar(ids); return on;
-    },
+    alternar: function (id) { var ids = ler(), i = ids.indexOf(id), on = i < 0; if (on) ids.push(id); else ids.splice(i, 1); gravar(ids); return on; },
     juntar: function (novos) { var ids = ler(); novos.forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); }); gravar(ids); return ids; },
+    definir: function (ids) { gravar(ids.slice()); },
     limpar: function () { gravar([]); },
-    lembrar: function (sim) {          // move a lista entre sessionStorage e localStorage
-      var ids = ler();
-      if (!LS) return false;
+    lembrar: function (sim) {
+      var ids = ler(); if (!LS) return false;
       try {
         if (sim) { LS.setItem(KEY_LEMBRAR, '1'); LS.setItem(KEY, JSON.stringify(ids)); if (SS) SS.removeItem(KEY); }
         else { LS.removeItem(KEY_LEMBRAR); LS.removeItem(KEY); if (SS) SS.setItem(KEY, JSON.stringify(ids)); }
@@ -60,8 +70,24 @@
     lembrando: lembrando
   };
 
-  /* ----------------------------------------------------------------- ids no link */
-  function parseIds(txt) {             // "1-3-5", "1,3,5", "1.3.5" → [1,3,5] (únicos, na ordem)
+  /* ------------------------------------------------------------------ aviso curto (toast) com ações */
+  var toastEl = null, toastT = null;
+  function toast(texto, acoes, ms) {
+    if (!toastEl) { toastEl = el('div', 'cat-toast', null, { role: 'status', 'aria-live': 'polite' }); D.body.appendChild(toastEl); }
+    toastEl.textContent = ''; clearTimeout(toastT);
+    toastEl.appendChild(el('span', 'cat-toast-t', texto));
+    (acoes || []).forEach(function (a) {
+      var b = a.href ? el('a', 'cat-toast-a', a.rotulo, { href: a.href }) : el('button', 'cat-toast-a', a.rotulo, { type: 'button' });
+      if (a.fn) b.addEventListener('click', function () { a.fn(); esconde(); });
+      toastEl.appendChild(b);
+    });
+    toastEl.classList.add('is-on');
+    function esconde() { toastEl.classList.remove('is-on'); }
+    toastT = setTimeout(esconde, ms || 4000);
+  }
+
+  /* ------------------------------------------------------------------ ids e links */
+  function parseIds(txt) {             // "1-3-5", "1,3,5" → [1,3,5] (únicos, na ordem)
     var out = [];
     String(txt || '').split(/[^0-9]+/).forEach(function (p) {
       if (!p || p.length > 4) return; var n = parseInt(p, 10);
@@ -69,396 +95,619 @@
     });
     return out;
   }
-  function idsDaUrl() {
+  function pedidoDaUrl() {              // {ids:[...]} ou {slug:'inflacao'}
     var m = /^\/c\/([0-9][0-9-]*)\/?$/.exec(location.pathname);
-    if (m) return parseIds(m[1]);
-    var q = /[?&]ids=([0-9,.\-]+)/.exec(location.search); if (q) return parseIds(q[1]);
-    var h = /^#([0-9][0-9,.\-]*)$/.exec(location.hash); if (h) return parseIds(h[1]);
-    return [];
+    if (m) return { ids: parseIds(m[1]) };
+    var s = /^\/c\/([a-z][a-z0-9-]*)\/?$/.exec(location.pathname);
+    if (s) return { slug: s[1] };
+    var q = /[?&]ids=([0-9,.\-]+)/.exec(location.search); if (q) return { ids: parseIds(q[1]) };
+    var h = /^#([0-9][0-9,.\-]*)$/.exec(location.hash); if (h) return { ids: parseIds(h[1]) };
+    return { ids: [] };
   }
-  function caminhoSelecao(ids) { return '/c/' + ids.slice().sort(function (a, b) { return a - b; }).join('-'); }
+  function porId(id) { var c = REG.comparacoes, i; for (i = 0; i < c.length; i += 1) if (c[i].id === id) return c[i]; return null; }
+  function porSlug(s) { var c = REG.comparacoes, i; for (i = 0; i < c.length; i += 1) if (c[i].slug === s) return c[i]; return null; }
+  function ativos() { return REG.comparacoes.filter(function (it) { return it.status === 'ativo' && it.catalogo; }); }
+  /* link canônico /c/1-3-5 (ids em ordem crescente); com 1 item, /c/<slug>/ (ganha a prévia própria do item) */
+  function caminhoSelecao(ids) {
+    var o = ids.slice().sort(function (a, b) { return a - b; });
+    if (o.length === 1 && REG) { var it = porId(o[0]); if (it && it.slug) return '/c/' + it.slug + '/'; }
+    return '/c/' + o.join('-');
+  }
 
-  /* ----------------------------------------------------------------- registro */
-  var REG = null;
+  /* ------------------------------------------------------------------ registro */
   function carregar(cb) {
     var inl = D.getElementById('bpd-comparacoes');
-    if (inl) { try { REG = JSON.parse(inl.textContent); return cb(null, REG); } catch (e) {} }
+    if (inl) { try { REG = JSON.parse(inl.textContent); CFG = REG.config || CFG; return cb(null); } catch (e) {} }
     var x = new XMLHttpRequest();
-    x.open('GET', URL_REG); x.responseType = 'text';
-    x.onload = function () { try { if (x.status !== 200) throw 0; REG = JSON.parse(x.responseText); cb(null, REG); } catch (e) { cb(e); } };
+    x.open('GET', URL_REG);
+    x.onload = function () { try { if (x.status !== 200) throw 0; REG = JSON.parse(x.responseText); CFG = REG.config || CFG; cb(null); } catch (e) { cb(e); } };
     x.onerror = function () { cb(new Error('rede')); };
     x.send();
   }
-  function porId(id) { var c = REG.comparacoes, i; for (i = 0; i < c.length; i += 1) if (c[i].id === id) return c[i]; return null; }
 
-  /* ----------------------------------------------------------------- textos */
-  var NIVEL_ICONE = { bolso: '◉', servicos: '◎', economia: '○', panorama: '▦' };
-  function rotuloResultado(it) {
+  /* ------------------------------------------------------------------ textos (mesmo molde para os dois lados) */
+  function nomeLado(it, k) { return it.lados[k].nome.replace(/\s*\(plano \d{4}\)$/, ''); }
+  function titulo(it) {             // o veredito aparece UMA vez, aqui
+    var t = it.tema_curto || it.titulo;
     if (it.resultado === 'vitoria') {
-      var L = it.lados[it.vencedor];
-      if (it.pagina_id === 'propostas') return '✓ Diz mais como fazer: ' + L.nome;
-      if (it.pagina_id === 'balanco') return '✓ Mais promessas cumpridas: ' + L.nome;
-      return '✓ ' + L.nome + ' à frente';
+      if (it.pagina_id === 'propostas') return t + ': ' + it.lados[it.vencedor].curto + ' diz mais como fazer';
+      if (it.pagina_id === 'balanco') return t + ': mais cumpridas no ' + nomeLado(it, it.vencedor);
+      return t + ': ' + nomeLado(it, it.vencedor) + ' à frente';
     }
-    if (it.resultado === 'contexto') return 'Contexto · não conta ponto';
-    if (it.resultado === 'sem-placar') return 'Sem placar · comparação descritiva';
-    return 'Não comparável';
+    if (it.resultado === 'contexto') return t + ': contexto, não conta ponto';
+    if (it.resultado === 'sem-placar') return t + ': comparação sem placar';
+    return t + ': não comparável';
   }
-  function textoCriterio(it) {
-    if (it.resultado !== 'vitoria') return null;
-    if (it.criterio === 'menor') return '↓ menor é melhor';
-    if (it.criterio === 'maior') return '↑ maior é melhor';
-    return it.criterio_texto || null;
+  function criterioTexto(it) {
+    if (it.resultado === 'vitoria') return it.criterio === 'menor' ? '↓ menor é melhor' : '↑ maior é melhor';
+    if (it.resultado === 'contexto') return 'contexto · não conta ponto';
+    return 'comparação sem placar';
   }
   var FORCA = { clara: 'Diferença clara', apertada: 'Diferença apertada', 'depende-da-regua': 'Depende da régua' };
-  function periodoCurto(p) { return String(p || '').replace(/\s*\(.*\)\s*$/, ''); }
-  function dataBR(iso) { var m = /^(\d{4})-(\d\d)-(\d\d)/.exec(iso || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : iso; }
+  function notaImagem(it) {          // regra particular + força + "o que mudaria": impressas na imagem
+    var p = [];
+    if (it.nota_visual) p.push(it.nota_visual + '.');
+    if (it.resultado === 'vitoria' && it.forca) p.push(FORCA[it.forca] + (it.forca === 'apertada' && it.ressalva ? '. O que mudaria: ' + it.ressalva : '.'));
+    return p.join(' ');
+  }
+  function fonteImagem(it) { return it.fonte + ' · ' + it.periodo_curto.b + ' × ' + it.periodo_curto.l + (it.dados_ate ? ' · dados até ' + it.dados_ate : ''); }
 
-  /* ----------------------------------------------------------------- card */
-  function estrela(it, onChange) {
-    var on = favoritos.tem(it.id);
-    var b = el('button', 'cat-star', on ? '★' : '☆', {
-      type: 'button', 'aria-pressed': on ? 'true' : 'false',
-      'aria-label': 'Guardar em Meus dados: ' + it.titulo, title: 'Guardar em Meus dados'
+  /* ------------------------------------------------------------------ contagens neutras, por análise */
+  function contaPorAnalise(lista) {
+    var r = {};
+    lista.forEach(function (it) {
+      if (it.variante_de && it.variante_de.length) return;    // leituras alternativas não contam de novo
+      var c = r[it.pagina_id] || (r[it.pagina_id] = { b: 0, l: 0, outro: 0, it: it });
+      if (it.resultado === 'vitoria') c[it.vencedor] += 1; else c.outro += 1;
     });
+    return r;
+  }
+  function linhasContagem(lista) {
+    var r = contaPorAnalise(lista), out = [];
+    ['comparativo', 'propostas', 'balanco'].forEach(function (pid) {
+      var c = r[pid]; if (!c) return;
+      var L = c.it.lados, ctx = c.outro ? ' · contexto ou sem placar ' + c.outro : '';
+      if (pid === 'propostas') out.push('Planos 2026, qual diz mais como fazer: ' + L.b.curto + ' em ' + c.b + ' · ' + L.l.curto + ' em ' + c.l + ctx);
+      else if (pid === 'balanco') out.push('Promessas, mais cumpridas: Governo Bolsonaro em ' + c.b + ' · Governo Lula em ' + c.l + ctx);
+      else out.push('Governos: Governo Bolsonaro à frente em ' + c.b + ' · Governo Lula em ' + c.l + ctx);
+    });
+    return out;
+  }
+  function composicao(lista) {      // para os eventos (P1-8): agregado, sem identificar a pessoa
+    var r = contaPorAnalise(lista), nb = 0, nl = 0, no = 0, k;
+    for (k in r) if (r.hasOwnProperty(k)) { nb += r[k].b; nl += r[k].l; no += r[k].outro; }
+    return { n_b: nb, n_l: nl, n_outro: no, lados: nb && nl ? 'ambos' : (nb || nl ? 'um_lado' : 'sem_placar') };
+  }
+  /* resumo do site inteiro, por análise, no vocabulário decidido (nunca um placar único somado) */
+  function resumoSite() {
+    var it = ativos(), out = [], blocos = {}, ordem = [];
+    it.forEach(function (c) {
+      if (!c.no_placar || c.resultado !== 'vitoria' || !c.bloco_placar) return;
+      if (!blocos[c.bloco_placar]) { blocos[c.bloco_placar] = { b: 0, l: 0 }; ordem.push(c.bloco_placar); }
+      blocos[c.bloco_placar][c.vencedor] += 1;
+    });
+    if (ordem.length) out.push('Governos (placar de quesitos): ' + ordem.map(function (b) {
+      var x = blocos[b], v = x.b && x.l ? 'Governo Bolsonaro ' + x.b + ' · Governo Lula ' + x.l : (x.b ? 'Governo Bolsonaro' : 'Governo Lula') + ' à frente (' + (x.b || x.l) + ')';
+      return b + ': ' + v;
+    }).join(' · '));
+    var p0 = porRef('P00'), b0 = porRef('B00');
+    if (b0) out.push('Promessas cumpridas: Governo Bolsonaro ' + b0.lados.b.valor + ' × Governo Lula ' + b0.lados.l.valor + ' (mandato de Lula em curso)');
+    if (p0) out.push('Planos 2026, ferramenta nomeada: ' + p0.lados.b.curto + ' ' + p0.lados.b.valor + ' × ' + p0.lados.l.curto + ' ' + p0.lados.l.valor + ' (programas em execução contam)');
+    return out;
+  }
+  function porRef(r) { var c = REG.comparacoes, i; for (i = 0; i < c.length; i += 1) if (c[i].ref === r && c[i].status === 'ativo') return c[i]; return null; }
+
+  /* ------------------------------------------------------------------ gráfico do cartão */
+  function desenhar(box, it) {
+    if (!W.BPD || !it.grafico) { box.appendChild(add(el('p', 'cat-sem-graf'), D.createTextNode(it.lados.b.nome + ': ' + it.lados.b.valor + ' · ' + it.lados.l.nome + ': ' + it.lados.l.valor))); return null; }
+    var g = it.grafico, base = {
+      titulo: titulo(it), nota: notaImagem(it) || null, fonte: fonteImagem(it), atualizado: dataBR(it.atualizado_em), tabela: false,
+      lados: { b: { nome: it.lados.b.nome, curto: it.lados.b.curto, periodo: it.periodo_curto.b }, l: { nome: it.lados.l.nome, curto: it.lados.l.curto, periodo: it.periodo_curto.l } }
+    };
+    try {
+      if (g.tipo === 'promessas') {
+        base.categorias = g.categorias; base.destaque = g.destaque; base.excluir = g.excluir || [];
+        base.destaqueRotulo = (g.categorias.filter(function (c) { return c.id === g.destaque; })[0] || {}).nome;
+        base.linhas = ORDEM.map(function (k) { return { lado: k, nome: base.lados[k].nome, contagens: g.contagens[k] }; });
+        return W.BPD.promessas(box, base);
+      }
+      base.criterio = it.resultado === 'vitoria' ? it.criterio : null;
+      base.criterioTexto = it.resultado === 'vitoria' ? null : criterioTexto(it);
+      base.vencedorRotulo = it.selo || 'à frente';
+      base.valores = g.valores; base.formato = g.formato;
+      base.sub = { b: it.lados.b.detalhe || null, l: it.lados.l.detalhe || null };
+      return W.BPD.duelo(box, base);
+    } catch (e) {
+      box.textContent = 'Não foi possível mostrar o gráfico: ' + it.lados.b.nome + ' ' + it.lados.b.valor + ' · ' + it.lados.l.nome + ' ' + it.lados.l.valor + '.';
+      return null;
+    }
+  }
+  var io = ('IntersectionObserver' in W) ? new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { io.unobserve(e.target); if (e.target.__desenha) e.target.__desenha(); } });
+  }, { rootMargin: '400px 0px' }) : null;
+  function preguicoso(box, fn) { box.__desenha = function () { if (!box.__ok) { box.__ok = 1; fn(); } }; if (io) io.observe(box); else box.__desenha(); }
+
+  /* ------------------------------------------------------------------ estrela */
+  function estrela(id, rotulo, aoMudar) {
+    var on = favoritos.tem(id);
+    var b = el('button', 'cat-star', on ? '★' : '☆', { type: 'button', 'aria-pressed': on ? 'true' : 'false', 'data-cmp': id,
+      'aria-label': 'Guardar na minha lista: ' + rotulo, title: 'Guardar na minha lista' });
     b.addEventListener('click', function () {
-      var agora = favoritos.alternar(it.id);
-      b.setAttribute('aria-pressed', agora ? 'true' : 'false'); b.textContent = agora ? '★' : '☆';
-      track(agora ? 'favorite_add' : 'favorite_remove', { comparacao_id: it.id, slug: it.slug, total: favoritos.lista().length });
-      if (onChange) onChange(it, agora);
+      var agora = favoritos.alternar(id);
+      sincronizaEstrelas();
+      trackLista(agora ? 'favorite_add' : 'favorite_remove', { comparacao_id: id, total: favoritos.lista().length });
+      if (aoMudar) aoMudar(agora); else avisoLista(agora, rotulo, id);
     });
     return b;
   }
-  function card(it, opt) {
+  function sincronizaEstrelas() {
+    var f = favoritos.lista(), bs = D.querySelectorAll('.cat-star[data-cmp]'), i;
+    for (i = 0; i < bs.length; i += 1) {
+      var on = f.indexOf(+bs[i].getAttribute('data-cmp')) >= 0;
+      bs[i].setAttribute('aria-pressed', on ? 'true' : 'false'); bs[i].textContent = on ? '★' : '☆';
+    }
+  }
+  function avisoLista(on, rotulo, id) {
+    var n = favoritos.lista().length;
+    if (on) toast('Guardado na sua lista (' + n + ').', [{ rotulo: 'Ver lista', href: '/comparacoes/?lista=1' }, { rotulo: 'Mandar', href: '/comparacoes/?lista=1&compartilhar=1' }]);
+    else toast('Retirado da sua lista: ' + rotulo + ' (' + n + ').', [{ rotulo: 'Desfazer', fn: function () { favoritos.alternar(id); sincronizaEstrelas(); } }]);
+  }
+
+  /* ------------------------------------------------------------------ imagem (PNG) de um SVG */
+  function compartilharImagem(svg, nome, texto, origem) {
+    if (!svg || !W.BPD || !W.BPD.paraPNG) return;
+    W.BPD.paraPNG(svg, 2, '/assets/fonts/inter-latin-var.woff2').then(function (blob) {
+      var arq = null;
+      try { arq = new File([blob], nome + '.png', { type: 'image/png' }); } catch (e) {}
+      track('card_image', { origem: origem, method: arq && navigator.canShare && navigator.canShare({ files: [arq] }) ? 'native' : 'download' });
+      if (arq && navigator.canShare && navigator.canShare({ files: [arq] })) {
+        navigator.share({ files: [arq], text: texto }).catch(function () {});
+      } else {
+        var a = el('a', null, null, { href: URL.createObjectURL(blob), download: nome + '.png' });
+        D.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.parentNode.removeChild(a); }, 1000);
+      }
+    }, function () { toast('Não deu para gerar a imagem. Tente de novo.'); });
+  }
+  function textoItem(it) {
+    return '📊 ' + titulo(it) + ': ' + it.lados.b.nome + ' ' + it.lados.b.valor + ' × ' + it.lados.l.nome + ' ' + it.lados.l.valor + ' (' + criterioTexto(it).replace(/^[↓↑] /, '') + '). Fonte: ' + it.fonte + '.';
+  }
+
+  /* ------------------------------------------------------------------ cartão: o gráfico é o cartão */
+  function cartao(it, opt) {
     opt = opt || {};
-    var a = el('article', 'cat-card', null, { id: 'cmp-' + it.id, 'data-id': it.id, 'data-res': it.resultado, 'data-win': it.vencedor || 'nenhum' });
-    var top = el('div', 'cat-top');
-    var tags = el('p', 'cat-tags');
-    add(tags, el('span', 'cat-tag', REG.temas[it.tema] || it.tema),
-      el('span', 'cat-tag cat-tag--imp', NIVEL_ICONE[it.impacto] + ' ' + REG.impacto_niveis[it.impacto].rotulo, { 'data-impacto': it.impacto }),
-      el('span', 'cat-id', '#' + it.id, { title: 'Número permanente desta comparação (usado no link de compartilhar)' }));
-    add(top, tags, estrela(it, opt.onStar));
-    add(a, top, el('h3', 'cat-q', it.titulo));
-
-    var vals = el('div', 'cat-vals');
-    ORDEM.forEach(function (k) {
-      var L = it.lados[k], win = it.vencedor === k;
-      var v = el('div', 'cat-val cat-val--' + k + (win ? ' is-win' : ''));
-      add(v, el('span', 'cat-who', L.nome), el('span', 'cat-per', periodoCurto(L.periodo)),
-        el('b', 'cat-num', L.valor), L.detalhe ? el('span', 'cat-det', L.detalhe) : null);
-      if (win) v.setAttribute('aria-label', L.nome + ': ' + L.valor + ' (à frente neste critério)');
-      vals.appendChild(v);
-    });
-    a.appendChild(vals);
-
-    var crit = textoCriterio(it);
-    var lin = el('p', 'cat-res');
-    add(lin, el('span', 'cat-pill cat-pill--' + (it.resultado === 'vitoria' ? it.vencedor : 'neutro'), rotuloResultado(it)),
-      crit ? el('span', 'cat-crit', crit) : null,
-      it.forca ? el('span', 'cat-forca cat-forca--' + it.forca, FORCA[it.forca]) : null);
-    a.appendChild(lin);
-    if (it.ressalva) a.appendChild(el('p', 'cat-ress', (it.forca === 'apertada' ? 'O que mudaria o resultado: ' : 'Ressalva: ') + it.ressalva));
-    var como = el('p', 'cat-como'); add(como, el('b', null, 'Como chega em você: '), D.createTextNode(it.como_chega)); a.appendChild(como);
-
-    var src = el('div', 'cat-src');
-    add(src, el('p', null, 'Fonte: ' + it.fonte + ' · métrica: ' + it.metrica));
-    var arq = el('p', 'cat-arq');
+    var a = el('article', 'cat-card', null, { id: opt.semId ? null : 'cmp-' + it.id, 'data-id': it.id, 'data-res': it.resultado });
+    var top = el('div', 'cat-top'), tags = el('p', 'cat-tags');
+    add(tags, el('span', 'cat-tag', ANALISE[it.pagina_id] || ''),
+      it.impacto && REG.impacto_niveis[it.impacto] ? el('span', 'cat-tag cat-tag--canal', REG.impacto_niveis[it.impacto].rotulo, { title: REG.impacto_nota || '' }) : null,
+      el('span', 'cat-id', 'Comparação nº ' + it.id, { title: 'Número permanente desta comparação (usado no link de compartilhar)' }));
+    add(top, tags, opt.semEstrela ? null : estrela(it.id, it.tema_curto || it.titulo, opt.aoMudar));
+    a.appendChild(top);
+    a.appendChild(el('h3', 'cat-sr', titulo(it)));
+    var box = el('div', 'cat-graf', null, { 'aria-hidden': null });
+    a.appendChild(box);
+    preguicoso(box, function () { box.__svg = desenhar(box, it); });
+    var acoes = el('div', 'cat-actions');
+    var bImg = el('button', 'cat-btn', 'Imagem', { type: 'button', 'aria-label': 'Enviar ou baixar a imagem desta comparação' });
+    bImg.addEventListener('click', function () { box.__desenha && box.__desenha(); compartilharImagem(box.querySelector('svg'), 'comparacao-' + it.id + '-' + it.slug, textoItem(it) + ' ' + BASE + '/c/' + it.slug + '/?o=img', 'cartao'); });
+    acoes.appendChild(bImg);
+    var sh = el('div', 'share share--mini', null, { 'data-share-variant': 'mini', 'data-share-section': it.slug, 'data-share-placement': 'catalogo',
+      'data-share-path': '/c/' + it.slug + '/', 'data-share-name': 'a comparação nº ' + it.id, 'data-share-text': textoItem(it) });
+    acoes.appendChild(sh);
+    if (W.__share) W.__share.init(acoes);
+    var det = el('details', 'cat-mais'), sum = el('summary', null, 'Saiba mais');
+    det.appendChild(sum);
+    var corpo = el('div', 'cat-mais-corpo');
+    if (it.impacto && REG.impacto_niveis[it.impacto]) add(corpo, add(el('p'), el('b', null, 'Como chega em você: '), D.createTextNode(it.como_chega)));
+    else if (it.como_chega) add(corpo, el('p', null, it.como_chega));
+    if (it.ressalva && !(it.resultado === 'vitoria' && it.forca === 'apertada')) add(corpo, add(el('p'), el('b', null, 'Ressalva: '), D.createTextNode(it.ressalva)));
+    if (it.como_calculamos) add(corpo, add(el('p'), el('b', null, 'Como calculamos: '), D.createTextNode(it.como_calculamos)));
+    var arq = el('p', 'cat-arq'); arq.appendChild(el('b', null, 'Arquivos originais: '));
     it.arquivos.forEach(function (f, i) {
       if (i) arq.appendChild(D.createTextNode(' · '));
       var nome = f.arquivo.split('/').pop();
-      add(arq, el('a', null, nome, { href: f.arquivo, download: '', 'data-download': '', 'data-file': nome, 'data-cat': 'catalogo' }),
-        el('span', 'cat-sha', ' SHA-256 ' + f.sha256.slice(0, 10) + '…', { title: f.sha256 }));
+      add(arq, el('a', null, nome, { href: f.arquivo, download: '', 'data-download': '1', 'data-file': nome, 'data-cat': 'comparacoes' }),
+        el('span', 'cat-sha', ' SHA-256 ' + f.sha256.slice(0, 12) + '…', { title: f.sha256 }));
     });
-    src.appendChild(arq);
-    add(src, el('p', null, 'Atualizado em ' + dataBR(it.atualizado_em)));
-    a.appendChild(src);
-
-    var acoes = el('div', 'cat-actions');
-    acoes.appendChild(el('a', 'cat-link', 'Ver no site, com o método ›', { href: it.pagina + '#' + (it.ancora_card && opt.ancoraCard ? it.ancora_card : it.ancora) }));
-    if (it.grafico && window.BPD) {
-      var det = el('details', 'cat-graf'), sum = el('summary', null, 'Ver gráfico'), box = el('div', 'cat-graf-box');
-      add(det, sum, box);
-      det.addEventListener('toggle', function () {
-        if (!det.open || box.__ok) return; box.__ok = 1;
-        try {
-          window.BPD.duelo(box, {
-            titulo: it.titulo, criterio: it.resultado === 'vitoria' ? it.criterio : null,
-            criterioTexto: it.resultado === 'vitoria' ? null : (it.resultado === 'contexto' ? 'contexto · não conta ponto' : 'comparação sem placar'),
-            valores: it.grafico.valores, formato: it.grafico.formato, tabela: false,
-            lados: { b: { nome: it.lados.b.nome, curto: it.lados.b.curto, periodo: periodoCurto(it.lados.b.periodo) },
-                     l: { nome: it.lados.l.nome, curto: it.lados.l.curto, periodo: periodoCurto(it.lados.l.periodo) } },
-            fonte: it.fonte, atualizado: dataBR(it.atualizado_em)
-          });
-        } catch (e) { box.textContent = 'Não foi possível mostrar o gráfico. Os números estão no cartão acima.'; }
-      });
-      acoes.appendChild(det);
-    }
+    corpo.appendChild(arq);
+    if (it.variante_de && it.variante_de.length) corpo.appendChild(el('p', null, 'Leitura alternativa da comparação nº ' + it.variante_de.join(', nº ') + ': não conta de novo nas contagens.'));
+    var onde = it.pagina === '/comparacoes/' ? null : it.pagina + '#' + (it.ancora_card || it.ancora);
+    if (onde) corpo.appendChild(el('a', 'cat-link', 'Ver na página da análise ›', { href: onde }));
+    det.appendChild(corpo);
+    acoes.appendChild(det);
     a.appendChild(acoes);
     return a;
   }
 
-  /* ----------------------------------------------------------------- contagem neutra */
-  function contagem(lista) {
-    var c = { b: 0, l: 0, outro: 0, variantes: 0 };
-    lista.forEach(function (it) {   // leituras alternativas (variante_de) não contam de novo
-      if (it.variante_de && it.variante_de.length) { c.variantes += 1; return; }
-      if (it.resultado === 'vitoria') c[it.vencedor] += 1; else c.outro += 1;
+  /* ------------------------------------------------------------------ linha (modo lista e chegada): números uma vez */
+  function linha(it, opt) {
+    opt = opt || {};
+    var r = el('div', 'cat-row', null, { id: 'cmp-' + it.id, 'data-id': it.id });
+    var hd = el('div', 'cat-row-hd');
+    var bt = el('button', 'cat-row-bt', null, { type: 'button', 'aria-expanded': 'false', 'aria-controls': 'cmp-' + it.id + '-c' });
+    var t = el('span', 'cat-row-t');
+    add(t, el('b', null, it.tema_curto || it.titulo), el('span', 'cat-row-crit', ' · ' + criterioTexto(it) + (it.forca === 'apertada' ? ' · apertada' : '')));
+    var vals = el('span', 'cat-row-vals');
+    ORDEM.forEach(function (k) {
+      var win = it.vencedor === k;
+      var v = el('span', 'cat-row-v cat-row-v--' + k + (win ? ' is-win' : ''));
+      add(v, el('i', 'mk mk--' + k, null, { 'aria-hidden': 'true' }), el('span', 'cat-row-n', it.lados[k].curto + ' '), el('b', null, it.lados[k].valor));
+      if (win) v.appendChild(el('span', 'cat-row-ok', ' ✓', { 'aria-label': ' (à frente)' }));
+      vals.appendChild(v);
     });
-    return c;
-  }
-  function textoContagem(c, total) {
-    return total + (total === 1 ? ' comparação' : ' comparações') + ' · à frente: lado Bolsonaro ' + c.b + ' · lado Lula ' + c.l +
-      ' · contexto ou sem placar ' + c.outro + (c.variantes ? ' · leituras alternativas (não contam de novo) ' + c.variantes : '');
-  }
-  function blocoContagem(cls) {
-    var p = el('p', 'cat-count ' + (cls || ''), null, { 'aria-live': 'polite' });
-    return p;
+    add(bt, t, vals, el('span', 'cat-row-mais', '›', { 'aria-hidden': 'true' }));
+    add(hd, bt, estrela(it.id, it.tema_curto || it.titulo, opt.aoMudar));
+    r.appendChild(hd);
+    var c = el('div', 'cat-row-c', null, { id: 'cmp-' + it.id + '-c', hidden: '' });
+    r.appendChild(c);
+    bt.addEventListener('click', function () {
+      var abrir = c.hidden;
+      c.hidden = !abrir; bt.setAttribute('aria-expanded', abrir ? 'true' : 'false'); r.classList.toggle('is-open', abrir);
+      if (abrir && !c.firstChild) { c.appendChild(cartao(it, { semId: true, semEstrela: true })); }
+      if (abrir) { var b = c.querySelector('.cat-graf'); if (b && b.__desenha) b.__desenha(); }
+    });
+    return r;
   }
 
-  /* ----------------------------------------------------------------- avisos (aria-live) */
-  var avisoEl = null;
-  function avisar(t) { if (!avisoEl) return; avisoEl.textContent = ''; setTimeout(function () { avisoEl.textContent = t; }, 30); }
-
-  /* ----------------------------------------------------------------- compartilhar seleção */
-  function textoSelecao(itens) {
-    var nomes = itens.map(function (it) { return it.tema_matriz.replace(/\s*\(.*\)$/, ''); }), lista = '', i;
-    for (i = 0; i < nomes.length; i += 1) {
-      var prox = (lista ? lista + ', ' : '') + nomes[i];
-      if (prox.length > 110) { lista += ' e mais ' + (nomes.length - i); break; }
+  /* ------------------------------------------------------------------ compartilhar a lista (folha) */
+  var ABREV = 280, CTA = ' Números, ressalvas e método: ';
+  function textoSelecao(itens, path) {
+    var url = BASE + path + '?o=wa', pre = '📊 Separei ' + itens.length + (itens.length === 1 ? ' comparação' : ' comparações') + ' com dados oficiais: ';
+    var fixo = '. Cada uma tem os números dos dois lados e a fonte; no site há comparações com cada lado à frente.';
+    var orc = ABREV - pre.length - fixo.length - CTA.length - url.length - 12, lista = '', i;
+    for (i = 0; i < itens.length; i += 1) {
+      var prox = (lista ? lista + ', ' : '') + (itens[i].tema_curto || itens[i].titulo);
+      if (prox.length > orc) { lista += ' e mais ' + (itens.length - i); break; }
       lista = prox;
     }
-    return '📊 Separei ' + itens.length + (itens.length === 1 ? ' comparação' : ' comparações') +
-      ' com dados oficiais, cada uma com os números dos dois lados e a fonte: ' + lista + '.';
+    return pre + lista + fixo;
   }
-  function painelCompartilhar(host, ids) {
-    host.textContent = '';
-    var validos = ids.map(porId).filter(function (it) { return it && it.status === 'ativo'; });
-    var vai = validos.slice(0, MAX_SEL);
-    if (!vai.length) { host.appendChild(el('p', 'cat-note', 'Toque na estrela ☆ dos cartões para montar sua seleção.')); return; }
-    var path = caminhoSelecao(vai.map(function (it) { return it.id; }));
-    add(host, el('p', 'cat-note', 'Quem receber vê ' + vai.length + (vai.length === 1 ? ' cartão completo' : ' cartões completos') +
-      ' (números dos dois lados, fonte e data) e o link para todas as comparações.'));
-    if (validos.length > MAX_SEL) host.appendChild(el('p', 'cat-note cat-note--warn', 'O link leva até ' + MAX_SEL + ' comparações: vão as ' + MAX_SEL + ' primeiras. Tire a estrela de algumas para escolher.'));
-    var cfg = window.SITE_CONFIG || {}, base = /^https?:\/\//.test(cfg.siteUrl || '') ? cfg.siteUrl.replace(/\/$/, '') : location.origin;
-    var prev = el('p', 'cat-linkprev'); add(prev, el('span', null, 'Link: '), el('code', null, base.replace(/^https?:\/\//, '') + path));
-    host.appendChild(prev);
-    var sh = el('div', 'share', null, {
-      'data-share-section': 'selecao', 'data-share-placement': 'selecao', 'data-share-path': path,
-      'data-share-name': 'sua seleção', 'data-share-text': textoSelecao(vai),
-      'data-share-lead': 'Mande a seleção com as fontes: quem receber pode conferir.'
+  function imagemSelecao(itens, path, origem) {
+    if (!W.BPD || !W.BPD.cardSelecao) return;
+    var tmp = el('div', null, null, { style: 'position:absolute;left:-9999px;top:0;width:1080px' }); D.body.appendChild(tmp);
+    var svg = W.BPD.cardSelecao(tmp, {
+      formato: itens.length > 6 ? 'story' : 'feed', titulo: 'Comparações escolhidas, com dados oficiais',
+      sub: 'Em cada linha, os números dos dois lados, a régua e o lado à frente.',
+      itens: itens.map(function (it) {
+        return { tema: it.tema_curto || it.titulo, criterioTexto: criterioTexto(it), valores: it.grafico ? it.grafico.valores : { b: 0, l: 0 },
+          formato: it.grafico ? it.grafico.formato : {}, vencedor: it.vencedor, apertada: it.forca === 'apertada',
+          lados: { b: { curto: it.lados.b.curto }, l: { curto: it.lados.l.curto } }, periodo: it.periodo_curto.b + ' × ' + it.periodo_curto.l };
+      }),
+      rodape: ['Seleção feita por quem compartilhou.'].concat(resumoSite().map(function (s) { return 'No site: ' + s + '.'; })),
+      url: BASE.replace(/^https?:\/\//, '') + path, atualizado: dataBR(REG.gerado_em)
     });
+    compartilharImagem(svg, 'selecao-' + path.replace(/[^0-9a-z-]/g, ''), textoSelecao(itens, path) + CTA + BASE + path + '?o=img', origem);
+    setTimeout(function () { tmp.parentNode && tmp.parentNode.removeChild(tmp); }, 3000);
+  }
+  function painelLista(host) {
+    host.textContent = '';
+    var ids = favoritos.lista(), validos = ids.map(porId).filter(function (it) { return it && it.status === 'ativo'; });
+    validos.sort(function (a, b) { return a.id - b.id; });
+    var max = CFG.max_selecao || 12, vai = validos.slice(0, max);
+    if (!vai.length) {
+      host.appendChild(el('p', 'cat-note', 'Sua lista está vazia: vai o link desta página. Toque ☆ em qualquer comparação para montar a sua.'));
+      var shp = el('div', 'share', null, { 'data-share-section': 'comparacoes', 'data-share-placement': 'catalogo', 'data-share-path': '/comparacoes/',
+        'data-share-name': 'a página de comparações', 'data-share-text': '📊 Todas as comparações do Bora pros dados Brasil, com os números dos dois lados e a fonte oficial.' });
+      host.appendChild(shp); if (W.__share) W.__share.init(host); return;
+    }
+    var path = caminhoSelecao(vai.map(function (it) { return it.id; }));
+    if (validos.length > max) host.appendChild(el('p', 'cat-note cat-note--warn', 'O link leva até ' + max + ' comparações: vão as ' + max + ' primeiras.'));
+    var prev = el('p', 'cat-linkprev'); add(prev, el('span', null, 'Link: '), el('code', null, BASE.replace(/^https?:\/\//, '') + path));
+    host.appendChild(prev);
+    var sh = el('div', 'share', null, { 'data-share-section': 'selecao', 'data-share-placement': 'selecao', 'data-share-path': path,
+      'data-share-name': 'sua lista', 'data-share-text': textoSelecao(vai, path), 'data-share-lead': 'Quem receber vê os números dos dois lados, a fonte e o link para todas as comparações.' });
     host.appendChild(sh);
-    // captura: roda antes do stopPropagation do share.js
-    sh.addEventListener('click', function (e) {
+    sh.addEventListener('click', function (e) {    // captura: antes do stopPropagation do share.js
       var t = e.target && e.target.closest ? e.target.closest('[data-m]') : null;
       if (!t || t.getAttribute('data-m') === 'more') return;
-      track('selection_share', { ids: path.slice(3), count: vai.length, method: t.getAttribute('data-m') });
+      var p = composicao(vai); p.ids = path.slice(3); p.count = vai.length; p.method = t.getAttribute('data-m');
+      trackLista('selection_share', p);
     }, true);
-    if (window.__share) window.__share.init(host);
-    else host.appendChild(el('p', 'cat-note', path));
+    if (W.__share) W.__share.init(host);
+    var bi = el('button', 'cat-btn', 'Imagem da lista', { type: 'button', 'aria-label': 'Enviar ou baixar uma imagem com a sua lista' });
+    bi.addEventListener('click', function () { imagemSelecao(vai, path, 'lista'); });
+    host.appendChild(add(el('p', 'cat-acoes-ex'), bi));
+  }
+  function caixaLembrar() {
+    var w = el('div', 'cat-lembrar-box');
+    var lab = el('label', 'cat-lembrar'), cb = el('input', null, null, { type: 'checkbox' });
+    cb.checked = favoritos.lembrando(); if (!LS) cb.disabled = true;
+    add(lab, cb, el('span', null, 'Lembrar minha lista neste aparelho'));
+    cb.addEventListener('change', function () {
+      favoritos.lembrar(cb.checked); track('favorites_remember', { valor: cb.checked ? '1' : '0' });
+      toast(cb.checked ? 'Sua lista fica guardada neste aparelho até você desmarcar.' : 'Sua lista fica só nesta aba.');
+    });
+    add(w, lab, el('p', 'cat-note', 'Sem isso, a lista some ao fechar a aba (se abriu pelo WhatsApp, some ao voltar para a conversa). Dica: mande o link da lista para você mesmo.'));
+    return w;
   }
 
-  /* ================================================================== CATÁLOGO */
-  var FILTROS = ['tema', 'impacto', 'pagina', 'forca'];
+  /* ================================================================== PÁGINA /comparacoes/ */
+  var FILTROS = ['analise', 'tema', 'forca', 'impacto'];
   function lerEstado() {
-    var e = { meus: false }, q = location.search.replace(/^\?/, '').split('&');
-    q.forEach(function (kv) {
+    var e = { lista: false, modo: '' };
+    location.search.replace(/^\?/, '').split('&').forEach(function (kv) {
       var p = kv.split('='), k = decodeURIComponent(p[0] || ''), v = decodeURIComponent((p[1] || '').replace(/\+/g, ' '));
+      if (k === 'pagina') { k = 'analise'; v = v === 'comparativo' ? 'governos' : (v === 'propostas' ? 'planos' : (v === 'balanco' ? 'promessas' : v)); }
+      if (k === 'meus') k = 'lista';
       if (FILTROS.indexOf(k) >= 0 && /^[a-z0-9-]{1,30}$/.test(v)) e[k] = v;
-      if (k === 'meus' && v === '1') e.meus = true;
+      if (k === 'lista' && v === '1') e.lista = true;
+      if (k === 'modo' && (v === 'lista' || v === 'cartoes')) e.modo = v;
+      if (k === 'compartilhar' && v === '1') e.compartilhar = true;
     });
+    if (!CFG.impacto_filtro) e.impacto = '';
     return e;
   }
   function gravarEstado(e) {
     var q = [];
     FILTROS.forEach(function (k) { if (e[k]) q.push(k + '=' + encodeURIComponent(e[k])); });
-    if (e.meus) q.push('meus=1');
+    if (e.lista) q.push('lista=1');
+    if (e.modo) q.push('modo=' + e.modo);
     try { history.replaceState(null, '', location.pathname + (q.length ? '?' + q.join('&') : '') + location.hash); } catch (x) {}
   }
 
   function iniciarCatalogo(root) {
     root.textContent = '';
-    var est = lerEstado();
-    var todos = REG.comparacoes.filter(function (it) { return it.status === 'ativo' && it.catalogo; });
-    avisoEl = el('p', 'cat-sr', '', { role: 'status', 'aria-live': 'polite' });
-
-    /* filtros: selects nativos (acessíveis, compactos no celular) + chip "Só meus dados" */
-    var fbox = el('div', 'cat-filters', null, { role: 'group', 'aria-label': 'Filtrar comparações' });
-    function sel(nome, rotulo, opcoes) {
-      var w = el('label', 'cat-f'); w.appendChild(el('span', null, rotulo));
-      var s = el('select', null, null, { name: nome });
-      s.appendChild(el('option', null, 'Todos', { value: '' }));
-      opcoes.forEach(function (o) { s.appendChild(el('option', null, o[1], { value: o[0] })); });
-      s.value = est[nome] || '';
-      if (s.value !== (est[nome] || '')) est[nome] = '';
-      s.addEventListener('change', function () { est[nome] = s.value; aplicar(); track('catalog_filter', { filtro: nome, valor: s.value || 'todos' }); });
-      w.appendChild(s); fbox.appendChild(w); return s;
-    }
-    var usados = function (campo) { var u = {}; todos.forEach(function (it) { u[it[campo]] = 1; }); return u; };
-    var ut = usados('tema');
-    var sImp = sel('impacto', 'Como chega em você', Object.keys(REG.impacto_niveis).sort(function (a, b) { return REG.impacto_niveis[a].ordem - REG.impacto_niveis[b].ordem; })
-      .map(function (k) { return [k, REG.impacto_niveis[k].rotulo]; }));
-    var sTema = sel('tema', 'Tema', Object.keys(REG.temas).filter(function (k) { return ut[k]; }).map(function (k) { return [k, REG.temas[k]]; }));
-    var sPag = sel('pagina', 'Análise', Object.keys(REG.paginas).map(function (k) { return [REG.paginas[k].id, REG.paginas[k].nome]; }));
-    var sFor = sel('forca', 'Diferença', [['clara', 'Clara'], ['apertada', 'Apertada'], ['depende-da-regua', 'Depende da régua']]);
-    var meus = el('button', 'cat-chip', '', { type: 'button', 'aria-pressed': est.meus ? 'true' : 'false' });
-    meus.addEventListener('click', function () { est.meus = !est.meus; aplicar(); track('catalog_filter', { filtro: 'meus', valor: est.meus ? '1' : '0' }); });
-    var limpar = el('button', 'cat-clear', 'Limpar filtros', { type: 'button' });
-    limpar.addEventListener('click', function () { FILTROS.forEach(function (k) { est[k] = ''; }); est.meus = false; sImp.value = sTema.value = sPag.value = sFor.value = ''; aplicar(); });
-    add(fbox, meus, limpar);
-
-    var nivelNota = el('p', 'cat-note cat-imp-nota');
-    var cont = blocoContagem();
-    var lista = el('div', 'cat-list');
-    var vazio = el('div', 'cat-empty', null, { hidden: '' });
-    add(vazio, el('p', null, 'Nenhuma comparação com esses filtros.'));
-    var vlimpar = el('button', 'cat-clear', 'Limpar filtros', { type: 'button' }); vlimpar.addEventListener('click', function () { limpar.click(); });
-    vazio.appendChild(vlimpar);
-
-    /* barra "Meus dados" + compartilhar */
-    var bar = el('div', 'cat-bar', null, { role: 'region', 'aria-label': 'Meus dados' });
-    var bMeus = el('button', 'cat-bar-meus', '', { type: 'button', 'aria-controls': 'cat-lista' });
-    var bShare = el('button', 'cat-bar-share', 'Compartilhar minha seleção', { type: 'button', 'aria-expanded': 'false', 'aria-controls': 'cat-share' });
-    var painel = el('section', 'cat-share', null, { id: 'cat-share', hidden: '', 'aria-label': 'Compartilhar minha seleção' });
-    var painelIn = el('div', 'cat-share-in');
-    var lembrar = el('label', 'cat-lembrar');
-    var cb = el('input', null, null, { type: 'checkbox' }); cb.checked = favoritos.lembrando();
-    if (!LS) cb.disabled = true;
-    add(lembrar, cb, el('span', null, 'Lembrar meus dados neste aparelho (senão, somem ao fechar a aba)'));
-    cb.addEventListener('change', function () {
-      favoritos.lembrar(cb.checked); track('favorites_remember', { valor: cb.checked ? '1' : '0' });
-      avisar(cb.checked ? 'Seus dados ficam guardados neste aparelho até você desmarcar.' : 'Seus dados ficam só nesta aba.');
+    var est = lerEstado(), todos = ativos();
+    var cont = el('div', 'cat-filtros');
+    /* 1. Análise: controle segmentado */
+    var seg = el('div', 'cat-seg', null, { role: 'radiogroup', 'aria-label': 'Análise' });
+    [['', 'Tudo'], ['governos', 'Governos'], ['planos', 'Planos 2026'], ['promessas', 'Promessas']].forEach(function (o) {
+      var b = el('button', 'cat-seg-b', o[1], { type: 'button', role: 'radio', 'data-v': o[0] });
+      b.addEventListener('click', function () { est.analise = o[0]; aplicar(); track('catalog_filter', { filtro: 'analise', valor: o[0] || 'tudo' }); });
+      seg.appendChild(b);
     });
-    var bLimparFav = el('button', 'cat-clear', 'Tirar todas as estrelas', { type: 'button' });
-    bLimparFav.addEventListener('click', function () { favoritos.limpar(); aplicar(); avisar('Meus dados esvaziado.'); });
-    var fecha = el('button', 'cat-close', 'Fechar', { type: 'button' });
-    fecha.addEventListener('click', function () { abrir(false); bShare.focus(); });
-    var tituloPainel = el('h2', null, 'Compartilhar minha seleção', { tabindex: '-1' });
-    add(painel, add(el('div', 'cat-share-hd'), tituloPainel, fecha), painelIn, lembrar, bLimparFav);
-    function abrir(sim) {
-      painel.hidden = !sim; bShare.setAttribute('aria-expanded', sim ? 'true' : 'false');
-      if (!sim) return;
-      painelCompartilhar(painelIn, favoritos.lista());
-      track('selection_share_open', { count: favoritos.lista().length });
-      tituloPainel.focus();
+    /* 2. Tema: chips com rolagem lateral */
+    var chips = el('div', 'cat-chips', null, { role: 'group', 'aria-label': 'Tema' });
+    var usados = {}; todos.forEach(function (it) { usados[it.tema] = (usados[it.tema] || 0) + 1; });
+    [['', 'Todos os temas']].concat(Object.keys(REG.temas).filter(function (k) { return usados[k]; }).map(function (k) { return [k, REG.temas[k]]; })).forEach(function (o) {
+      var b = el('button', 'cat-chip', o[1], { type: 'button', 'aria-pressed': 'false', 'data-v': o[0] });
+      b.addEventListener('click', function () { est.tema = est.tema === o[0] ? '' : o[0]; aplicar(); track('catalog_filter', { filtro: 'tema', valor: est.tema || 'todos' }); });
+      chips.appendChild(b);
+    });
+    /* 3. Mais filtros (recolhido) */
+    var mais = el('details', 'cat-maisf'), sm = el('summary', null, 'Mais filtros');
+    var corpoF = el('div', 'cat-maisf-c');
+    var lf = el('label', 'cat-f'); lf.appendChild(el('span', null, 'Diferença'));
+    var sF = el('select', null, null, { name: 'forca' });
+    [['', 'Todas'], ['clara', 'Clara'], ['apertada', 'Apertada'], ['depende-da-regua', 'Depende da régua']].forEach(function (o) { sF.appendChild(el('option', null, o[1], { value: o[0] })); });
+    sF.value = est.forca || ''; sF.addEventListener('change', function () { est.forca = sF.value; aplicar(); track('catalog_filter', { filtro: 'forca', valor: sF.value || 'todas' }); });
+    lf.appendChild(sF); corpoF.appendChild(lf);
+    var sI = null;
+    if (CFG.impacto_filtro) {   // portão: só liga depois da lista pré-registrada (decisão do dono, item 8)
+      var li = el('label', 'cat-f'); li.appendChild(el('span', null, 'Como chega em você'));
+      sI = el('select', null, null, { name: 'impacto' }); sI.appendChild(el('option', null, 'Todos', { value: '' }));
+      Object.keys(REG.impacto_niveis).forEach(function (k) { sI.appendChild(el('option', null, REG.impacto_niveis[k].rotulo, { value: k })); });
+      sI.value = est.impacto || ''; sI.addEventListener('change', function () { est.impacto = sI.value; aplicar(); track('catalog_filter', { filtro: 'impacto', valor: sI.value || 'todos' }); });
+      li.appendChild(sI); corpoF.appendChild(li);
     }
-    bShare.addEventListener('click', function () { abrir(painel.hidden); });
-    bMeus.addEventListener('click', function () { est.meus = !est.meus; aplicar(); });
-    add(bar, bMeus, bShare);
+    var bModo = el('button', 'cat-chip', '', { type: 'button' });
+    bModo.addEventListener('click', function () { est.modo = modoAtual() === 'lista' ? 'cartoes' : 'lista'; aplicar(); });
+    corpoF.appendChild(bModo);
+    add(mais, sm, corpoF);
+    var limpar = el('button', 'cat-clear', 'Limpar filtros', { type: 'button' });
+    limpar.addEventListener('click', function () { est.analise = est.tema = est.forca = est.impacto = ''; est.lista = false; sF.value = ''; if (sI) sI.value = ''; aplicar(); });
+    add(cont, seg, chips, add(el('div', 'cat-filtros-l2'), mais, limpar));
 
-    lista.id = 'cat-lista';
-    add(root, avisoEl, fbox, nivelNota, cont, lista, vazio, painel, bar);
+    var nota = el('p', 'cat-note cat-contagem', null, { 'aria-live': 'polite' });
+    var cabLista = el('div', 'cat-cablista', null, { hidden: '' });
+    var lista = el('div', 'cat-list', null, { id: 'cat-lista' });
+    var vazio = el('div', 'cat-empty', null, { hidden: '' });
 
-    function onStar(it, on) {
+    /* barra (fixa embaixo no celular; no computador, presa no topo da lista) */
+    var bar = el('div', 'cat-bar', null, { role: 'region', 'aria-label': 'Minha lista' });
+    var bFil = el('button', 'cat-bar-b', 'Filtros', { type: 'button' });
+    bFil.addEventListener('click', function () { cont.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    var bSh = el('button', 'cat-bar-b cat-bar-b--pri', '', { type: 'button', 'aria-haspopup': 'dialog', 'aria-controls': 'cat-share' });
+    var bLista = el('button', 'cat-bar-b', '', { type: 'button', 'aria-controls': 'cat-lista' });
+    bLista.addEventListener('click', function () { est.lista = !est.lista; aplicar(); });
+    add(bar, bFil, bSh, bLista);
+
+    var folha = el('div', 'cat-sheet', null, { id: 'cat-share', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'cat-share-t', hidden: '' });
+    var fundo = el('button', 'cat-sheet-fundo', null, { type: 'button', 'aria-label': 'Fechar', tabindex: '-1' });
+    var painel = el('div', 'cat-sheet-p'), hdp = el('div', 'cat-sheet-hd');
+    var tP = el('h2', null, 'Compartilhar', { id: 'cat-share-t', tabindex: '-1' }), xP = el('button', 'cat-sheet-x', '×', { type: 'button', 'aria-label': 'Fechar' });
+    var corpoP = el('div'), apagar = el('button', 'cat-linkbtn', 'Apagar minha lista', { type: 'button' });
+    add(painel, add(hdp, tP, xP), corpoP, caixaLembrar(), apagar);
+    add(folha, fundo, painel);
+    function abrir(sim) {
+      folha.hidden = !sim; D.documentElement.classList.toggle('cat-travado', sim);
+      if (!sim) { bSh.focus(); return; }
+      painelLista(corpoP); tP.textContent = favoritos.lista().length ? 'Compartilhar minha lista' : 'Compartilhar esta página';
+      track('selection_share_open', { count: favoritos.lista().length }); tP.focus();
+    }
+    bSh.addEventListener('click', function () { abrir(true); });
+    fundo.addEventListener('click', function () { abrir(false); }); xP.addEventListener('click', function () { abrir(false); });
+    D.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !folha.hidden) abrir(false); });
+    apagar.addEventListener('click', function () {
+      var antes = favoritos.lista(); if (!antes.length) return;
+      favoritos.limpar(); track('favorites_clear', { count: antes.length }); abrir(false); aplicar();
+      toast('Lista apagada.', [{ rotulo: 'Desfazer', fn: function () { favoritos.definir(antes); aplicar(); } }], 6000);
+    });
+
+    add(root, cont, nota, cabLista, lista, vazio, bar, folha);
+
+    function modoAtual() { return est.modo || (CEL.matches ? 'lista' : 'cartoes'); }
+    function aoMudar(on) {
       var n = favoritos.lista().length;
-      avisar((on ? 'Guardado em Meus dados: ' : 'Retirado de Meus dados: ') + it.titulo + '. Total: ' + n + '.');
-      atualizarBarra();
-      if (est.meus && !on) aplicar();
-      if (!painel.hidden) painelCompartilhar(painelIn, favoritos.lista());
+      if (on) toast('Guardado na sua lista (' + n + ').', [{ rotulo: 'Ver lista', fn: function () { est.lista = true; aplicar(); } }, { rotulo: 'Mandar', fn: function () { abrir(true); } }]);
+      else toast('Retirado da sua lista (' + n + ').');
+      atualizarBarra(); if (est.lista && !on) aplicar();
     }
     function atualizarBarra() {
       var n = favoritos.lista().length;
-      bMeus.textContent = 'Meus dados (' + n + ')';
-      bMeus.setAttribute('aria-pressed', est.meus ? 'true' : 'false');
-      meus.textContent = '★ Só meus dados (' + n + ')';
-      meus.setAttribute('aria-pressed', est.meus ? 'true' : 'false');
-      bShare.disabled = n === 0;
-      bShare.textContent = n ? 'Compartilhar minha seleção (' + n + ')' : 'Marque ☆ para compartilhar';
+      bLista.textContent = '★ Minha lista (' + n + ')'; bLista.setAttribute('aria-pressed', est.lista ? 'true' : 'false');
+      bSh.textContent = n ? '↗ Compartilhar lista (' + n + ')' : '↗ Compartilhar';
     }
     function aplicar() {
-      var fav = favoritos.lista();
+      var fav = favoritos.lista(), pid = ANALISE_URL[est.analise] || '';
       var vis = todos.filter(function (it) {
+        if (pid && it.pagina_id !== pid) return false;
         if (est.tema && it.tema !== est.tema) return false;
-        if (est.impacto && it.impacto !== est.impacto) return false;
-        if (est.pagina && it.pagina_id !== est.pagina) return false;
         if (est.forca && it.forca !== est.forca) return false;
-        if (est.meus && fav.indexOf(it.id) < 0) return false;
+        if (est.impacto && it.impacto !== est.impacto) return false;
+        if (est.lista && fav.indexOf(it.id) < 0) return false;
         return true;
-      });  // ordem = ordem do registro (a ordem de leitura do site), nunca por vencedor ou nível
-      lista.textContent = '';
-      vis.forEach(function (it) { lista.appendChild(card(it, { onStar: onStar })); });
-      vazio.hidden = vis.length > 0;
-      cont.textContent = 'Nesta lista: ' + textoContagem(contagem(vis), vis.length) + '.';
-      var nv = est.impacto && REG.impacto_niveis[est.impacto];
-      nivelNota.textContent = (nv ? nv.rotulo + ': ' + nv.regra + ' ' : '') +
-        'O nível mostra por onde o dado chega até você, não a importância: dívida e juros também chegam ao bolso, só que mais devagar.';
-      limpar.hidden = !(FILTROS.some(function (k) { return est[k]; }) || est.meus);
+      });  // ordem = ordem do registro (a ordem de leitura do site), nunca por vencedor ou canal
+      var modo = modoAtual();
+      lista.textContent = ''; lista.className = 'cat-list cat-list--' + modo;
+      vis.forEach(function (it) { lista.appendChild(modo === 'lista' ? linha(it, { aoMudar: aoMudar }) : cartao(it, { aoMudar: aoMudar })); });
+      if (W.__share) W.__share.init(lista);
+      // contagem por análise, em texto pequeno (nunca um placar único somado)
+      var lc = linhasContagem(vis);
+      nota.textContent = vis.length + (vis.length === 1 ? ' comparação' : ' comparações') + (lc.length ? ' · ' + lc.join(' · ') : '') + '.';
+      // estados vazios
+      vazio.textContent = ''; vazio.hidden = vis.length > 0;
+      if (!vis.length && est.lista && !fav.length) {
+        add(vazio, el('p', null, 'Sua lista está vazia. Toque ☆ em qualquer comparação para guardar.'));
+        var bv = el('button', 'cat-clear', 'Ver todas', { type: 'button' }); bv.addEventListener('click', function () { est.lista = false; aplicar(); }); vazio.appendChild(bv);
+      } else if (!vis.length) {
+        add(vazio, el('p', null, 'Nenhuma comparação com esses filtros.'));
+        var bl = el('button', 'cat-clear', 'Limpar filtros', { type: 'button' }); bl.addEventListener('click', function () { limpar.click(); }); vazio.appendChild(bl);
+      }
+      // cabeçalho da "Minha lista": lembrar + mandar para si
+      cabLista.textContent = ''; cabLista.hidden = !est.lista;
+      if (est.lista) add(cabLista, el('h2', null, 'Minha lista'), caixaLembrar());
+      // estado visual dos filtros
+      Array.prototype.forEach.call(seg.children, function (b) { b.setAttribute('aria-checked', b.getAttribute('data-v') === (est.analise || '') ? 'true' : 'false'); });
+      Array.prototype.forEach.call(chips.children, function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-v') === (est.tema || '') ? 'true' : 'false'); });
+      bModo.textContent = modo === 'lista' ? 'Ver como cartões' : 'Ver como lista';
+      limpar.hidden = !(est.analise || est.tema || est.forca || est.impacto || est.lista);
       atualizarBarra(); gravarEstado(est);
     }
-    D.addEventListener('bpd:favoritos', function () { atualizarBarra(); });
+    D.addEventListener('bpd:favoritos', atualizarBarra);
+    if (CEL.addEventListener) CEL.addEventListener('change', function () { if (!est.modo) aplicar(); });
     aplicar();
+    if (est.compartilhar) abrir(true);
   }
 
-  /* ================================================================== SELEÇÃO (/c/1-3-5) */
+  /* ================================================================== CHEGADA /c/1-3-5 */
   function iniciarSelecao(root) {
     root.textContent = '';
-    avisoEl = el('p', 'cat-sr', '', { role: 'status', 'aria-live': 'polite' });
-    var pedidos = idsDaUrl(), excesso = pedidos.length > MAX_SEL;
-    pedidos = pedidos.slice(0, MAX_SEL);
-    var achados = [], invalidos = [], retirados = [];
+    var max = CFG.max_selecao || 12, ped = pedidoDaUrl(), pedidos = ped.ids || [], achados = [], invalidos = [], retirados = [];
+    if (ped.slug) { var s = porSlug(ped.slug); if (s) pedidos = [s.id]; else invalidos.push(ped.slug); }
+    var excesso = pedidos.length > max; pedidos = pedidos.slice(0, max);
     pedidos.forEach(function (id) {
       var it = porId(id);
-      if (!it) invalidos.push(id);
-      else if (it.status !== 'ativo') retirados.push(it);
-      else achados.push(it);
+      if (!it) invalidos.push(id); else if (it.status !== 'ativo') retirados.push(it); else achados.push(it);
     });
-    var hd = el('header', 'sel-hd');
     var n = achados.length;
-    add(hd, el('p', 'eyebrow', 'Seleção compartilhada'),
-      el('h1', null, n ? 'Separaram ' + n + (n === 1 ? ' comparação' : ' comparações') + ' para você' : 'Este link não traz comparações válidas'),
-      el('p', 'sel-sub', 'Cada cartão mostra os números dos dois lados, quem fica à frente pelo critério declarado, a fonte oficial, o arquivo original e a data. A escolha dos itens foi feita por quem mandou o link.'));
+    var hd = el('header', 'sel-hd');
+    add(hd, el('p', 'sel-sobre', 'Seleção feita por quem te enviou este link'),
+      el('h1', null, n ? n + (n === 1 ? ' comparação' : ' comparações') + ' com dados oficiais' : 'Este link não traz comparações válidas'));
+    root.appendChild(hd);
+    var tabela = el('div', 'sel-tab');
+    achados.forEach(function (it) { tabela.appendChild(linha(it, { aoMudar: function (on) { toast(on ? 'Guardado na sua lista (' + favoritos.lista().length + ').' : 'Retirado da sua lista.', on ? [{ rotulo: 'Ver lista', href: '/comparacoes/?lista=1' }] : null); } })); });
+    if (n) root.appendChild(tabela);
+    root.appendChild(add(el('p', 'sel-neutro'), D.createTextNode('Este site compara dados oficiais com a mesma regra para os dois lados. Não indica voto. '), el('a', null, 'Quem fez ›', { href: '/sobre/' })));
+    // contexto: esta seleção e o site inteiro, por análise (2 blocos curtos)
     var ctx = el('div', 'sel-ctx');
-    var todos = REG.comparacoes.filter(function (it) { return it.status === 'ativo' && it.catalogo; });
-    add(ctx, el('p', null, 'Nesta seleção: ' + textoContagem(contagem(achados), n) + '.'),
-      el('p', null, 'No site inteiro: ' + textoContagem(contagem(todos), todos.length) + '. '),
-      el('a', 'cat-link', 'Ver todas as comparações, dos dois lados ›', { href: '/meus-dados/' }));
-    add(root, avisoEl, hd, ctx);
-    if (invalidos.length || retirados.length || excesso) {
-      var av = el('div', 'sel-aviso');
-      if (invalidos.length) av.appendChild(el('p', null, 'Não encontramos ' + (invalidos.length === 1 ? 'o número ' : 'os números ') + invalidos.join(', ') + ' (link incompleto ou digitado errado).'));
-      retirados.forEach(function (it) {
-        var p = el('p', null, 'A comparação #' + it.id + ' (' + it.titulo + ') saiu do site' + (it.substituido_por ? '; veja a versão atual: ' : '.'));
-        if (it.substituido_por) p.appendChild(el('a', null, '#' + it.substituido_por, { href: '/c/' + it.substituido_por }));
-        av.appendChild(p);
-      });
-      if (excesso) av.appendChild(el('p', null, 'O link tinha mais de ' + MAX_SEL + ' itens: mostramos os ' + MAX_SEL + ' primeiros.'));
-      root.appendChild(av);
+    if (n) ctx.appendChild(el('p', null, 'Nesta seleção: ' + linhasContagem(achados).join(' · ') + '.'));
+    ctx.appendChild(el('p', null, 'No site: ' + resumoSite().join(' · ') + '.'));
+    ctx.appendChild(el('a', 'cat-link', 'Ver todas as comparações, dos dois lados ›', { href: '/comparacoes/' }));
+    root.appendChild(ctx);
+    // P1-11: seleção só com vitórias de um lado → link simétrico para as do outro lado, na mesma análise
+    var cpa = contaPorAnalise(achados), pid;
+    for (pid in cpa) if (cpa.hasOwnProperty(pid)) {
+      var c = cpa[pid], so = c.b && !c.l ? 'b' : (c.l && !c.b ? 'l' : null);
+      if (!so) continue;
+      var outro = so === 'b' ? 'l' : 'b';
+      var ids = ativos().filter(function (it) { return it.pagina_id === pid && it.resultado === 'vitoria' && it.vencedor === outro && !(it.variante_de && it.variante_de.length); })
+        .map(function (it) { return it.id; }).slice(0, max);
+      if (ids.length) root.appendChild(add(el('p', 'sel-outro'), el('a', 'cat-link', 'Ver também as comparações de ' + ANALISE[pid] + ' em que o outro lado fica à frente (' + ids.length + ') ›', { href: caminhoSelecao(ids) })));
     }
-    var lista = el('div', 'cat-list');
-    achados.forEach(function (it) { lista.appendChild(card(it, { onStar: function (x, on) { avisar((on ? 'Guardado em Meus dados: ' : 'Retirado de Meus dados: ') + x.titulo); } })); });
-    root.appendChild(lista);
     var pe = el('div', 'sel-acoes');
     if (n) {
-      var bAll = el('button', 'cat-bar-share', 'Guardar estes ' + n + ' em Meus dados', { type: 'button' });
+      var bAll = el('button', 'cat-btn cat-btn--pri', 'Guardar estes ' + n + ' na minha lista', { type: 'button' });
       bAll.addEventListener('click', function () {
-        favoritos.juntar(achados.map(function (it) { return it.id; }));
-        track('selection_save_all', { ids: achados.map(function (it) { return it.id; }).join('-'), count: n });
-        var stars = root.querySelectorAll('.cat-star'), i; for (i = 0; i < stars.length; i += 1) { stars[i].setAttribute('aria-pressed', 'true'); stars[i].textContent = '★'; }
-        avisar('Guardados em Meus dados. Agora você pode juntar outros e mandar adiante.');
-        bAll.textContent = 'Guardados ✓ · Abrir Meus dados';
-        bAll.onclick = function () { location.href = '/meus-dados/?meus=1'; };
+        favoritos.juntar(achados.map(function (it) { return it.id; })); sincronizaEstrelas();
+        trackLista('selection_save_all', { ids: achados.map(function (it) { return it.id; }).join('-'), count: n });
+        toast('Guardados na sua lista.', [{ rotulo: 'Ver lista', href: '/comparacoes/?lista=1' }]);
       });
-      pe.appendChild(bAll);
+      var bImg = el('button', 'cat-btn', 'Imagem desta seleção', { type: 'button' });
+      bImg.addEventListener('click', function () { imagemSelecao(achados, caminhoSelecao(achados.map(function (it) { return it.id; })), 'chegada'); });
+      add(pe, bAll, bImg);
     }
-    pe.appendChild(el('a', 'cat-link', 'Ver todas as comparações ›', { href: '/meus-dados/' }));
+    pe.appendChild(el('a', 'cat-link', 'Ver todas as comparações ›', { href: '/comparacoes/' }));
     root.appendChild(pe);
+    if (invalidos.length || retirados.length || excesso) {
+      var av = el('div', 'sel-aviso');
+      if (invalidos.length) av.appendChild(el('p', null, 'Não encontramos ' + (invalidos.length === 1 ? 'o item ' : 'os itens ') + invalidos.join(', ') + ' (link incompleto ou digitado errado).'));
+      retirados.forEach(function (it) {
+        var p = el('p', null, 'A comparação nº ' + it.id + ' saiu do site' + (it.substituido_por ? '; veja a versão atual: ' : '.'));
+        if (it.substituido_por) p.appendChild(el('a', null, 'comparação nº ' + it.substituido_por, { href: '/c/' + it.substituido_por }));
+        av.appendChild(p);
+      });
+      if (excesso) av.appendChild(el('p', null, 'O link tinha mais de ' + max + ' itens: mostramos os ' + max + ' primeiros.'));
+      root.appendChild(av);
+    }
+    if (!n) {   // sem itens válidos: mostra o resumo do site inteiro (os dois lados), não só o link
+      var tab2 = el('div', 'sel-tab');
+      ativos().filter(function (it) { return it.no_placar; }).forEach(function (it) { tab2.appendChild(linha(it)); });
+      root.appendChild(add(el('section', 'sel-site'), el('h2', null, 'Os quesitos do placar dos governos'), tab2));
+    }
     var o = (/[?&]utm_source=([a-z]+)/.exec(location.search) || [])[1] || 'link';
-    track('selection_view', { ids: achados.map(function (it) { return it.id; }).join('-'), count: n, invalid_count: invalidos.length + retirados.length, origem: o });
+    var p = composicao(achados); p.ids = achados.map(function (it) { return it.id; }).join('-'); p.count = n;
+    p.invalid_count = invalidos.length + retirados.length; p.origem = o;
+    trackLista('selection_view', p);
   }
 
-  /* ----------------------------------------------------------------- boot */
+  /* ================================================================== ESTRELAS NAS PÁGINAS DE ANÁLISE */
+  function iniciarEstrelas(mapa) {
+    var k, n = 0;
+    for (k in mapa) if (mapa.hasOwnProperty(k)) {
+      var alvo = D.getElementById(k); if (!alvo) continue;
+      var id = mapa[k][0], rot = mapa[k][1];
+      var host = alvo.querySelector('.vrd-topo') || alvo.querySelector('.chap-hd') || alvo;
+      if (host.querySelector('.cat-star')) continue;
+      var b = estrela(id, rot, null);
+      b.classList.add('cat-star--pg');
+      if (host.classList.contains('chap-hd')) host.classList.add('cat-com-estrela');
+      host.appendChild(b); n += 1;
+    }
+    // "Ver todas as comparações" no fim do resumo (decisão do dono, item 9) — só acrescenta, não altera o resumo
+    var res = D.getElementById('resumo');
+    if (res && !res.querySelector('.cat-ver-todas')) res.appendChild(add(el('p', 'cat-ver-todas'), el('a', 'cat-link', 'Ver todas as comparações e montar sua lista ›', { href: '/comparacoes/' })));
+    return n;
+  }
+  /* barra inferior do ui.js e aba do cabeçalho: "★ Minha lista (n)" depois do 1º favorito */
+  function ligaAtalhos(tent) {
+    var nav = D.querySelector('.sb-nav a[href="/comparacoes/"]');
+    function upd() {
+      var n = favoritos.lista().length;
+      if (nav) {
+        var b = nav.querySelector('.cat-n'); if (!b) { b = el('span', 'cat-n'); nav.appendChild(b); }
+        b.textContent = n ? ' ★' + n : ''; b.hidden = !n;
+        nav.setAttribute('aria-label', n ? 'Comparações (sua lista tem ' + n + ')' : 'Comparações');
+      }
+      var bar = D.querySelector('.bbar'); if (!bar) return;
+      var sec = bar.querySelector('[data-track-label="secoes"]'), ml = bar.querySelector('.cat-bbar-lista');
+      if (!ml) {
+        ml = el('a', 'bbar-btn cat-bbar-lista', null, { href: '/comparacoes/?lista=1', 'data-track': 'bbar_click', 'data-track-label': 'minha_lista' });
+        if (sec) sec.parentNode.insertBefore(ml, sec.nextSibling); else bar.appendChild(ml);
+      }
+      ml.textContent = '★ Minha lista (' + n + ')';
+      ml.hidden = !n; if (sec) sec.hidden = !!n;
+    }
+    upd();
+    D.addEventListener('bpd:favoritos', upd);
+    if (!D.querySelector('.bbar') && D.querySelector('.topnav') && (tent || 0) < 10) setTimeout(function () { ligaAtalhos((tent || 0) + 1); }, 300);
+  }
+
+  /* ------------------------------------------------------------------ boot */
   function boot() {
+    var mapaEl = D.getElementById('bpd-ancoras');
+    if (mapaEl) { try { iniciarEstrelas(JSON.parse(mapaEl.textContent)); } catch (e) {} }
+    ligaAtalhos(0);
     var roots = D.querySelectorAll('[data-catalogo]'); if (!roots.length) return;
     carregar(function (err) {
       var i;
       for (i = 0; i < roots.length; i += 1) {
         var r = roots[i];
-        if (err || !REG) { r.textContent = 'Não foi possível carregar as comparações. Tente de novo ou veja as páginas de análise.'; continue; }
+        if (err || !REG) { r.appendChild(el('p', 'cat-note', 'Não foi possível carregar as comparações agora. A lista abaixo é a versão estática.')); continue; }
         if (r.getAttribute('data-catalogo') === 'selecao') iniciarSelecao(r); else iniciarCatalogo(r);
         r.setAttribute('data-pronto', '1');
       }
     });
   }
-  window.BPDCatalogo = { favoritos: favoritos, parseIds: parseIds, caminhoSelecao: caminhoSelecao, card: card, MAX_SEL: MAX_SEL };
+  W.BPDCatalogo = { favoritos: favoritos, parseIds: parseIds, caminhoSelecao: caminhoSelecao };
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', boot); else boot();
 })();

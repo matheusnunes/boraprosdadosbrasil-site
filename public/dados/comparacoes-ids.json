@@ -1,0 +1,306 @@
+{
+ "descricao": "Livro-razão APPEND-ONLY dos IDs das comparações: uma linha por id, nunca removida nem alterada. \"pergunta\" = impressão digital (sha256, 16 hex) de métrica|unidade|critério|período de cada lado.",
+ "ids": [
+  {
+   "id": 1,
+   "ref": "H01",
+   "slug": "crescimento",
+   "pergunta": "5af7d760a0f4eec5",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 2,
+   "ref": "H02",
+   "slug": "inflacao",
+   "pergunta": "c6683ada363ef921",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 3,
+   "ref": "H03",
+   "slug": "desemprego",
+   "pergunta": "274e3a7469a56775",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 4,
+   "ref": "H04",
+   "slug": "assistencia",
+   "pergunta": "7b274080ba8966dd",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 5,
+   "ref": "H05",
+   "slug": "selic",
+   "pergunta": "9e89ad2d068acf13",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 6,
+   "ref": "H06",
+   "slug": "gasto",
+   "pergunta": "c13509859fd0adac",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 7,
+   "ref": "H07",
+   "slug": "divida",
+   "pergunta": "7d3cff1636603b7d",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 8,
+   "ref": "H08",
+   "slug": "juros",
+   "pergunta": "da08711b67e12a37",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 9,
+   "ref": "H09",
+   "slug": "salario-minimo",
+   "pergunta": "62d35f59462c0738",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 10,
+   "ref": "H10",
+   "slug": "renda",
+   "pergunta": "cbb62dd52633a7a8",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 11,
+   "ref": "H11",
+   "slug": "desigualdade",
+   "pergunta": "276a298d7385df13",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 12,
+   "ref": "H12",
+   "slug": "renda-por-faixa",
+   "pergunta": "625e3a81979cc778",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 13,
+   "ref": "H13",
+   "slug": "renda-metade-mais-pobre",
+   "pergunta": "978e65ae8684580a",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 14,
+   "ref": "H14",
+   "slug": "renda-10-mais-ricos",
+   "pergunta": "a4267affa89194ea",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 15,
+   "ref": "H15",
+   "slug": "saude-educacao",
+   "pergunta": "cbc740c510b1df3a",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 16,
+   "ref": "H16",
+   "slug": "investimentos",
+   "pergunta": "c54ffe68e0eafbc5",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 17,
+   "ref": "H17",
+   "slug": "assistencia-com-2020",
+   "pergunta": "6c764994e3eb4084",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 18,
+   "ref": "H18",
+   "slug": "previdencia",
+   "pergunta": "96ec7427aa5bb961",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 19,
+   "ref": "H19",
+   "slug": "pessoal",
+   "pergunta": "8bf27bcc6290eea7",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 20,
+   "ref": "H20",
+   "slug": "juros-orcamento",
+   "pergunta": "ff503da0e458e30f",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 21,
+   "ref": "H21",
+   "slug": "gasto-dentro-do-mandato",
+   "pergunta": "ca04833a57c9d1bd",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 22,
+   "ref": "H22",
+   "slug": "gasto-pib",
+   "pergunta": "19d3be693200d9aa",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 23,
+   "ref": "H23",
+   "slug": "divida-estados",
+   "pergunta": "dfdbe6159dd4f137",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 24,
+   "ref": "H24",
+   "slug": "juros-eua",
+   "pergunta": "acd364e4cbd1f07a",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 25,
+   "ref": "H25",
+   "slug": "dolar",
+   "pergunta": "1421ed1fb4f8ea67",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 26,
+   "ref": "H26",
+   "slug": "juro-real-divida",
+   "pergunta": "baac04f54a406036",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 27,
+   "ref": "H27",
+   "slug": "deficit-primario",
+   "pergunta": "b1b9a84b0dcfcdd9",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 28,
+   "ref": "H28",
+   "slug": "teste-sem-pandemia",
+   "pergunta": "f8f0ce4cea92f9de",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 29,
+   "ref": "P00",
+   "slug": "planos-caminho-explicito",
+   "pergunta": "db4de5e15cfc700f",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 30,
+   "ref": "P00b",
+   "slug": "planos-algum-caminho",
+   "pergunta": "b340ac8c9fadc225",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 31,
+   "ref": "P01",
+   "slug": "planos-bolso",
+   "pergunta": "9e257ad94e47fbfd",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 32,
+   "ref": "P02",
+   "slug": "planos-seguranca",
+   "pergunta": "9e257ad94e47fbfd",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 33,
+   "ref": "P03",
+   "slug": "planos-servicos",
+   "pergunta": "9e257ad94e47fbfd",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 34,
+   "ref": "P04",
+   "slug": "planos-economia",
+   "pergunta": "9e257ad94e47fbfd",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 35,
+   "ref": "P05",
+   "slug": "planos-ambiente",
+   "pergunta": "a7c85eb0b3f274cf",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 36,
+   "ref": "B00",
+   "slug": "promessas-cumpridas",
+   "pergunta": "518f5b0cfad5de1f",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 37,
+   "ref": "B00b",
+   "slug": "promessas-cumpridas-verificaveis",
+   "pergunta": "ab520919c79b6f44",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 38,
+   "ref": "B00c",
+   "slug": "promessas-cumpridas-ou-parciais",
+   "pergunta": "10f5be4e95fb7956",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 39,
+   "ref": "B01",
+   "slug": "promessas-impostos-trabalho",
+   "pergunta": "74367531604191bb",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 40,
+   "ref": "B02",
+   "slug": "promessas-servicos",
+   "pergunta": "7ab08332141ef715",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 41,
+   "ref": "B03",
+   "slug": "promessas-estado-infra",
+   "pergunta": "7ab08332141ef715",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 42,
+   "ref": "B04",
+   "slug": "promessas-seguranca-instituicoes",
+   "pergunta": "7ab08332141ef715",
+   "criado_em": "2026-10-15"
+  },
+  {
+   "id": 43,
+   "ref": "B05",
+   "slug": "promessas-nao-cumpridas",
+   "pergunta": "33d2e91cf11e8896",
+   "criado_em": "2026-10-15"
+  }
+ ]
+}

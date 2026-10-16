@@ -1,32 +1,47 @@
 {
- "versao": 1,
- "gerado_em": "2026-10-15",
- "descricao": "Registro único das comparações do site (Governo Bolsonaro × Governo Lula; planos 2026; promessas). IDs numéricos permanentes: nunca mudam nem são reaproveitados. Usado pelo catálogo /meus-dados/ e pelos links /c/1-3-5.",
- "regra_ids": "id inteiro sequencial; permanente; item retirado vira status \"descontinuado\" e o id vai para ids_retirados; novos itens recebem proximo_id.",
+ "versao": 2,
+ "gerado_em": "2026-10-16",
+ "descricao": "Registro único das comparações do site (governos Bolsonaro × Lula; planos 2026; promessas). IDs permanentes: nunca mudam nem são reaproveitados (livro-razão em /dados/comparacoes-ids.json). Usado pela página /comparacoes/, pelas estrelas das páginas e pelos links /c/1-3-5.",
+ "regra_ids": "id inteiro sequencial; permanente; mudar a pergunta exige id novo; item retirado vira \"descontinuado\" e o id vai para ids_retirados.",
  "proximo_id": 44,
  "ids_retirados": [],
+ "config": {
+  "impacto_filtro": false,
+  "max_selecao": 12,
+  "slugs_reservados": [
+   "placar",
+   "promessas",
+   "planos",
+   "balanco",
+   "propostas",
+   "selecao",
+   "compartilhar",
+   "lista",
+   "carrossel-placar",
+   "carrossel-promessas",
+   "carrossel-balanco",
+   "carrossel-planos"
+  ],
+  "regex_selecao": "^[pb]?\\d+(-[pb]?\\d+)*$"
+ },
  "impacto_niveis": {
   "bolso": {
    "ordem": 1,
    "rotulo": "Direto no bolso",
-   "regra": "Medido na família ou no preço que ela paga: preços ao consumidor, emprego, renda, salário, crédito às famílias."
+   "regra": "Medido na família ou no preço que ela paga: R$ por pessoa ou família, preço ao consumidor, % de pessoas numa situação, juro ou parcela paga pela família."
   },
   "servicos": {
    "ordem": 2,
    "rotulo": "Nos serviços e na proteção social",
-   "regra": "O que o governo entrega a pessoas: saúde, educação, segurança, assistência e previdência (gasto ou entrega)."
+   "regra": "O que o governo gasta ou entrega a pessoas: saúde, educação, segurança, assistência e previdência."
   },
-  "economia": {
+  "contas": {
    "ordem": 3,
-   "rotulo": "Indireto, de prazo mais longo",
-   "regra": "Agregado da economia, das contas do governo, do meio ambiente ou das instituições (PIB, dívida, juros da dívida, gasto total, carga de impostos, câmbio, desmatamento): chega por canais indiretos e ao longo do tempo."
-  },
-  "panorama": {
-   "ordem": 4,
-   "rotulo": "Panorama (vários temas)",
-   "regra": "Placar geral que soma vários temas; não tem um canal único."
+   "rotulo": "Pelas contas do governo",
+   "regra": "Agregado da economia ou das contas do governo (PIB, gasto total, dívida, juros, câmbio): chega ao bolso pelo juro do crediário, pelos impostos e pelo espaço no orçamento."
   }
  },
+ "impacto_nota": "O canal mostra por onde o dado chega até você, não a importância: dívida e juros também chegam ao bolso, pelo juro do crediário e pelo espaço no orçamento.",
  "temas": {
   "precos": "Preços",
   "trabalho": "Emprego",
@@ -39,37 +54,41 @@
   "contas": "Contas públicas",
   "mundo": "Cenário externo",
   "ambiente": "Meio ambiente e instituições",
+  "credito": "Crédito e dívidas das famílias",
   "planos": "Planos de governo",
   "promessas": "Promessas"
  },
  "paginas": {
   "/": {
    "id": "comparativo",
-   "nome": "Governo Lula × Bolsonaro"
+   "nome": "Governos"
   },
   "/propostas/": {
    "id": "propostas",
-   "nome": "Propostas 2026"
+   "nome": "Planos 2026"
   },
   "/balanco/": {
    "id": "balanco",
-   "nome": "Promessas e realizações"
+   "nome": "Promessas"
   }
  },
  "comparacoes": [
   {
-   "id": 1,
    "ref": "H01",
    "slug": "crescimento",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Quanto a economia cresceu por ano?",
    "tema": "economia",
+   "tema_curto": "Crescimento",
    "tema_matriz": "Crescimento da economia",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-motor",
    "ancora_card": "q-crescimento",
    "no_placar": true,
+   "bloco_placar": "Economia e renda",
    "catalogo": true,
    "metrica": "PIB real, taxa média anual composta (geométrica)",
    "unidade": "% ao ano",
@@ -87,14 +106,20 @@
      "valor": "3,0%"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "maior é melhor",
    "forca": "clara",
+   "selo": "cresceu mais",
    "ressalva": "Média de Bolsonaro inclui recessão de 2020; sem 2020-21: 2,1% × 3,0%",
-   "impacto": "economia",
-   "como_chega": "O crescimento chega aos poucos: mais vendas, contratações e arrecadação ao longo dos anos.",
+   "nota_visual": null,
+   "impacto": "contas",
+   "como_chega": "Economia que cresce gera vagas e renda ao longo dos anos, e mais arrecadação para o governo.",
    "fonte": "IBGE (Contas Nacionais), via Banco Central",
    "fonte_detalhe": "public/dados/banco-central/bcb_sgs_series.json (série 7326)",
    "arquivos": [
@@ -115,21 +140,27 @@
      "sufixo": "% ao ano"
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 1,
+   "pergunta": "5af7d760a0f4eec5"
   },
   {
-   "id": 2,
    "ref": "H02",
    "slug": "inflacao",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Quanto os preços subiram por ano?",
    "tema": "precos",
+   "tema_curto": "Inflação",
    "tema_matriz": "Inflação",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-motor",
    "ancora_card": "q-inflacao",
    "no_placar": true,
+   "bloco_placar": "Economia e renda",
    "catalogo": true,
    "metrica": "IPCA anual, média geométrica",
    "unidade": "% ao ano",
@@ -147,12 +178,18 @@
      "valor": "4,6%"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "menor",
    "criterio_texto": "menor é melhor",
    "forca": "apertada",
-   "ressalva": "Sem 2020-21: 5,0% × 4,6%; só 2019: 4,3% × 4,6% (inverte)",
+   "selo": "menor inflação",
+   "ressalva": "Só com 2019: 4,3% × 4,6%, inverte. Sem 2020–21: 5,0% × 4,6%.",
+   "nota_visual": null,
    "impacto": "bolso",
    "como_chega": "É o aumento de preços do mercado, do aluguel e da conta de luz: quanto o seu dinheiro deixa de comprar.",
    "fonte": "IBGE (IPCA), via Banco Central",
@@ -175,21 +212,27 @@
      "sufixo": "% ao ano"
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 2,
+   "pergunta": "c6683ada363ef921"
   },
   {
-   "id": 3,
    "ref": "H03",
    "slug": "desemprego",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Quantos procuravam emprego e não achavam?",
    "tema": "trabalho",
+   "tema_curto": "Desemprego",
    "tema_matriz": "Emprego",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-motor",
    "ancora_card": "q-emprego",
    "no_placar": true,
+   "bloco_placar": "Economia e renda",
    "catalogo": true,
    "metrica": "Taxa de desemprego PNAD, média das médias anuais",
    "unidade": "% da força de trabalho",
@@ -207,12 +250,18 @@
      "valor": "7,0%"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "menor",
    "criterio_texto": "menor é melhor",
    "forca": "clara",
-   "ressalva": "2020-21 de pandemia; só 2019 já dá 12,0% × 7,0%",
+   "selo": "menos desemprego",
+   "ressalva": "Sem 2020–21 (pandemia): 10,8% × 7,0%; só 2019: 12,0% × 7,0%. O resultado não muda.",
+   "nota_visual": null,
    "impacto": "bolso",
    "como_chega": "Mostra a chance de quem procura trabalho encontrar uma vaga.",
    "fonte": "IBGE (PNAD Contínua), via Banco Central",
@@ -235,21 +284,27 @@
      "sufixo": "%"
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 3,
+   "pergunta": "274e3a7469a56775"
   },
   {
-   "id": 4,
    "ref": "H04",
    "slug": "assistencia",
    "status": "ativo",
-   "titulo": "Quanto foi gasto com assistência social (sem 2020)?",
+   "origem": "matriz",
+   "titulo": "Quanto foi gasto com assistência social, por ano?",
    "tema": "protecao",
+   "tema_curto": "Proteção social",
    "tema_matriz": "Proteção social (gasto com Assistência)",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "placar",
    "ancora_card": "q-protecao-social",
    "no_placar": true,
+   "bloco_placar": "Economia e renda",
    "catalogo": true,
    "metrica": "Despesa empenhada da União na função 08 Assistência Social, média anual real, Bolsonaro SEM 2020",
    "unidade": "R$ bi/ano (dez/2025, IPCA)",
@@ -267,12 +322,18 @@
      "valor": "R$ 293,5 bi"
     }
    },
+   "periodo_curto": {
+    "b": "2019, 2021–22",
+    "l": "2023–25"
+   },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "maior gasto é melhor",
    "forca": "apertada",
-   "ressalva": "Com a janela inteira (incl. 2020) a diferença é só +4,1%",
+   "selo": "gastou mais",
+   "ressalva": "Com 2020 na conta: R$ 282,1 × R$ 293,5 bi/ano (ver a comparação nº 17).",
+   "nota_visual": "Regra desta comparação: Governo Bolsonaro sem 2020 (Auxílio Emergencial) · em R$ de dez/2025",
    "impacto": "servicos",
    "como_chega": "É o dinheiro de programas como Bolsa Família, Auxílio Brasil e BPC, que chega a famílias de baixa renda.",
    "fonte": "Tesouro Nacional (SICONFI/RREO)",
@@ -301,22 +362,27 @@
      "sufixo": " bi/ano"
     }
    },
-   "atualizado_em": "2026-10-15",
-   "revisao": "Regra particular: sem 2020 para o Governo Bolsonaro (decisão do dono, item 2). frase_veredito da matriz usa 282 × 294 (janela completa, H17): conferir."
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 4,
+   "pergunta": "7b274080ba8966dd"
   },
   {
-   "id": 5,
    "ref": "H05",
    "slug": "selic",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Juro básico (Selic): quanto custava o dinheiro?",
    "tema": "juros",
+   "tema_curto": "Selic",
    "tema_matriz": "Juros básicos (Selic)",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-motor",
    "ancora_card": "q-selic",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Selic diária, média aritmética das médias anuais",
    "unidade": "% ao ano",
@@ -334,14 +400,20 @@
      "valor": "12,9%"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "contexto",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "declarado como contexto (não entra no placar)",
    "forca": null,
-   "ressalva": "Banco Central autônomo desde 2021; instrumento de política, não resultado",
-   "impacto": "economia",
-   "como_chega": "A Selic influencia o juro do crediário, do cartão e dos financiamentos, e o rendimento das aplicações.",
+   "selo": null,
+   "ressalva": "É decidida pelo Banco Central (autônomo desde 2021) para controlar a inflação: é ferramenta, não resultado.",
+   "nota_visual": null,
+   "impacto": "contas",
+   "como_chega": "Chega pelo juro do crediário, do cartão e do financiamento, e pelo rendimento das aplicações.",
    "fonte": "Banco Central",
    "fonte_detalhe": "public/dados/banco-central/bcb_sgs_series.json (série 432)",
    "arquivos": [
@@ -362,21 +434,27 @@
      "sufixo": "% ao ano"
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 5,
+   "pergunta": "9e89ad2d068acf13"
   },
   {
-   "id": 6,
    "ref": "H06",
    "slug": "gasto",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Quanto o governo federal gastou por ano, sem contar juros?",
    "tema": "contas",
+   "tema_curto": "Controle do gasto",
    "tema_matriz": "Controle do gasto",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-conta",
    "ancora_card": "q-gasto",
    "no_placar": true,
+   "bloco_placar": "Contas públicas",
    "catalogo": true,
    "metrica": "Despesa primária (proxy: empenhado União − juros − amortização), média anual real",
    "unidade": "R$ tri/ano (dez/2025, IPCA)",
@@ -394,14 +472,20 @@
      "valor": "R$ 3,02 tri"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "vitoria",
    "vencedor": "b",
    "criterio": "menor",
    "criterio_texto": "menor gasto é melhor",
    "forca": "apertada",
-   "ressalva": "Em % do PIB: 25,0% × 24,5% com 2020; 23,3% × 24,5% sem 2020",
-   "impacto": "economia",
-   "como_chega": "Gasto maior pode significar mais serviços agora e mais dívida ou impostos depois; gasto menor, o contrário.",
+   "selo": "gastou menos",
+   "ressalva": "Em % do PIB: 25,0% × 24,5%, inverte.",
+   "nota_visual": "Regra desta comparação: em R$ de dez/2025 (sem a inflação)",
+   "impacto": "contas",
+   "como_chega": "Gasto maior pode trazer mais serviços agora e mais dívida ou imposto depois; gasto menor, o contrário.",
    "fonte": "Tesouro Nacional (SICONFI/RREO)",
    "fonte_detalhe": "public/dados/tesouro-siconfi/uniao_natureza.jsonl + IPCA (SGS 433)",
    "arquivos": [
@@ -428,21 +512,27 @@
      "sufixo": " tri/ano"
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 6,
+   "pergunta": "c13509859fd0adac"
   },
   {
-   "id": 7,
    "ref": "H07",
    "slug": "divida",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Quanto a dívida pública mudou, em pontos do PIB?",
    "tema": "contas",
+   "tema_curto": "Dívida pública",
    "tema_matriz": "Dívida pública",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-conta",
    "ancora_card": "q-divida",
    "no_placar": true,
+   "bloco_placar": "Contas públicas",
    "catalogo": true,
    "metrica": "Variação da DBGG/PIB entre início e fim da janela",
    "unidade": "pontos percentuais do PIB",
@@ -451,24 +541,30 @@
      "nome": "Governo Bolsonaro",
      "curto": "Bolsonaro",
      "periodo": "dez/2018 → dez/2022 (48 meses)",
-     "valor": "−3,6 p.p.",
-     "detalhe": "75,3% → 71,7% do PIB (dez/18 a dez/22)"
+     "valor": "−3,6 pontos",
+     "detalhe": "75,3% → 71,7% do PIB"
     },
     "l": {
      "nome": "Governo Lula",
      "curto": "Lula",
      "periodo": "dez/2022 → ago/2026 (44 meses, parcial)",
-     "valor": "+11,2 p.p.",
+     "valor": "+11,2 pontos",
      "detalhe": "71,7% → 82,9% do PIB (parcial, até ago/26)"
     }
+   },
+   "periodo_curto": {
+    "b": "dez/18–dez/22",
+    "l": "dez/22–ago/26"
    },
    "resultado": "vitoria",
    "vencedor": "b",
    "criterio": "menor",
    "criterio_texto": "menor (queda) é melhor",
    "forca": "clara",
-   "ressalva": "Lula até dez/2025: +7,0 p.p.; queda de Bolsonaro veio de PIB nominal/inflação",
-   "impacto": "economia",
+   "selo": "dívida subiu menos",
+   "ressalva": "Contando o Governo Lula só até dez/2025: −3,6 × +7,0 pontos. O resultado não muda.",
+   "nota_visual": "Regra desta comparação: Governo Lula parcial, até ago/26",
+   "impacto": "contas",
    "como_chega": "Dívida maior tende a pressionar juros e impostos no futuro; dívida menor abre espaço no orçamento.",
    "fonte": "Banco Central",
    "fonte_detalhe": "public/dados/banco-central/bcb_dbgg_serie_2018plus.json (SGS 13762)",
@@ -491,22 +587,27 @@
      "sinal": true
     }
    },
-   "atualizado_em": "2026-10-15",
-   "revisao": "frase_veredito da matriz usa +7,0 (até dez/2025); o placar usa +11,2 (até ago/26): conferir."
+   "dados_ate": "ago/2026",
+   "atualizado_em": "2026-10-16",
+   "id": 7,
+   "pergunta": "7d3cff1636603b7d"
   },
   {
-   "id": 8,
    "ref": "H08",
    "slug": "juros",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Quanto se pagou de juros da dívida por ano?",
    "tema": "juros",
+   "tema_curto": "Conta de juros",
    "tema_matriz": "Conta de juros da dívida",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-conta",
    "ancora_card": "q-juros",
    "no_placar": true,
+   "bloco_placar": "Contas públicas",
    "catalogo": true,
    "metrica": "Juros nominais do setor público consolidado (NFSP, 12m em dez) = resultado nominal − primário",
    "unidade": "% do PIB (e R$ bi/ano reais, dez/2025)",
@@ -524,14 +625,20 @@
      "valor": "7,5% do PIB (R$ 928 bi)"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "vitoria",
    "vencedor": "b",
    "criterio": "menor",
    "criterio_texto": "menor é melhor",
    "forca": "clara",
-   "ressalva": "Juros nominais incluem inflação; dívida maior e Selic mais alta",
-   "impacto": "economia",
-   "como_chega": "O dinheiro que vai para juros não vai para serviços; ele depende do tamanho da dívida e da Selic.",
+   "selo": "menos juros",
+   "ressalva": "Juros nominais incluem a inflação; dependem do tamanho da dívida e da Selic.",
+   "nota_visual": null,
+   "impacto": "contas",
+   "como_chega": "O dinheiro que vai para juros não vai para serviços; dívida maior e Selic alta encarecem essa conta.",
    "fonte": "Banco Central (NFSP)",
    "fonte_detalhe": "public/dados/banco-central/bcb_sgs_series.json (séries 5727, 5793, 4380)",
    "arquivos": [
@@ -552,21 +659,27 @@
      "sufixo": "% do PIB"
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 8,
+   "pergunta": "da08711b67e12a37"
   },
   {
-   "id": 9,
    "ref": "H09",
    "slug": "salario-minimo",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Quanto o salário mínimo comprava?",
    "tema": "renda",
+   "tema_curto": "Salário mínimo",
    "tema_matriz": "Salário mínimo",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-bolso",
    "ancora_card": "q-salario-minimo",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Salário mínimo de dezembro, deflacionado pelo IPCA para R$ de dez/2025, média da janela",
    "unidade": "R$/mês (dez/2025)",
@@ -584,12 +697,18 @@
      "valor": "R$ 1.478"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "maior é melhor",
    "forca": "clara",
+   "selo": "mínimo maior",
    "ressalva": "Dentro das janelas: −0,2% (2019→22) e +5,2% (2023→25)",
+   "nota_visual": "Em R$ de dez/2025 (sem a inflação)",
    "impacto": "bolso",
    "como_chega": "É o piso de quem ganha o mínimo e a base de aposentadorias e benefícios ligados a ele.",
    "fonte": "Banco Central (SGS 1619) e IBGE (IPCA)",
@@ -616,21 +735,27 @@
      "casas": 0
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 9,
+   "pergunta": "62d35f59462c0738"
   },
   {
-   "id": 10,
    "ref": "H10",
    "slug": "renda",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Quanto cada pessoa da família tinha por mês?",
    "tema": "renda",
+   "tema_curto": "Renda por pessoa",
    "tema_matriz": "Renda das famílias",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-bolso",
    "ancora_card": "q-renda",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Rendimento domiciliar per capita (SIDRA 7531 Total), deflacionado pelo IPCA de dez para dez/2025, média da janela",
    "unidade": "R$/mês por pessoa (dez/2025)",
@@ -648,12 +773,18 @@
      "valor": "R$ 2.127"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "maior é melhor",
    "forca": "clara",
+   "selo": "renda maior",
    "ressalva": "Deflator de dezembro sobre série a preços médios do ano; variação muda pouco",
+   "nota_visual": "Em R$ de dez/2025 (sem a inflação)",
    "impacto": "bolso",
    "como_chega": "É quanto, em média, cada pessoa da família tem por mês para viver, já sem a inflação.",
    "fonte": "IBGE (PNAD Contínua/SIDRA)",
@@ -681,21 +812,27 @@
      "casas": 0
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 10,
+   "pergunta": "cbb62dd52633a7a8"
   },
   {
-   "id": 11,
    "ref": "H11",
    "slug": "desigualdade",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "A renda ficou menos desigual? (índice de Gini)",
    "tema": "renda",
+   "tema_curto": "Desigualdade",
    "tema_matriz": "Desigualdade",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-bolso",
    "ancora_card": "q-desigualdade",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Índice de Gini do rendimento domiciliar per capita, média da janela",
    "unidade": "índice 0–1",
@@ -713,13 +850,19 @@
      "valor": "0,511"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "menor",
    "criterio_texto": "menor é melhor",
    "forca": "clara",
+   "selo": "menos desigual",
    "ressalva": "2022 (0,517) já era mínimo da série; 2025 subiu para 0,511",
-   "impacto": "bolso",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "Mostra se a renda cresceu mais para quem ganha menos ou para quem ganha mais.",
    "fonte": "IBGE (PNAD Contínua/SIDRA)",
    "fonte_detalhe": "public/dados/ibge/ibge_sidra.json (7435)",
@@ -740,21 +883,28 @@
      "casas": 3
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "revisao": "Canal: pela regra estrita o Gini (índice de distribuição) não é \"bolso\"; o rótulo \"Pelas contas do governo\" também não o descreve. Fica sem etiqueta de canal até decisão.",
+   "id": 11,
+   "pergunta": "276a298d7385df13"
   },
   {
-   "id": 12,
    "ref": "H12",
    "slug": "renda-por-faixa",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Ganho de renda por faixa (P10 a P99)",
    "tema": "renda",
+   "tema_curto": "Renda por faixa",
    "tema_matriz": "Ganho de renda por faixa",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-bolso",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": false,
    "metrica": "Variação real do LIMITE superior de cada percentil (SIDRA 7438), média das janelas",
    "unidade": "índice Bolsonaro = 100",
@@ -772,12 +922,18 @@
      "valor": "P10 137,7 · P50 126,8 · P95 117,3 · P99 est. 110,2"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "sem-placar",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "maior é melhor",
    "forca": null,
+   "selo": null,
    "ressalva": "P99 estimado; dado não publicado; rótulo \"renda média da faixa\" impreciso",
+   "nota_visual": null,
    "impacto": "bolso",
    "como_chega": "Mostra em que faixa de renda o ganho, sem a inflação, foi maior.",
    "fonte": "IBGE (PNAD Contínua/SIDRA)",
@@ -790,23 +946,29 @@
    ],
    "como_calculamos": "arquivo-fonte dos limites por percentil não está em public/dados; P99 é estimativa Pareto. O texto chama os valores de \"renda média da faixa\", mas batem com limites (P10 2025 = R$ 451)",
    "grafico": null,
-   "atualizado_em": "2026-10-15",
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
    "vencedor_matriz": "Governo Lula",
-   "revisao": "Fora do catálogo: a tabela usada (SIDRA 7438) não está nos arquivos publicados em /dados/ (matriz: \"NÃO publicado\")."
+   "revisao": "Fora do catálogo: a tabela usada (SIDRA 7438) não está nos arquivos publicados em /dados/.",
+   "id": 12,
+   "pergunta": "625e3a81979cc778"
   },
   {
-   "id": 13,
    "ref": "H13",
    "slug": "renda-metade-mais-pobre",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Quanto tinha a metade mais pobre, por pessoa?",
    "tema": "renda",
+   "tema_curto": "Renda dos 50% mais pobres",
    "tema_matriz": "Renda dos 50% mais pobres",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-bolso",
-   "ancora_card": "q-renda-base",
+   "ancora_card": "q-renda-pobres",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Média dos 5 primeiros décimos da SIDRA 7531, real",
    "unidade": "R$/mês por pessoa (dez/2025)",
@@ -824,12 +986,18 @@
      "valor": "R$ 743"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "maior é melhor",
    "forca": "clara",
+   "selo": "renda maior",
    "ressalva": "Mesmo deflator de H10",
+   "nota_visual": "Em R$ de dez/2025 (sem a inflação)",
    "impacto": "bolso",
    "como_chega": "É a renda média por pessoa da metade da população que ganha menos.",
    "fonte": "IBGE (PNAD Contínua/SIDRA)",
@@ -852,21 +1020,27 @@
      "casas": 0
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 13,
+   "pergunta": "978e65ae8684580a"
   },
   {
-   "id": 14,
    "ref": "H14",
    "slug": "renda-10-mais-ricos",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Renda dos 10% mais ricos",
    "tema": "renda",
+   "tema_curto": "Renda dos 10% mais ricos",
    "tema_matriz": "Renda dos 10% mais ricos",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-bolso",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "SIDRA 7531 \"Maior que o P90\", real",
    "unidade": "R$/mês por pessoa (dez/2025)",
@@ -884,12 +1058,18 @@
      "valor": "R$ 8.557"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "contexto",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "contexto (razão topo/base)",
    "forca": null,
+   "selo": null,
    "ressalva": "Faixa fora/topo da lente; só referência",
+   "nota_visual": null,
    "impacto": "bolso",
    "como_chega": "Serve de referência para comparar o topo com a base da renda; não conta ponto.",
    "fonte": "IBGE (PNAD Contínua/SIDRA)",
@@ -912,21 +1092,27 @@
      "casas": 0
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 14,
+   "pergunta": "a4267affa89194ea"
   },
   {
-   "id": 15,
    "ref": "H15",
    "slug": "saude-educacao",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Quanto foi gasto com saúde e educação?",
    "tema": "servicos",
+   "tema_curto": "Saúde e educação",
    "tema_matriz": "Saúde e Educação",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-gasto",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Empenhado da União, funções 10+12, média anual real",
    "unidade": "R$ bi/ano (dez/2025)",
@@ -944,12 +1130,18 @@
      "valor": "R$ 384,8 bi"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "sem-placar",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "maior gasto é melhor",
    "forca": null,
+   "selo": null,
    "ressalva": "Gasto não é resultado; empenhado, não pago",
+   "nota_visual": "Em R$ de dez/2025 · sem placar: gastar mais não é, sozinho, melhor",
    "impacto": "servicos",
    "como_chega": "Financia hospitais, postos, escolas e universidades; gastar mais não garante, sozinho, serviço melhor.",
    "fonte": "Tesouro Nacional (SICONFI/RREO)",
@@ -978,23 +1170,28 @@
      "sufixo": " bi/ano"
     }
    },
-   "atualizado_em": "2026-10-15",
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
    "vencedor_matriz": "Governo Lula",
-   "revisao": "Roteiro (60 §11.3) e dataviz: áreas de gasto são \"sem placar\" (gastar mais não é, sozinho, melhor). Matriz: Lula, maior gasto."
+   "id": 15,
+   "pergunta": "cbc740c510b1df3a"
   },
   {
-   "id": 16,
    "ref": "H16",
    "slug": "investimentos",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Quanto foi investido em obras e equipamentos?",
    "tema": "contas",
+   "tema_curto": "Investimentos",
    "tema_matriz": "Investimentos e obras",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-gasto",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Empenhado da União, grupo 4 Investimentos, média anual real",
    "unidade": "R$ bi/ano (dez/2025)",
@@ -1012,14 +1209,20 @@
      "valor": "R$ 72,9 bi"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "sem-placar",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "maior gasto é melhor",
    "forca": null,
+   "selo": null,
    "ressalva": "Cerca de 2% do gasto primário nos dois governos",
-   "impacto": "economia",
-   "como_chega": "São estradas, obras e equipamentos públicos: cerca de 2% do gasto nos dois governos.",
+   "nota_visual": "Em R$ de dez/2025 · sem placar: gastar mais não é, sozinho, melhor",
+   "impacto": "contas",
+   "como_chega": "São estradas, obras e equipamentos públicos; somam cerca de 2% do gasto nos dois governos.",
    "fonte": "Tesouro Nacional (SICONFI/RREO)",
    "fonte_detalhe": "public/dados/tesouro-siconfi/uniao_natureza.jsonl + IPCA",
    "arquivos": [
@@ -1046,23 +1249,28 @@
      "sufixo": " bi/ano"
     }
    },
-   "atualizado_em": "2026-10-15",
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
    "vencedor_matriz": "Governo Lula",
-   "revisao": "Investimento público = capital para o futuro (OCDE: capital econômico) → nível \"economia\". Sem placar pelo roteiro."
+   "id": 16,
+   "pergunta": "c54ffe68e0eafbc5"
   },
   {
-   "id": 17,
    "ref": "H17",
    "slug": "assistencia-com-2020",
    "status": "ativo",
-   "titulo": "Assistência social com a janela inteira (com 2020)",
+   "origem": "matriz",
+   "titulo": "Assistência social contando 2020",
    "tema": "protecao",
+   "tema_curto": "Assistência com 2020",
    "tema_matriz": "Assistência social (gasto)",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-gasto",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Empenhado função 08, média anual real (janela completa)",
    "unidade": "R$ bi/ano (dez/2025)",
@@ -1080,14 +1288,20 @@
      "valor": "R$ 293,5 bi"
     }
    },
-   "resultado": "sem-placar",
-   "vencedor": null,
-   "criterio": null,
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
+   "resultado": "vitoria",
+   "vencedor": "l",
+   "criterio": "maior",
    "criterio_texto": "maior gasto é melhor",
-   "forca": null,
+   "forca": "apertada",
+   "selo": "gastou mais",
    "ressalva": "2020 teve Auxílio Emergencial (R$ 564 bi reais)",
+   "nota_visual": "Leitura alternativa da comparação nº 4 (não conta de novo) · em R$ de dez/2025",
    "impacto": "servicos",
-   "como_chega": "Mesmo dado da assistência social, contando 2020, ano do Auxílio Emergencial.",
+   "como_chega": "Mesmo dado da assistência social, contando 2020, o ano do Auxílio Emergencial.",
    "fonte": "Tesouro Nacional (SICONFI/RREO)",
    "fonte_detalhe": "public/dados/tesouro-siconfi/uniao_funcoes.jsonl + IPCA",
    "arquivos": [
@@ -1114,26 +1328,31 @@
      "sufixo": " bi/ano"
     }
    },
-   "atualizado_em": "2026-10-15",
-   "vencedor_matriz": "Governo Lula",
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
    "variante_de": [
     4
    ],
-   "revisao": "Leitura alternativa do H04. Sem placar pelo roteiro (área de gasto)."
+   "revisao": "Coerência H04 × H17 (96-revisao-dados §2, opção a): H04 é vitória pelo critério do placar; H17 é a mesma pergunta com 2020, vitória-variante apertada.",
+   "id": 17,
+   "pergunta": "6c764994e3eb4084"
   },
   {
-   "id": 18,
    "ref": "H18",
    "slug": "previdencia",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Gasto com Previdência",
    "tema": "protecao",
+   "tema_curto": "Previdência",
    "tema_matriz": "Previdência",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-gasto",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Empenhado função 09, média anual real",
    "unidade": "R$ bi/ano (dez/2025)",
@@ -1151,12 +1370,18 @@
      "valor": "R$ 1.087,6 bi"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "contexto",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "contexto",
    "forca": null,
+   "selo": null,
    "ressalva": "Gasto obrigatório, cresce com a demografia",
+   "nota_visual": null,
    "impacto": "servicos",
    "como_chega": "Paga aposentadorias e pensões; cresce com o envelhecimento da população, por isso não conta ponto.",
    "fonte": "Tesouro Nacional (SICONFI/RREO)",
@@ -1180,21 +1405,27 @@
      "sufixo": " bi/ano"
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 18,
+   "pergunta": "96ec7427aa5bb961"
   },
   {
-   "id": 19,
    "ref": "H19",
    "slug": "pessoal",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Gasto com a folha de pessoal",
    "tema": "contas",
+   "tema_curto": "Folha de pessoal",
    "tema_matriz": "Folha de pessoal",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-gasto",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Empenhado grupo 1, média anual real",
    "unidade": "R$ bi/ano (dez/2025)",
@@ -1212,14 +1443,20 @@
      "valor": "R$ 392,6 bi"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "contexto",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "contexto",
    "forca": null,
+   "selo": null,
    "ressalva": "Congelamento de 2020-21 reduziu a base",
-   "impacto": "economia",
-   "como_chega": "Paga os servidores federais; sozinho, não diz se os serviços melhoraram.",
+   "nota_visual": null,
+   "impacto": "contas",
+   "como_chega": "Paga os servidores federais (professores, médicos, policiais); sozinho, não diz se o serviço melhorou.",
    "fonte": "Tesouro Nacional (SICONFI/RREO)",
    "fonte_detalhe": "public/dados/tesouro-siconfi/uniao_natureza.jsonl",
    "arquivos": [
@@ -1241,21 +1478,27 @@
      "sufixo": " bi/ano"
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 19,
+   "pergunta": "8bf27bcc6290eea7"
   },
   {
-   "id": 20,
    "ref": "H20",
    "slug": "juros-orcamento",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Juros no orçamento federal (outra conta)",
    "tema": "juros",
+   "tema_curto": "Juros no orçamento",
    "tema_matriz": "Juros (orçamento federal)",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-gasto",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Empenhado grupo 2 Juros e Encargos da União (RREO), média anual real",
    "unidade": "R$ bi/ano (dez/2025)",
@@ -1273,13 +1516,19 @@
      "valor": "R$ 331,3 bi"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "contexto",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "contexto (fora da primária)",
    "forca": null,
+   "selo": null,
    "ressalva": "Só União, regime orçamentário; NFSP é o conceito usado no placar",
-   "impacto": "economia",
+   "nota_visual": null,
+   "impacto": "contas",
    "como_chega": "Outra forma de contar os juros (só a União, pelo orçamento); o placar usa a conta do Banco Central.",
    "fonte": "Tesouro Nacional (SICONFI/RREO)",
    "fonte_detalhe": "public/dados/tesouro-siconfi/uniao_natureza.jsonl",
@@ -1302,21 +1551,27 @@
      "sufixo": " bi/ano"
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 20,
+   "pergunta": "ff503da0e458e30f"
   },
   {
-   "id": 21,
    "ref": "H21",
    "slug": "gasto-dentro-do-mandato",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Quanto o gasto cresceu dentro de cada mandato?",
    "tema": "contas",
+   "tema_curto": "Gasto no mandato",
    "tema_matriz": "Crescimento do gasto dentro do mandato",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-conta",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Variação real da despesa primária (proxy) do 1º ao último ano da janela",
    "unidade": "%",
@@ -1334,14 +1589,20 @@
      "valor": "+9,5%"
     }
    },
+   "periodo_curto": {
+    "b": "2019→22",
+    "l": "2023→25"
+   },
    "resultado": "contexto",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "não declarado",
    "forca": null,
+   "selo": null,
    "ressalva": "Janelas de tamanhos diferentes; não anualizado",
-   "impacto": "economia",
-   "como_chega": "Mostra o ritmo do gasto dentro de cada mandato; as janelas têm tamanhos diferentes.",
+   "nota_visual": null,
+   "impacto": "contas",
+   "como_chega": "Mostra o ritmo do gasto dentro de cada mandato; as janelas têm tamanhos diferentes, por isso não conta ponto.",
    "fonte": "Tesouro Nacional (SICONFI/RREO)",
    "fonte_detalhe": "public/dados/tesouro-siconfi/uniao_natureza.jsonl + IPCA",
    "arquivos": [
@@ -1368,47 +1629,59 @@
      "sinal": true
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 21,
+   "pergunta": "ca04833a57c9d1bd"
   },
   {
-   "id": 22,
    "ref": "H22",
    "slug": "gasto-pib",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "O gasto subiu ou caiu em relação ao PIB?",
    "tema": "contas",
+   "tema_curto": "Gasto em % do PIB",
    "tema_matriz": "Gasto em relação ao PIB",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-conta",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Variação da despesa primária (proxy) em % do PIB, 1º→último ano",
-   "unidade": "p.p. do PIB",
+   "unidade": "pontos do PIB",
    "lados": {
     "b": {
      "nome": "Governo Bolsonaro",
      "curto": "Bolsonaro",
      "periodo": "2019 → 2022",
-     "valor": "−0,7 p.p.",
-     "detalhe": "24,0% → 23,2% do PIB (2019 → 2022)"
+     "valor": "−0,7 pontos",
+     "detalhe": "24,0% → 23,2% do PIB"
     },
     "l": {
      "nome": "Governo Lula",
      "curto": "Lula",
      "periodo": "2023 → 2025",
-     "valor": "+0,7 p.p.",
-     "detalhe": "24,3% → 25,0% do PIB (2023 → 2025)"
+     "valor": "+0,7 pontos",
+     "detalhe": "24,3% → 25,0% do PIB"
     }
+   },
+   "periodo_curto": {
+    "b": "2019→22",
+    "l": "2023→25"
    },
    "resultado": "vitoria",
    "vencedor": "b",
    "criterio": "menor",
    "criterio_texto": "menor é melhor (implícito)",
    "forca": "apertada",
+   "selo": "gasto/PIB subiu menos",
    "ressalva": "Médias da janela: 25,0% × 24,5% do PIB (2020 pesa)",
-   "impacto": "economia",
+   "nota_visual": "Leitura alternativa do controle do gasto (nº 6): não conta de novo",
+   "impacto": "contas",
    "como_chega": "Compara o gasto com o tamanho da economia: subir indica gasto crescendo mais que o PIB.",
    "fonte": "Tesouro Nacional (SICONFI) e Banco Central",
    "fonte_detalhe": "public/dados/tesouro-siconfi/uniao_natureza.jsonl + SGS 4380",
@@ -1418,7 +1691,7 @@
      "sha256": "7e8e1f7f8e6715e89d1dbe056b925c4d3965b2626464e57eb07e433ef815d390"
     }
    ],
-   "como_calculamos": "prim/PIB: 23,96 → 23,21 (−0,75); 24,32 → 25,00 (+0,68). Contíguo dez/22→2025: +1,8 p.p.",
+   "como_calculamos": "prim/PIB: 23,96 → 23,21 (−0,75); 24,32 → 25,00 (+0,68). Contíguo dez/22→2025: +1,8 pontos",
    "grafico": {
     "tipo": "duelo",
     "valores": {
@@ -1431,21 +1704,31 @@
      "sinal": true
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "variante_de": [
+    6
+   ],
+   "revisao": "Variante de H06 (96-revisao-dados §2): o gasto não conta duas vezes.",
+   "id": 22,
+   "pergunta": "19d3be693200d9aa"
   },
   {
-   "id": 23,
    "ref": "H23",
    "slug": "divida-estados",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Dívida dos estados",
    "tema": "contas",
+   "tema_curto": "Dívida dos estados",
    "tema_matriz": "Dívida dos estados",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-conta",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "DCL agregada dos 27 entes (RGF), nominal, 1º→último ano",
    "unidade": "R$ tri (nominal)",
@@ -1454,25 +1737,31 @@
      "nome": "Governo Bolsonaro",
      "curto": "Bolsonaro",
      "periodo": "2019 → 2022",
-     "valor": "R$ 0,82 → 0,78 tri",
-     "detalhe": "valores nominais"
+     "valor": "R$ 0,78 tri",
+     "detalhe": "R$ 0,82 → 0,78 tri (nominal)"
     },
     "l": {
      "nome": "Governo Lula",
      "curto": "Lula",
      "periodo": "2023 → 2026 (2º quadrimestre)",
-     "valor": "R$ 0,83 → 0,94 tri",
-     "detalhe": "valores nominais, até 2026"
+     "valor": "R$ 0,94 tri",
+     "detalhe": "R$ 0,83 → 0,94 tri (nominal, até 2026)"
     }
+   },
+   "periodo_curto": {
+    "b": "2019→22",
+    "l": "2023→26"
    },
    "resultado": "contexto",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "contexto",
    "forca": null,
+   "selo": null,
    "ressalva": "Valores nominais; dívida estadual não é gestão federal",
-   "impacto": "economia",
-   "como_chega": "É a dívida dos governos estaduais, que não é administrada pelo governo federal.",
+   "nota_visual": null,
+   "impacto": "contas",
+   "como_chega": "É a dívida dos governos estaduais: pesa nos serviços do seu estado, mas não é gerida pelo governo federal.",
    "fonte": "Tesouro Nacional (SICONFI/RGF)",
    "fonte_detalhe": "public/dados/tesouro-siconfi/estados_rgf_dcl.jsonl",
    "arquivos": [
@@ -1494,21 +1783,27 @@
      "sufixo": " tri"
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 23,
+   "pergunta": "dfdbe6159dd4f137"
   },
   {
-   "id": 24,
    "ref": "H24",
    "slug": "juros-eua",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Juros nos Estados Unidos",
    "tema": "mundo",
+   "tema_curto": "Juros nos EUA",
    "tema_matriz": "Juros nos EUA",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-mundo",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Fed funds efetiva, média das médias anuais",
    "unidade": "% ao ano",
@@ -1526,14 +1821,20 @@
      "valor": "4,8%"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "contexto",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "contexto externo",
    "forca": null,
+   "selo": null,
    "ressalva": "Fator externo, fora do controle de ambos",
-   "impacto": "economia",
-   "como_chega": "Juro alto nos EUA costuma encarecer o dólar e o crédito no Brasil; é fator externo.",
+   "nota_visual": null,
+   "impacto": "contas",
+   "como_chega": "Juro alto nos EUA costuma encarecer o dólar e, por ele, combustíveis e alimentos no Brasil.",
    "fonte": "Federal Reserve Bank of New York",
    "fonte_detalhe": "public/dados/federal-reserve/fed_effr.json",
    "arquivos": [
@@ -1554,21 +1855,27 @@
      "sufixo": "% ao ano"
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 24,
+   "pergunta": "acd364e4cbd1f07a"
   },
   {
-   "id": 25,
    "ref": "H25",
    "slug": "dolar",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Quanto custava o dólar?",
    "tema": "mundo",
+   "tema_curto": "Dólar",
    "tema_matriz": "Dólar",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-mundo",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Dólar comercial venda, média diária da janela",
    "unidade": "R$ por US$",
@@ -1586,13 +1893,19 @@
      "valor": "R$ 5,32"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "contexto",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "contexto externo",
    "forca": null,
+   "selo": null,
    "ressalva": "Câmbio reflete fatores externos e domésticos",
-   "impacto": "economia",
+   "nota_visual": null,
+   "impacto": "contas",
    "como_chega": "Dólar mais caro encarece combustíveis, trigo e eletrônicos; reflete fatores de fora e de dentro.",
    "fonte": "Banco Central",
    "fonte_detalhe": "public/dados/banco-central/bcb_sgs_series.json (série 1)",
@@ -1614,21 +1927,27 @@
      "casas": 2
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 25,
+   "pergunta": "1421ed1fb4f8ea67"
   },
   {
-   "id": 26,
    "ref": "H26",
    "slug": "juro-real-divida",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Juro real que a dívida pagou",
    "tema": "juros",
+   "tema_curto": "Juro real da dívida",
    "tema_matriz": "Juro real que a dívida paga",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-divida",
-   "ancora_card": null,
+   "ancora_card": "q-juro-real",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Juros NFSP 12m ÷ média do estoque DBGG, deflacionado pelo deflator do PIB",
    "unidade": "% ao ano",
@@ -1646,14 +1965,20 @@
      "valor": "+4,8%"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
+   },
    "resultado": "contexto",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "explicativo (r × g)",
    "forca": null,
+   "selo": null,
    "ressalva": "Inflação alta de 2021-22 tornou o juro real negativo",
-   "impacto": "economia",
-   "como_chega": "Ajuda a explicar por que a dívida cresce ou cai: é o juro descontada a inflação.",
+   "nota_visual": null,
+   "impacto": "contas",
+   "como_chega": "Juro real alto faz a dívida crescer mais rápido e ocupa espaço no orçamento.",
    "fonte": "Banco Central",
    "fonte_detalhe": "public/dados/banco-central/bcb_sgs_series.json + public/dados/banco-central/bcb_sgs4380_pib_2018plus.json",
    "arquivos": [
@@ -1679,21 +2004,27 @@
      "sinal": true
     }
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 26,
+   "pergunta": "baac04f54a406036"
   },
   {
-   "id": 27,
    "ref": "H27",
    "slug": "deficit-primario",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Déficit primário (gasto acima da arrecadação, sem juros)",
    "tema": "contas",
+   "tema_curto": "Déficit primário",
    "tema_matriz": "Déficit primário (não está no placar)",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-divida",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Resultado primário NFSP 12m em dez (déficit +), média da janela; soma na decomposição",
    "unidade": "% do PIB",
@@ -1702,23 +2033,29 @@
      "nome": "Governo Bolsonaro",
      "curto": "Bolsonaro",
      "periodo": "2019-2022 (média anual)",
-     "valor": "déficit médio 2,0% (soma +8,1 p.p.)"
+     "valor": "déficit médio de 2,0% do PIB"
     },
     "l": {
      "nome": "Governo Lula",
      "curto": "Lula",
      "periodo": "2023-2025 (média anual)",
-     "valor": "déficit médio 1,0% (soma +3,1 p.p.)"
+     "valor": "déficit médio de 1,0% do PIB"
     }
+   },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–25"
    },
    "resultado": "contexto",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "não avaliado pelo site",
    "forca": null,
+   "selo": null,
    "ressalva": "2020 (pandemia) decide o sinal",
-   "impacto": "economia",
-   "como_chega": "Mostra se o governo gastou mais do que arrecadou, sem contar juros; o ano de 2020 decide o sinal.",
+   "nota_visual": null,
+   "impacto": "contas",
+   "como_chega": "Gastar mais do que arrecada, sem contar juros, faz a dívida subir; o ano de 2020 decide o sinal.",
    "fonte": "Banco Central (NFSP)",
    "fonte_detalhe": "public/dados/banco-central/bcb_sgs_series.json (série 5793)",
    "arquivos": [
@@ -1739,22 +2076,27 @@
      "sufixo": "% do PIB"
     }
    },
-   "atualizado_em": "2026-10-15",
-   "revisao": "Matriz: contexto, \"não avaliado pelo site\"; frase_veredito cita Lula — manter sem placar até decisão."
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "id": 27,
+   "pergunta": "b1b9a84b0dcfcdd9"
   },
   {
-   "id": 28,
    "ref": "H28",
    "slug": "teste-sem-pandemia",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "E sem 2020–21? Crescimento, inflação e desemprego",
    "tema": "economia",
+   "tema_curto": "Teste sem pandemia",
    "tema_matriz": "Teste sem pandemia",
    "pagina": "/",
    "pagina_id": "comparativo",
+   "analise": "Governos",
    "ancora": "cap-divida",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "PIB, IPCA e desemprego excluindo 2020-21 do Governo Bolsonaro",
    "unidade": "% ao ano",
@@ -1772,13 +2114,19 @@
      "valor": "PIB 3,0% · IPCA 4,6% · desemprego 7,0%"
     }
    },
-   "resultado": "vitoria",
-   "vencedor": "l",
+   "periodo_curto": {
+    "b": "2019 e 2022",
+    "l": "2023–25"
+   },
+   "resultado": "sem-placar",
+   "vencedor": null,
    "criterio": null,
    "criterio_texto": "mesmos de H01–H03",
-   "forca": "apertada",
+   "forca": null,
+   "selo": null,
    "ressalva": "Só 2019: IPCA 4,3% × 4,6% favorece Bolsonaro",
-   "impacto": "bolso",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "Refaz três contas sem os anos de pandemia, para ver se o resultado muda.",
    "fonte": "Banco Central",
    "fonte_detalhe": "public/dados/banco-central/bcb_sgs_series.json",
@@ -1790,27 +2138,34 @@
    ],
    "como_calculamos": "geo(1,22; 3,02)=2,12; geo(4,31; 5,78)=5,04; média(12,03; 9,51)=10,77; só 2019: 1,22 / 4,31 / 12,03",
    "grafico": null,
-   "atualizado_em": "2026-10-15",
+   "dados_ate": "2025",
+   "atualizado_em": "2026-10-16",
+   "vencedor_matriz": "Governo Lula",
    "variante_de": [
     1,
     2,
     3
    ],
-   "revisao": "Composto: nível pela maioria dos componentes (IPCA e desemprego = bolso; PIB = economia)."
+   "revisao": "Teste de sensibilidade de H01–H03 (não é comparação própria, não conta ponto). Matriz: \"Lula segue à frente\"; só 2019: IPCA 4,3% × 4,6%.",
+   "id": 28,
+   "pergunta": "f8f0ce4cea92f9de"
   },
   {
-   "id": 29,
    "ref": "P00",
    "slug": "planos-caminho-explicito",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Qual plano mais diz COMO vai fazer?",
    "tema": "planos",
+   "tema_curto": "Planos: ferramenta nomeada",
    "tema_matriz": "Detalhamento dos planos (geral)",
    "pagina": "/propostas/",
    "pagina_id": "propostas",
+   "analise": "Planos 2026",
    "ancora": "placar",
-   "ancora_card": null,
-   "no_placar": true,
+   "ancora_card": "placar",
+   "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Cartões com caminho explícito / parcial / sem caminho",
    "unidade": "cartões (temas)",
@@ -1819,23 +2174,31 @@
      "nome": "Flávio Bolsonaro (plano 2026)",
      "curto": "Flávio",
      "periodo": "plano TSE 2026 (76 págs.)",
-     "valor": "1 / 12 / 6 de 19"
+     "valor": "1 de 19",
+     "detalhe": "parcial 12 · só intenção 6"
     },
     "l": {
      "nome": "Lula (plano 2026)",
      "curto": "Lula",
      "periodo": "plano TSE 2026 (84 págs.)",
-     "valor": "11 / 6 / 2 de 19"
+     "valor": "11 de 19",
+     "detalhe": "parcial 6 · só intenção 2"
     }
+   },
+   "periodo_curto": {
+    "b": "plano 2026",
+    "l": "plano 2026"
    },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "proporção de cartões com \"caminho explícito\" (instrumento nomeado)",
    "forca": "clara",
+   "selo": "diz mais como fazer",
    "ressalva": "Mede se o plano diz \"como\", não mérito nem chance de execução",
-   "impacto": "panorama",
-   "como_chega": "Mostra se o plano nomeia o instrumento (lei, programa, dinheiro), não se a proposta é boa.",
+   "nota_visual": "Programas já em execução contam como caminho, o que favorece quem governa",
+   "impacto": null,
+   "como_chega": "Mostra se o plano nomeia a ferramenta (lei, programa, dinheiro), não se a proposta é boa.",
    "fonte": "TSE: planos de governo de 2026 registrados",
    "fonte_detalhe": "public/dados/tse/2026BR280002551544_01.pdf e 2026BR280002542548_01.pdf; JSON data-catalogo da página",
    "arquivos": [
@@ -1850,7 +2213,7 @@
    ],
    "como_calculamos": "contagem de \"rot\" no JSON data-catalogo: lula ok 11, mid 6, no 2; flavio ok 1, mid 12, no 6",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 1,
      "l": 11
@@ -1858,23 +2221,59 @@
     "formato": {
      "casas": 0,
      "sufixo": " de 19"
-    }
+    },
+    "categorias": [
+     {
+      "id": "ok",
+      "nome": "Ferramenta nomeada",
+      "tipo": "cheio"
+     },
+     {
+      "id": "mid",
+      "nome": "Parcial",
+      "tipo": "claro"
+     },
+     {
+      "id": "no",
+      "nome": "Só intenção",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "ok": 1,
+      "mid": 12,
+      "no": 6
+     },
+     "l": {
+      "ok": 11,
+      "mid": 6,
+      "no": 2
+     }
+    },
+    "destaque": "ok"
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "planos registrados no TSE em 2026",
+   "atualizado_em": "2026-10-16",
+   "id": 29,
+   "pergunta": "db4de5e15cfc700f"
   },
   {
-   "id": 30,
    "ref": "P00b",
    "slug": "planos-algum-caminho",
    "status": "ativo",
-   "titulo": "Planos com algum caminho (explícito ou parcial)",
+   "origem": "matriz",
+   "titulo": "Planos com algum caminho (ferramenta ou parcial)",
    "tema": "planos",
+   "tema_curto": "Planos: algum caminho",
    "tema_matriz": "Detalhamento dos planos (ao menos parcial)",
    "pagina": "/propostas/",
    "pagina_id": "propostas",
+   "analise": "Planos 2026",
    "ancora": "placar",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Cartões com caminho explícito OU parcial",
    "unidade": "cartões (temas)",
@@ -1883,22 +2282,30 @@
      "nome": "Flávio Bolsonaro (plano 2026)",
      "curto": "Flávio",
      "periodo": "plano TSE 2026 (76 págs.)",
-     "valor": "13 de 19"
+     "valor": "13 de 19",
+     "detalhe": "só intenção 6"
     },
     "l": {
      "nome": "Lula (plano 2026)",
      "curto": "Lula",
      "periodo": "plano TSE 2026 (84 págs.)",
-     "valor": "17 de 19"
+     "valor": "17 de 19",
+     "detalhe": "só intenção 2"
     }
+   },
+   "periodo_curto": {
+    "b": "plano 2026",
+    "l": "plano 2026"
    },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "proporção de cartões com \"caminho explícito\" (instrumento nomeado)",
    "forca": "apertada",
+   "selo": "diz mais como fazer",
    "ressalva": "Diferença menor que no placar principal",
-   "impacto": "panorama",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "Versão mais branda da mesma régua: conta também o caminho parcial.",
    "fonte": "TSE: planos de governo de 2026 registrados",
    "fonte_detalhe": "public/dados/tse/2026BR280002551544_01.pdf e 2026BR280002542548_01.pdf; JSON data-catalogo da página",
@@ -1914,7 +2321,7 @@
    ],
    "como_calculamos": "ok+mid por candidato no data-catalogo",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 13,
      "l": 17
@@ -1922,26 +2329,55 @@
     "formato": {
      "casas": 0,
      "sufixo": " de 19"
-    }
+    },
+    "categorias": [
+     {
+      "id": "okmid",
+      "nome": "Algum caminho (ferramenta ou parcial)",
+      "tipo": "cheio"
+     },
+     {
+      "id": "no",
+      "nome": "Só intenção",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "okmid": 13,
+      "no": 6
+     },
+     "l": {
+      "okmid": 17,
+      "no": 2
+     }
+    },
+    "destaque": "okmid"
    },
-   "atualizado_em": "2026-10-15",
+   "dados_ate": "planos registrados no TSE em 2026",
+   "atualizado_em": "2026-10-16",
    "variante_de": [
     29
-   ]
+   ],
+   "id": 30,
+   "pergunta": "b340ac8c9fadc225"
   },
   {
-   "id": 31,
    "ref": "P01",
    "slug": "planos-bolso",
    "status": "ativo",
-   "titulo": "Planos: bolso (impostos, trabalho, renda, casa)",
-   "tema": "renda",
+   "origem": "matriz",
+   "titulo": "Planos: impostos, trabalho, renda e casa",
+   "tema": "planos",
+   "tema_curto": "Planos: bolso",
    "tema_matriz": "Bolso: impostos, trabalho, renda, casa",
    "pagina": "/propostas/",
    "pagina_id": "propostas",
+   "analise": "Planos 2026",
    "ancora": "cap-bolso",
-   "ancora_card": null,
+   "ancora_card": "cap-bolso",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Caminho explícito / parcial / sem caminho",
    "unidade": "cartões (temas)",
@@ -1950,22 +2386,30 @@
      "nome": "Flávio Bolsonaro (plano 2026)",
      "curto": "Flávio",
      "periodo": "plano TSE 2026 (76 págs.)",
-     "valor": "0 / 2 / 3 de 5"
+     "valor": "0 de 5",
+     "detalhe": "parcial 2 · só intenção 3"
     },
     "l": {
      "nome": "Lula (plano 2026)",
      "curto": "Lula",
      "periodo": "plano TSE 2026 (84 págs.)",
-     "valor": "2 / 3 / 0 de 5"
+     "valor": "2 de 5",
+     "detalhe": "parcial 3 · só intenção 0"
     }
+   },
+   "periodo_curto": {
+    "b": "plano 2026",
+    "l": "plano 2026"
    },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "proporção de cartões com \"caminho explícito\" (instrumento nomeado)",
    "forca": "clara",
+   "selo": "diz mais como fazer",
    "ressalva": "Lula conta programas em execução como caminho",
-   "impacto": "bolso",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "Diz se o plano explica como vai mexer em imposto, trabalho e renda.",
    "fonte": "TSE: planos de governo de 2026 registrados",
    "fonte_detalhe": "public/dados/tse/2026BR280002551544_01.pdf e 2026BR280002542548_01.pdf; JSON data-catalogo da página",
@@ -1981,7 +2425,7 @@
    ],
    "como_calculamos": "tema=bolso no data-catalogo",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 0,
      "l": 2
@@ -1989,23 +2433,59 @@
     "formato": {
      "casas": 0,
      "sufixo": " de 5"
-    }
+    },
+    "categorias": [
+     {
+      "id": "ok",
+      "nome": "Ferramenta nomeada",
+      "tipo": "cheio"
+     },
+     {
+      "id": "mid",
+      "nome": "Parcial",
+      "tipo": "claro"
+     },
+     {
+      "id": "no",
+      "nome": "Só intenção",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "ok": 0,
+      "mid": 2,
+      "no": 3
+     },
+     "l": {
+      "ok": 2,
+      "mid": 3,
+      "no": 0
+     }
+    },
+    "destaque": "ok"
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "planos registrados no TSE em 2026",
+   "atualizado_em": "2026-10-16",
+   "id": 31,
+   "pergunta": "9e257ad94e47fbfd"
   },
   {
-   "id": 32,
    "ref": "P02",
    "slug": "planos-seguranca",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Planos: segurança e crime organizado",
-   "tema": "seguranca",
+   "tema": "planos",
+   "tema_curto": "Planos: segurança",
    "tema_matriz": "Segurança e crime organizado",
    "pagina": "/propostas/",
    "pagina_id": "propostas",
+   "analise": "Planos 2026",
    "ancora": "cap-seguranca",
-   "ancora_card": null,
+   "ancora_card": "cap-seguranca",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Caminho explícito / parcial / sem caminho",
    "unidade": "cartões (temas)",
@@ -2014,22 +2494,30 @@
      "nome": "Flávio Bolsonaro (plano 2026)",
      "curto": "Flávio",
      "periodo": "plano TSE 2026 (76 págs.)",
-     "valor": "0 / 3 / 0 de 3"
+     "valor": "0 de 3",
+     "detalhe": "parcial 3 · só intenção 0"
     },
     "l": {
      "nome": "Lula (plano 2026)",
      "curto": "Lula",
      "periodo": "plano TSE 2026 (84 págs.)",
-     "valor": "2 / 1 / 0 de 3"
+     "valor": "2 de 3",
+     "detalhe": "parcial 1 · só intenção 0"
     }
+   },
+   "periodo_curto": {
+    "b": "plano 2026",
+    "l": "plano 2026"
    },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "proporção de cartões com \"caminho explícito\" (instrumento nomeado)",
    "forca": "apertada",
+   "selo": "diz mais como fazer",
    "ressalva": "Nenhum dos dois fica \"sem caminho\" no tema",
-   "impacto": "servicos",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "Diz se o plano explica como vai agir contra o crime.",
    "fonte": "TSE: planos de governo de 2026 registrados",
    "fonte_detalhe": "public/dados/tse/2026BR280002551544_01.pdf e 2026BR280002542548_01.pdf; JSON data-catalogo da página",
@@ -2045,7 +2533,7 @@
    ],
    "como_calculamos": "tema=seguranca",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 0,
      "l": 2
@@ -2053,23 +2541,59 @@
     "formato": {
      "casas": 0,
      "sufixo": " de 3"
-    }
+    },
+    "categorias": [
+     {
+      "id": "ok",
+      "nome": "Ferramenta nomeada",
+      "tipo": "cheio"
+     },
+     {
+      "id": "mid",
+      "nome": "Parcial",
+      "tipo": "claro"
+     },
+     {
+      "id": "no",
+      "nome": "Só intenção",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "ok": 0,
+      "mid": 3,
+      "no": 0
+     },
+     "l": {
+      "ok": 2,
+      "mid": 1,
+      "no": 0
+     }
+    },
+    "destaque": "ok"
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "planos registrados no TSE em 2026",
+   "atualizado_em": "2026-10-16",
+   "id": 32,
+   "pergunta": "9e257ad94e47fbfd"
   },
   {
-   "id": 33,
    "ref": "P03",
    "slug": "planos-servicos",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Planos: saúde, educação e serviços",
-   "tema": "servicos",
+   "tema": "planos",
+   "tema_curto": "Planos: serviços",
    "tema_matriz": "Saúde, educação, universidades, mulheres, cultura",
    "pagina": "/propostas/",
    "pagina_id": "propostas",
+   "analise": "Planos 2026",
    "ancora": "cap-servicos",
-   "ancora_card": null,
+   "ancora_card": "cap-servicos",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Caminho explícito / parcial / sem caminho",
    "unidade": "cartões (temas)",
@@ -2078,22 +2602,30 @@
      "nome": "Flávio Bolsonaro (plano 2026)",
      "curto": "Flávio",
      "periodo": "plano TSE 2026 (76 págs.)",
-     "valor": "0 / 2 / 3 de 5"
+     "valor": "0 de 5",
+     "detalhe": "parcial 2 · só intenção 3"
     },
     "l": {
      "nome": "Lula (plano 2026)",
      "curto": "Lula",
      "periodo": "plano TSE 2026 (84 págs.)",
-     "valor": "4 / 1 / 0 de 5"
+     "valor": "4 de 5",
+     "detalhe": "parcial 1 · só intenção 0"
     }
+   },
+   "periodo_curto": {
+    "b": "plano 2026",
+    "l": "plano 2026"
    },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "proporção de cartões com \"caminho explícito\" (instrumento nomeado)",
    "forca": "clara",
+   "selo": "diz mais como fazer",
    "ressalva": "Caminhos de Lula são continuidade de programas",
-   "impacto": "servicos",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "Diz se o plano explica como vai mudar saúde, escola e outros serviços.",
    "fonte": "TSE: planos de governo de 2026 registrados",
    "fonte_detalhe": "public/dados/tse/2026BR280002551544_01.pdf e 2026BR280002542548_01.pdf; JSON data-catalogo da página",
@@ -2109,7 +2641,7 @@
    ],
    "como_calculamos": "tema=servicos",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 0,
      "l": 4
@@ -2117,23 +2649,59 @@
     "formato": {
      "casas": 0,
      "sufixo": " de 5"
-    }
+    },
+    "categorias": [
+     {
+      "id": "ok",
+      "nome": "Ferramenta nomeada",
+      "tipo": "cheio"
+     },
+     {
+      "id": "mid",
+      "nome": "Parcial",
+      "tipo": "claro"
+     },
+     {
+      "id": "no",
+      "nome": "Só intenção",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "ok": 0,
+      "mid": 2,
+      "no": 3
+     },
+     "l": {
+      "ok": 4,
+      "mid": 1,
+      "no": 0
+     }
+    },
+    "destaque": "ok"
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "planos registrados no TSE em 2026",
+   "atualizado_em": "2026-10-16",
+   "id": 33,
+   "pergunta": "9e257ad94e47fbfd"
   },
   {
-   "id": 34,
    "ref": "P04",
    "slug": "planos-economia",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Planos: economia e crescimento",
-   "tema": "economia",
+   "tema": "planos",
+   "tema_curto": "Planos: economia",
    "tema_matriz": "Economia e crescimento",
    "pagina": "/propostas/",
    "pagina_id": "propostas",
+   "analise": "Planos 2026",
    "ancora": "cap-economia",
-   "ancora_card": null,
+   "ancora_card": "cap-economia",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Caminho explícito / parcial / sem caminho",
    "unidade": "cartões (temas)",
@@ -2142,22 +2710,30 @@
      "nome": "Flávio Bolsonaro (plano 2026)",
      "curto": "Flávio",
      "periodo": "plano TSE 2026 (76 págs.)",
-     "valor": "1 / 3 / 0 de 4"
+     "valor": "1 de 4",
+     "detalhe": "parcial 3 · só intenção 0"
     },
     "l": {
      "nome": "Lula (plano 2026)",
      "curto": "Lula",
      "periodo": "plano TSE 2026 (84 págs.)",
-     "valor": "2 / 1 / 1 de 4"
+     "valor": "2 de 4",
+     "detalhe": "parcial 1 · só intenção 1"
     }
+   },
+   "periodo_curto": {
+    "b": "plano 2026",
+    "l": "plano 2026"
    },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "proporção de cartões com \"caminho explícito\" (instrumento nomeado)",
    "forca": "apertada",
+   "selo": "diz mais como fazer",
    "ressalva": "Ao menos parcial: 4 × 3 de 4 (Flávio à frente)",
-   "impacto": "economia",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "Diz se o plano explica como vai fazer a economia crescer.",
    "fonte": "TSE: planos de governo de 2026 registrados",
    "fonte_detalhe": "public/dados/tse/2026BR280002551544_01.pdf e 2026BR280002542548_01.pdf; JSON data-catalogo da página",
@@ -2173,7 +2749,7 @@
    ],
    "como_calculamos": "tema=economia",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 1,
      "l": 2
@@ -2181,23 +2757,59 @@
     "formato": {
      "casas": 0,
      "sufixo": " de 4"
-    }
+    },
+    "categorias": [
+     {
+      "id": "ok",
+      "nome": "Ferramenta nomeada",
+      "tipo": "cheio"
+     },
+     {
+      "id": "mid",
+      "nome": "Parcial",
+      "tipo": "claro"
+     },
+     {
+      "id": "no",
+      "nome": "Só intenção",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "ok": 1,
+      "mid": 3,
+      "no": 0
+     },
+     "l": {
+      "ok": 2,
+      "mid": 1,
+      "no": 1
+     }
+    },
+    "destaque": "ok"
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "planos registrados no TSE em 2026",
+   "atualizado_em": "2026-10-16",
+   "id": 34,
+   "pergunta": "9e257ad94e47fbfd"
   },
   {
-   "id": 35,
    "ref": "P05",
    "slug": "planos-ambiente",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Planos: meio ambiente e instituições",
-   "tema": "ambiente",
+   "tema": "planos",
+   "tema_curto": "Planos: ambiente",
    "tema_matriz": "Meio ambiente e instituições",
    "pagina": "/propostas/",
    "pagina_id": "propostas",
+   "analise": "Planos 2026",
    "ancora": "cap-ambiente",
-   "ancora_card": null,
+   "ancora_card": "cap-ambiente",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Caminho explícito / parcial / sem caminho",
    "unidade": "cartões (temas)",
@@ -2206,22 +2818,30 @@
      "nome": "Flávio Bolsonaro (plano 2026)",
      "curto": "Flávio",
      "periodo": "plano TSE 2026 (76 págs.)",
-     "valor": "0 / 2 / 0 de 2"
+     "valor": "0 de 2",
+     "detalhe": "parcial 2 · só intenção 0"
     },
     "l": {
      "nome": "Lula (plano 2026)",
      "curto": "Lula",
      "periodo": "plano TSE 2026 (84 págs.)",
-     "valor": "1 / 0 / 1 de 2"
+     "valor": "1 de 2",
+     "detalhe": "parcial 0 · só intenção 1"
     }
+   },
+   "periodo_curto": {
+    "b": "plano 2026",
+    "l": "plano 2026"
    },
    "resultado": "sem-placar",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "proporção de cartões com \"caminho explícito\" (instrumento nomeado)",
    "forca": null,
+   "selo": null,
    "ressalva": "Amostra de 2 cartões; resultado depende da régua",
-   "impacto": "economia",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "Diz se o plano explica como vai agir no meio ambiente e nas instituições.",
    "fonte": "TSE: planos de governo de 2026 registrados",
    "fonte_detalhe": "public/dados/tse/2026BR280002551544_01.pdf e 2026BR280002542548_01.pdf; JSON data-catalogo da página",
@@ -2237,7 +2857,7 @@
    ],
    "como_calculamos": "tema=ambiente",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 0,
      "l": 1
@@ -2245,25 +2865,61 @@
     "formato": {
      "casas": 0,
      "sufixo": " de 2"
-    }
+    },
+    "categorias": [
+     {
+      "id": "ok",
+      "nome": "Ferramenta nomeada",
+      "tipo": "cheio"
+     },
+     {
+      "id": "mid",
+      "nome": "Parcial",
+      "tipo": "claro"
+     },
+     {
+      "id": "no",
+      "nome": "Só intenção",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "ok": 0,
+      "mid": 2,
+      "no": 0
+     },
+     "l": {
+      "ok": 1,
+      "mid": 0,
+      "no": 1
+     }
+    },
+    "destaque": "ok"
    },
-   "atualizado_em": "2026-10-15",
+   "dados_ate": "planos registrados no TSE em 2026",
+   "atualizado_em": "2026-10-16",
    "vencedor_matriz": "Lula",
-   "revisao": "Força \"não comparável\" (2 cartões; o resultado depende da régua): sem placar."
+   "revisao": "Força \"não comparável\" (2 cartões; o resultado depende da régua): sem placar.",
+   "id": 35,
+   "pergunta": "a7c85eb0b3f274cf"
   },
   {
-   "id": 36,
    "ref": "B00",
    "slug": "promessas-cumpridas",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Quantas promessas do plano foram cumpridas?",
    "tema": "promessas",
+   "tema_curto": "Promessas cumpridas",
    "tema_matriz": "Promessas cumpridas (geral)",
    "pagina": "/balanco/",
    "pagina_id": "balanco",
+   "analise": "Promessas",
    "ancora": "placar",
-   "ancora_card": null,
-   "no_placar": true,
+   "ancora_card": "q-cumpridas",
+   "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Cumpridas ÷ total de promessas do plano",
    "unidade": "% das promessas do plano",
@@ -2283,13 +2939,19 @@
      "detalhe": "12 de 34 (em curso, até 30/09/2026)"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–set/26"
+   },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "proporção de promessas \"cumpridas\" no conjunto de cada plano",
    "forca": "clara",
+   "selo": "mais cumpridas",
    "ressalva": "Mandato de Lula em curso; 11 itens de Bolsonaro sem evidência oficial",
-   "impacto": "panorama",
+   "nota_visual": "Mandato de Lula em curso (corte em 30/09/2026)",
+   "impacto": null,
    "como_chega": "Compara o que cada plano registrado no TSE prometeu com o que foi feito.",
    "fonte": "TSE: planos de 2018 e 2022 + fonte oficial de cada promessa",
    "fonte_detalhe": "JSON data-promessas da página (67 itens); planos TSE 2018BR280000614517.pdf e 2022BR280001607829.pdf",
@@ -2305,7 +2967,7 @@
    ],
    "como_calculamos": "contagem \"cat\" no data-promessas: bolsonaro ok5 mid4 no13 na11; lula ok12 mid5 run12 no2 na3",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 15.2,
      "l": 35.3
@@ -2313,23 +2975,74 @@
     "formato": {
      "casas": 1,
      "sufixo": "%"
-    }
+    },
+    "categorias": [
+     {
+      "id": "ok",
+      "nome": "Cumprida",
+      "tipo": "cheio"
+     },
+     {
+      "id": "mid",
+      "nome": "Parcial",
+      "tipo": "claro"
+     },
+     {
+      "id": "run",
+      "nome": "Em andamento",
+      "tipo": "listrado"
+     },
+     {
+      "id": "no",
+      "nome": "Não cumprida",
+      "tipo": "neutro"
+     },
+     {
+      "id": "na",
+      "nome": "Sem evidência oficial",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "ok": 5,
+      "mid": 4,
+      "run": 0,
+      "no": 13,
+      "na": 11
+     },
+     "l": {
+      "ok": 12,
+      "mid": 5,
+      "run": 12,
+      "no": 2,
+      "na": 3
+     }
+    },
+    "destaque": "ok",
+    "excluir": []
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "30/09/2026",
+   "atualizado_em": "2026-10-16",
+   "id": 36,
+   "pergunta": "518f5b0cfad5de1f"
   },
   {
-   "id": 37,
    "ref": "B00b",
    "slug": "promessas-cumpridas-verificaveis",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Cumpridas, contando só as promessas verificáveis",
    "tema": "promessas",
+   "tema_curto": "Cumpridas entre as verificáveis",
    "tema_matriz": "Promessas cumpridas (só itens verificados)",
    "pagina": "/balanco/",
    "pagina_id": "balanco",
+   "analise": "Promessas",
    "ancora": "placar",
-   "ancora_card": null,
+   "ancora_card": "q-verificaveis",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Cumpridas ÷ (total − sem evidência oficial)",
    "unidade": "% das promessas do plano",
@@ -2349,13 +3062,19 @@
      "detalhe": "12 de 31"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–set/26"
+   },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "proporção de promessas \"cumpridas\" no conjunto de cada plano",
    "forca": "clara",
-   "ressalva": "Diferença cai de 20,1 para 16,0 p.p.",
-   "impacto": "panorama",
+   "selo": "mais cumpridas",
+   "ressalva": "Diferença cai de 20,1 para 16,0 pontos",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "Mesma conta, sem as promessas que não têm como ser checadas em fonte oficial.",
    "fonte": "TSE: planos de 2018 e 2022 + fonte oficial de cada promessa",
    "fonte_detalhe": "JSON data-promessas da página (67 itens); planos TSE 2018BR280000614517.pdf e 2022BR280001607829.pdf",
@@ -2371,7 +3090,7 @@
    ],
    "como_calculamos": "5/(33−11); 12/(34−3)",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 22.7,
      "l": 38.7
@@ -2379,26 +3098,79 @@
     "formato": {
      "casas": 1,
      "sufixo": "%"
-    }
+    },
+    "categorias": [
+     {
+      "id": "ok",
+      "nome": "Cumprida",
+      "tipo": "cheio"
+     },
+     {
+      "id": "mid",
+      "nome": "Parcial",
+      "tipo": "claro"
+     },
+     {
+      "id": "run",
+      "nome": "Em andamento",
+      "tipo": "listrado"
+     },
+     {
+      "id": "no",
+      "nome": "Não cumprida",
+      "tipo": "neutro"
+     },
+     {
+      "id": "na",
+      "nome": "Sem evidência oficial",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "ok": 5,
+      "mid": 4,
+      "run": 0,
+      "no": 13,
+      "na": 11
+     },
+     "l": {
+      "ok": 12,
+      "mid": 5,
+      "run": 12,
+      "no": 2,
+      "na": 3
+     }
+    },
+    "destaque": "ok",
+    "excluir": [
+     "na"
+    ]
    },
-   "atualizado_em": "2026-10-15",
+   "dados_ate": "30/09/2026",
+   "atualizado_em": "2026-10-16",
    "variante_de": [
     36
-   ]
+   ],
+   "id": 37,
+   "pergunta": "ab520919c79b6f44"
   },
   {
-   "id": 38,
    "ref": "B00c",
    "slug": "promessas-cumpridas-ou-parciais",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Cumpridas ou parciais",
    "tema": "promessas",
+   "tema_curto": "Cumpridas ou parciais",
    "tema_matriz": "Promessas cumpridas ou parciais",
    "pagina": "/balanco/",
    "pagina_id": "balanco",
+   "analise": "Promessas",
    "ancora": "placar",
-   "ancora_card": null,
+   "ancora_card": "q-cumpridas-parciais",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "(Cumpridas + parciais) ÷ total",
    "unidade": "% das promessas do plano",
@@ -2418,13 +3190,19 @@
      "detalhe": "17 de 34"
     }
    },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–set/26"
+   },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "proporção de promessas \"cumpridas\" no conjunto de cada plano",
    "forca": "clara",
+   "selo": "mais cumpridas",
    "ressalva": "Lula ainda tem 12 em andamento",
-   "impacto": "panorama",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "Mesma conta, somando as promessas cumpridas em parte.",
    "fonte": "TSE: planos de 2018 e 2022 + fonte oficial de cada promessa",
    "fonte_detalhe": "JSON data-promessas da página (67 itens); planos TSE 2018BR280000614517.pdf e 2022BR280001607829.pdf",
@@ -2440,7 +3218,7 @@
    ],
    "como_calculamos": "(5+4)/33; (12+5)/34",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 27.3,
      "l": 50.0
@@ -2448,26 +3226,69 @@
     "formato": {
      "casas": 1,
      "sufixo": "%"
-    }
+    },
+    "categorias": [
+     {
+      "id": "okmid",
+      "nome": "Cumprida ou parcial",
+      "tipo": "cheio"
+     },
+     {
+      "id": "run",
+      "nome": "Em andamento",
+      "tipo": "listrado"
+     },
+     {
+      "id": "no",
+      "nome": "Não cumprida",
+      "tipo": "neutro"
+     },
+     {
+      "id": "na",
+      "nome": "Sem evidência oficial",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "okmid": 9,
+      "run": 0,
+      "no": 13,
+      "na": 11
+     },
+     "l": {
+      "okmid": 17,
+      "run": 12,
+      "no": 2,
+      "na": 3
+     }
+    },
+    "destaque": "okmid"
    },
-   "atualizado_em": "2026-10-15",
+   "dados_ate": "30/09/2026",
+   "atualizado_em": "2026-10-16",
    "variante_de": [
     36
-   ]
+   ],
+   "id": 38,
+   "pergunta": "10f5be4e95fb7956"
   },
   {
-   "id": 39,
    "ref": "B01",
    "slug": "promessas-impostos-trabalho",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Promessas de impostos e trabalho cumpridas",
-   "tema": "renda",
+   "tema": "promessas",
+   "tema_curto": "Promessas: impostos e trabalho",
    "tema_matriz": "Impostos e trabalho",
    "pagina": "/balanco/",
    "pagina_id": "balanco",
+   "analise": "Promessas",
    "ancora": "cap-bolso",
-   "ancora_card": null,
+   "ancora_card": "cap-bolso",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Cumpridas no tema (impostos+trabalho)",
    "unidade": "% das promessas do plano",
@@ -2476,22 +3297,30 @@
      "nome": "Governo Bolsonaro (plano 2018)",
      "curto": "Bolsonaro",
      "periodo": "mandato 2019–2022 (fechado)",
-     "valor": "0 de 7 (0%)"
+     "valor": "0%",
+     "detalhe": "0 de 7"
     },
     "l": {
      "nome": "Governo Lula (plano 2022)",
      "curto": "Lula",
      "periodo": "2023 – 30/09/2026 (em curso)",
-     "valor": "5 de 7 (71%)"
+     "valor": "71%",
+     "detalhe": "5 de 7"
     }
+   },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–set/26"
    },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "proporção de promessas \"cumpridas\" no conjunto de cada plano",
    "forca": "clara",
+   "selo": "mais cumpridas",
    "ressalva": "3 promessas de Bolsonaro sem evidência oficial",
-   "impacto": "bolso",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "São as promessas sobre imposto, emprego e renda.",
    "fonte": "TSE: planos de 2018 e 2022 + fonte oficial de cada promessa",
    "fonte_detalhe": "JSON data-promessas da página (67 itens); planos TSE 2018BR280000614517.pdf e 2022BR280001607829.pdf",
@@ -2507,7 +3336,7 @@
    ],
    "como_calculamos": "temas impostos+trabalho: B no4 na3; L ok5 mid1 no1",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 0,
      "l": 71
@@ -2515,23 +3344,74 @@
     "formato": {
      "casas": 0,
      "sufixo": "%"
-    }
+    },
+    "categorias": [
+     {
+      "id": "ok",
+      "nome": "Cumprida",
+      "tipo": "cheio"
+     },
+     {
+      "id": "mid",
+      "nome": "Parcial",
+      "tipo": "claro"
+     },
+     {
+      "id": "run",
+      "nome": "Em andamento",
+      "tipo": "listrado"
+     },
+     {
+      "id": "no",
+      "nome": "Não cumprida",
+      "tipo": "neutro"
+     },
+     {
+      "id": "na",
+      "nome": "Sem evidência oficial",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "ok": 0,
+      "mid": 0,
+      "run": 0,
+      "no": 4,
+      "na": 3
+     },
+     "l": {
+      "ok": 5,
+      "mid": 1,
+      "run": 0,
+      "no": 1,
+      "na": 0
+     }
+    },
+    "destaque": "ok",
+    "excluir": []
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "30/09/2026",
+   "atualizado_em": "2026-10-16",
+   "id": 39,
+   "pergunta": "74367531604191bb"
   },
   {
-   "id": 40,
    "ref": "B02",
    "slug": "promessas-servicos",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Promessas de proteção social, saúde e educação cumpridas",
-   "tema": "servicos",
+   "tema": "promessas",
+   "tema_curto": "Promessas: serviços",
    "tema_matriz": "Proteção social, saúde e educação",
    "pagina": "/balanco/",
    "pagina_id": "balanco",
+   "analise": "Promessas",
    "ancora": "cap-servicos",
-   "ancora_card": null,
+   "ancora_card": "cap-servicos",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Cumpridas no tema",
    "unidade": "% das promessas do plano",
@@ -2540,22 +3420,30 @@
      "nome": "Governo Bolsonaro (plano 2018)",
      "curto": "Bolsonaro",
      "periodo": "mandato 2019–2022 (fechado)",
-     "valor": "0 de 5 (0%)"
+     "valor": "0%",
+     "detalhe": "0 de 5"
     },
     "l": {
      "nome": "Governo Lula (plano 2022)",
      "curto": "Lula",
      "periodo": "2023 – 30/09/2026 (em curso)",
-     "valor": "4 de 12 (33%)"
+     "valor": "33%",
+     "detalhe": "4 de 12"
     }
+   },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–set/26"
    },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "proporção de promessas \"cumpridas\" no conjunto de cada plano",
    "forca": "apertada",
+   "selo": "mais cumpridas",
    "ressalva": "Bolsonaro 3 de 5 parciais; amostras pequenas",
-   "impacto": "servicos",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "São as promessas sobre os serviços e programas que as famílias usam.",
    "fonte": "TSE: planos de 2018 e 2022 + fonte oficial de cada promessa",
    "fonte_detalhe": "JSON data-promessas da página (67 itens); planos TSE 2018BR280000614517.pdf e 2022BR280001607829.pdf",
@@ -2571,7 +3459,7 @@
    ],
    "como_calculamos": "social+saude+educacao: B mid3 no1 na1; L ok4 mid4 run3 na1",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 0,
      "l": 33
@@ -2579,23 +3467,74 @@
     "formato": {
      "casas": 0,
      "sufixo": "%"
-    }
+    },
+    "categorias": [
+     {
+      "id": "ok",
+      "nome": "Cumprida",
+      "tipo": "cheio"
+     },
+     {
+      "id": "mid",
+      "nome": "Parcial",
+      "tipo": "claro"
+     },
+     {
+      "id": "run",
+      "nome": "Em andamento",
+      "tipo": "listrado"
+     },
+     {
+      "id": "no",
+      "nome": "Não cumprida",
+      "tipo": "neutro"
+     },
+     {
+      "id": "na",
+      "nome": "Sem evidência oficial",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "ok": 0,
+      "mid": 3,
+      "run": 0,
+      "no": 1,
+      "na": 1
+     },
+     "l": {
+      "ok": 4,
+      "mid": 4,
+      "run": 3,
+      "no": 0,
+      "na": 1
+     }
+    },
+    "destaque": "ok",
+    "excluir": []
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "30/09/2026",
+   "atualizado_em": "2026-10-16",
+   "id": 40,
+   "pergunta": "7ab08332141ef715"
   },
   {
-   "id": 41,
    "ref": "B03",
    "slug": "promessas-estado-infra",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Promessas de Estado e infraestrutura cumpridas",
-   "tema": "contas",
+   "tema": "promessas",
+   "tema_curto": "Promessas: Estado e infraestrutura",
    "tema_matriz": "Estado e infraestrutura",
    "pagina": "/balanco/",
    "pagina_id": "balanco",
+   "analise": "Promessas",
    "ancora": "cap-estado",
-   "ancora_card": null,
+   "ancora_card": "cap-estado",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Cumpridas no tema",
    "unidade": "% das promessas do plano",
@@ -2604,22 +3543,30 @@
      "nome": "Governo Bolsonaro (plano 2018)",
      "curto": "Bolsonaro",
      "periodo": "mandato 2019–2022 (fechado)",
-     "valor": "5 de 13 (38%)"
+     "valor": "38%",
+     "detalhe": "5 de 13"
     },
     "l": {
      "nome": "Governo Lula (plano 2022)",
      "curto": "Lula",
      "periodo": "2023 – 30/09/2026 (em curso)",
-     "valor": "1 de 7 (14%)"
+     "valor": "14%",
+     "detalhe": "1 de 7"
     }
+   },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–set/26"
    },
    "resultado": "vitoria",
    "vencedor": "b",
    "criterio": "maior",
    "criterio_texto": "proporção de promessas \"cumpridas\" no conjunto de cada plano",
    "forca": "apertada",
+   "selo": "mais cumpridas",
    "ressalva": "Lula com 5 em andamento; mandato em curso",
-   "impacto": "economia",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "São as promessas sobre reformas, privatizações, energia e obras.",
    "fonte": "TSE: planos de 2018 e 2022 + fonte oficial de cada promessa",
    "fonte_detalhe": "JSON data-promessas da página (67 itens); planos TSE 2018BR280000614517.pdf e 2022BR280001607829.pdf",
@@ -2635,7 +3582,7 @@
    ],
    "como_calculamos": "estado+infraenergia: B ok5 no3 na5; L ok1 run5 na1",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 38,
      "l": 14
@@ -2643,23 +3590,74 @@
     "formato": {
      "casas": 0,
      "sufixo": "%"
-    }
+    },
+    "categorias": [
+     {
+      "id": "ok",
+      "nome": "Cumprida",
+      "tipo": "cheio"
+     },
+     {
+      "id": "mid",
+      "nome": "Parcial",
+      "tipo": "claro"
+     },
+     {
+      "id": "run",
+      "nome": "Em andamento",
+      "tipo": "listrado"
+     },
+     {
+      "id": "no",
+      "nome": "Não cumprida",
+      "tipo": "neutro"
+     },
+     {
+      "id": "na",
+      "nome": "Sem evidência oficial",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "ok": 5,
+      "mid": 0,
+      "run": 0,
+      "no": 3,
+      "na": 5
+     },
+     "l": {
+      "ok": 1,
+      "mid": 0,
+      "run": 5,
+      "no": 0,
+      "na": 1
+     }
+    },
+    "destaque": "ok",
+    "excluir": []
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "30/09/2026",
+   "atualizado_em": "2026-10-16",
+   "id": 41,
+   "pergunta": "7ab08332141ef715"
   },
   {
-   "id": 42,
    "ref": "B04",
    "slug": "promessas-seguranca-instituicoes",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Promessas de segurança, meio ambiente e instituições cumpridas",
-   "tema": "seguranca",
+   "tema": "promessas",
+   "tema_curto": "Promessas: segurança e instituições",
    "tema_matriz": "Segurança, meio ambiente e instituições",
    "pagina": "/balanco/",
    "pagina_id": "balanco",
+   "analise": "Promessas",
    "ancora": "cap-seguranca",
-   "ancora_card": null,
+   "ancora_card": "cap-seguranca",
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": true,
    "metrica": "Cumpridas no tema",
    "unidade": "% das promessas do plano",
@@ -2668,22 +3666,30 @@
      "nome": "Governo Bolsonaro (plano 2018)",
      "curto": "Bolsonaro",
      "periodo": "mandato 2019–2022 (fechado)",
-     "valor": "0 de 8 (0%)"
+     "valor": "0%",
+     "detalhe": "0 de 8"
     },
     "l": {
      "nome": "Governo Lula (plano 2022)",
      "curto": "Lula",
      "periodo": "2023 – 30/09/2026 (em curso)",
-     "valor": "2 de 8 (25%)"
+     "valor": "25%",
+     "detalhe": "2 de 8"
     }
+   },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–set/26"
    },
    "resultado": "vitoria",
    "vencedor": "l",
    "criterio": "maior",
    "criterio_texto": "proporção de promessas \"cumpridas\" no conjunto de cada plano",
    "forca": "apertada",
+   "selo": "mais cumpridas",
    "ressalva": "Plano de 2018 sem promessa verificável de meio ambiente",
-   "impacto": "servicos",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "São as promessas sobre segurança, meio ambiente e instituições.",
    "fonte": "TSE: planos de 2018 e 2022 + fonte oficial de cada promessa",
    "fonte_detalhe": "JSON data-promessas da página (67 itens); planos TSE 2018BR280000614517.pdf e 2022BR280001607829.pdf",
@@ -2699,7 +3705,7 @@
    ],
    "como_calculamos": "seguranca+meioambiente+instituicoes: B no5 mid1 na2; L ok2 run4 no1 na1",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 0,
      "l": 25
@@ -2707,23 +3713,74 @@
     "formato": {
      "casas": 0,
      "sufixo": "%"
-    }
+    },
+    "categorias": [
+     {
+      "id": "ok",
+      "nome": "Cumprida",
+      "tipo": "cheio"
+     },
+     {
+      "id": "mid",
+      "nome": "Parcial",
+      "tipo": "claro"
+     },
+     {
+      "id": "run",
+      "nome": "Em andamento",
+      "tipo": "listrado"
+     },
+     {
+      "id": "no",
+      "nome": "Não cumprida",
+      "tipo": "neutro"
+     },
+     {
+      "id": "na",
+      "nome": "Sem evidência oficial",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "ok": 0,
+      "mid": 1,
+      "run": 0,
+      "no": 5,
+      "na": 2
+     },
+     "l": {
+      "ok": 2,
+      "mid": 0,
+      "run": 4,
+      "no": 1,
+      "na": 1
+     }
+    },
+    "destaque": "ok",
+    "excluir": []
    },
-   "atualizado_em": "2026-10-15"
+   "dados_ate": "30/09/2026",
+   "atualizado_em": "2026-10-16",
+   "id": 42,
+   "pergunta": "7ab08332141ef715"
   },
   {
-   "id": 43,
    "ref": "B05",
    "slug": "promessas-nao-cumpridas",
    "status": "ativo",
+   "origem": "matriz",
    "titulo": "Promessas não cumpridas",
    "tema": "promessas",
+   "tema_curto": "Não cumpridas",
    "tema_matriz": "Promessas não cumpridas",
    "pagina": "/balanco/",
    "pagina_id": "balanco",
+   "analise": "Promessas",
    "ancora": "placar",
    "ancora_card": null,
    "no_placar": false,
+   "bloco_placar": null,
    "catalogo": false,
    "metrica": "Não cumpridas ÷ total",
    "unidade": "% das promessas do plano",
@@ -2732,22 +3789,30 @@
      "nome": "Governo Bolsonaro (plano 2018)",
      "curto": "Bolsonaro",
      "periodo": "mandato 2019–2022 (fechado)",
-     "valor": "39,4% (13 de 33)"
+     "valor": "39,4%",
+     "detalhe": "13 de 33"
     },
     "l": {
      "nome": "Governo Lula (plano 2022)",
      "curto": "Lula",
      "periodo": "2023 – 30/09/2026 (em curso)",
-     "valor": "5,9% (2 de 34)"
+     "valor": "5,9%",
+     "detalhe": "2 de 34"
     }
+   },
+   "periodo_curto": {
+    "b": "2019–22",
+    "l": "2023–set/26"
    },
    "resultado": "nao-comparavel",
    "vencedor": null,
    "criterio": null,
    "criterio_texto": "proporção de promessas \"cumpridas\" no conjunto de cada plano",
    "forca": null,
+   "selo": null,
    "ressalva": "Para Lula vale só \"até 30/09/2026\"",
-   "impacto": "panorama",
+   "nota_visual": null,
+   "impacto": null,
    "como_chega": "Não dá para comparar: um mandato terminou e o outro está em curso.",
    "fonte": "TSE: planos de 2018 e 2022 + fonte oficial de cada promessa",
    "fonte_detalhe": "JSON data-promessas da página (67 itens); planos TSE 2018BR280000614517.pdf e 2022BR280001607829.pdf",
@@ -2763,7 +3828,7 @@
    ],
    "como_calculamos": "no: 13 e 2",
    "grafico": {
-    "tipo": "duelo",
+    "tipo": "promessas",
     "valores": {
      "b": 39.4,
      "l": 5.9
@@ -2771,10 +3836,58 @@
     "formato": {
      "casas": 1,
      "sufixo": "%"
-    }
+    },
+    "categorias": [
+     {
+      "id": "ok",
+      "nome": "Cumprida",
+      "tipo": "cheio"
+     },
+     {
+      "id": "mid",
+      "nome": "Parcial",
+      "tipo": "claro"
+     },
+     {
+      "id": "run",
+      "nome": "Em andamento",
+      "tipo": "listrado"
+     },
+     {
+      "id": "no",
+      "nome": "Não cumprida",
+      "tipo": "neutro"
+     },
+     {
+      "id": "na",
+      "nome": "Sem evidência oficial",
+      "tipo": "vazio"
+     }
+    ],
+    "contagens": {
+     "b": {
+      "ok": 5,
+      "mid": 4,
+      "run": 0,
+      "no": 13,
+      "na": 11
+     },
+     "l": {
+      "ok": 12,
+      "mid": 5,
+      "run": 12,
+      "no": 2,
+      "na": 3
+     }
+    },
+    "destaque": "no",
+    "excluir": []
    },
-   "atualizado_em": "2026-10-15",
-   "revisao": "Fora do catálogo: decisão do dono (item 3) tira \"não cumpridas\" do veredito."
+   "dados_ate": "30/09/2026",
+   "atualizado_em": "2026-10-16",
+   "revisao": "Fora do catálogo: decisão do dono (item 3) tira \"não cumpridas\" do veredito.",
+   "id": 43,
+   "pergunta": "33d2e91cf11e8896"
   }
  ]
 }

@@ -29,6 +29,7 @@ PAGES = [
     ('/balanco/', 'balanco/index.html', 'Promessas e realizações: planos de Bolsonaro (2018) e Lula (2022) × o que foi cumprido'),
     ('/fontes/', 'fontes/index.html', 'Fontes e dados: os 50 arquivos originais'),
     ('/sobre/', 'sobre/index.html', 'Sobre e método: quem fez, as regras e como reportar um erro'),
+    ('/comparacoes/', 'comparacoes/index.html', 'Comparações: todas as comparações do site, com os números dos dois lados, a fonte e a data'),
 ]
 
 
@@ -327,70 +328,144 @@ def llms_full(site_url, texts, prop_data, bal_data, dates):
 
 # ------------------------------------------- registro único de comparações
 REGISTRO = 'dados/comparacoes.json'
-DERIVADOS = {REGISTRO}  # publicados em /dados/, mas não são "arquivos originais" (fora do SHA256SUMS dos 32)
+LIVRO_IDS = 'dados/comparacoes-ids.json'
+# publicados em /dados/, mas não são "arquivos originais": ficam fora do SHA256SUMS.txt e ganham o
+# SHA256SUMS-derivados.txt (calculados pelo site a partir dos originais), mostrado à parte em /fontes/
+DERIVADOS = {REGISTRO, LIVRO_IDS}
 REG_CAMPOS = ('id', 'ref', 'slug', 'status', 'titulo', 'tema', 'pagina', 'ancora', 'catalogo', 'metrica', 'lados',
               'resultado', 'vencedor', 'criterio', 'forca', 'ressalva', 'impacto', 'como_chega', 'fonte', 'arquivos', 'atualizado_em')
 REG_RESULTADO = {'vitoria', 'contexto', 'sem-placar', 'nao-comparavel'}
+PAGINAS_ANCORA = {'/': 'index.html', '/propostas/': 'propostas/index.html', '/balanco/': 'balanco/index.html'}
 
 
-def validate_registry():
-    """Valida public/dados/comparacoes.json. Devolve (erros, resumo). Erros barram o build:
-    ids inteiros únicos e permanentes (nenhum id do último commit pode sumir ou mudar de ref),
-    slugs únicos com letra (não colidem com /c/1-3-5), campos obrigatórios, valores válidos,
-    arquivos existentes com sha256 conferido e âncora existente na página de origem."""
-    f = PUB / REGISTRO
+def reg_impressao(it):
+    """Mesma impressão digital da PERGUNTA usada por scripts/gen_comparacoes.py."""
+    base = '|'.join([it.get('metrica', ''), it.get('unidade', ''), str(it.get('criterio')),
+                     it['lados']['b'].get('periodo', ''), it['lados']['l'].get('periodo', '')])
+    return hashlib.sha256(base.encode('utf-8')).hexdigest()[:16]
+
+
+def primeiro_numero(txt):
+    """'R$ 1.374' -> (1374.0, 0); '−3,6 pontos' -> (-3.6, 1); '0,531' -> (0.531, 3)."""
+    m = re.search(r'[−+-]?\d[\d.]*(?:,\d+)?', str(txt or ''))
+    if not m:
+        return None, 0
+    t = m.group(0).replace('−', '-').replace('.', '')
+    casas = len(t.split(',')[1]) if ',' in t else 0
+    return float(t.replace(',', '.')), casas
+
+
+def ledger_producao(site_url):
+    """Livro-razão publicado em produção (é ele que define os links já enviados). None se indisponível."""
+    if os.environ.get('CHECK_PROD') == '0' or not re.match(r'^https://', site_url or '') or 'EXEMPLO' in site_url:
+        return None, 'conferência com produção desligada'
+    import urllib.request, urllib.error
+    try:
+        with urllib.request.urlopen(site_url + '/' + LIVRO_IDS, timeout=8) as r:
+            return json.loads(r.read().decode('utf-8')), 'conferido com produção'
+    except urllib.error.HTTPError as e:
+        return None, f'produção sem livro-razão (HTTP {e.code}; 1º deploy?)'
+    except Exception as e:  # rede indisponível no build: avisa, não barra
+        return None, f'produção inacessível ({e.__class__.__name__})'
+
+
+def validate_registry(site_url=''):
+    """Valida public/dados/comparacoes.json e o livro-razão. Devolve (erros, avisos, resumo); erros barram o build."""
+    f, fl = PUB / REGISTRO, PUB / LIVRO_IDS
     if not f.exists():
-        return [], 'registro ausente'
-    err = []
+        return [], [], 'registro ausente'
+    err, avisos = [], []
     try:
         reg = json.loads(f.read_text(encoding='utf-8'))
     except ValueError as e:
-        return [f'{REGISTRO}: JSON inválido ({e})'], ''
+        return [f'{REGISTRO}: JSON inválido ({e})'], [], ''
+    try:
+        livro = json.loads(fl.read_text(encoding='utf-8'))
+    except (OSError, ValueError) as e:  # falha de leitura é erro, não silêncio
+        return [f'{LIVRO_IDS}: ausente ou inválido ({e})'], [], ''
+    cfg = reg.get('config', {})
+    reservados = set(cfg.get('slugs_reservados', []))
+    rx_sel = re.compile(cfg.get('regex_selecao', r'^[pb]?\d+(-[pb]?\d+)*$'))
     itens, prox = reg.get('comparacoes', []), reg.get('proximo_id', 0)
     niveis, temas, paginas = reg.get('impacto_niveis', {}), reg.get('temas', {}), reg.get('paginas', {})
-    ids, slugs, refs = {}, set(), {}
+    retirados = set(reg.get('ids_retirados', []))
+    ids, slugs, refs, por_id = {}, set(), {}, {}
     page_ids, sha_cache = {}, {}
+
+    def ids_da_pagina(pag):
+        src = PUB / PAGINAS_ANCORA[pag]
+        if src not in page_ids:
+            page_ids[src] = set(re.findall(r'\sid="([^"]+)"', src.read_text(encoding='utf-8'))) if src.exists() else set()
+        return page_ids[src]
+
     for it in itens:
         tag = f'id {it.get("id")} ({it.get("ref")})'
-        falta = [k for k in REG_CAMPOS if k not in it]
-        if falta:
-            err.append(f'{tag}: campos obrigatórios ausentes: {", ".join(falta)}'); continue
-        i = it['id']
+        i = it.get('id')
         if not isinstance(i, int) or isinstance(i, bool) or i < 1:
-            err.append(f'{tag}: id deve ser inteiro >= 1')
-        elif i in ids:
+            err.append(f'{tag}: id deve ser inteiro >= 1'); continue
+        if i in ids:
             err.append(f'{tag}: id repetido (também em {ids[i]})')
         elif i >= prox:
             err.append(f'{tag}: id >= proximo_id ({prox})')
-        ids[i] = it['ref']
-        if it['ref'] in refs:
+        ids[i] = it.get('ref'); por_id[i] = it
+        if it.get('ref') in refs:
             err.append(f'{tag}: ref repetida')
-        refs[it['ref']] = i
-        if not re.match(r'^[a-z][a-z0-9-]*$', it['slug']) or it['slug'] in slugs:
-            err.append(f'{tag}: slug inválido ou repetido ({it["slug"]}); precisa começar com letra')
-        slugs.add(it['slug'])
-        if it['status'] not in ('ativo', 'descontinuado'):
-            err.append(f'{tag}: status inválido')
-        if it['status'] == 'ativo' and i in reg.get('ids_retirados', []):
-            err.append(f'{tag}: id retirado não pode voltar a ser usado')
-        if it['status'] != 'ativo':
+        refs[it.get('ref')] = i
+        slug = it.get('slug', '')
+        if not re.match(r'^[a-z][a-z0-9-]*$', slug) or slug in slugs:
+            err.append(f'{tag}: slug inválido ou repetido ({slug}); precisa começar com letra')
+        if slug in reservados or rx_sel.match(slug):
+            err.append(f'{tag}: slug "{slug}" colide com rota reservada de /c/ (kit ou seleção)')
+        slugs.add(slug)
+        if it.get('status') == 'descontinuado':
+            if i not in retirados:
+                err.append(f'{tag}: descontinuado precisa estar em ids_retirados')
             continue
-        if it['resultado'] not in REG_RESULTADO:
-            err.append(f'{tag}: resultado inválido ({it["resultado"]})')
-        if (it['resultado'] == 'vitoria') != (it['vencedor'] in ('b', 'l')):
+        if it.get('status') != 'ativo':
+            err.append(f'{tag}: status inválido'); continue
+        if i in retirados:
+            err.append(f'{tag}: id retirado não pode voltar a ser usado')
+        falta = [k for k in REG_CAMPOS if k not in it]
+        if falta:
+            err.append(f'{tag}: campos obrigatórios ausentes: {", ".join(falta)}'); continue
+        res, venc, crit = it['resultado'], it['vencedor'], it['criterio']
+        if res not in REG_RESULTADO:
+            err.append(f'{tag}: resultado inválido ({res})')
+        if (res == 'vitoria') != (venc in ('b', 'l')):
             err.append(f'{tag}: vencedor só existe (b|l) quando resultado = vitoria')
-        if it['resultado'] == 'vitoria' and it['forca'] not in ('clara', 'apertada', 'depende-da-regua'):
-            err.append(f'{tag}: vitória sem força válida')
-        if it['criterio'] not in ('maior', 'menor', None):
+        if crit not in ('maior', 'menor', None):
             err.append(f'{tag}: criterio inválido')
-        if it['impacto'] not in niveis:
+        g = it.get('grafico') or {}
+        vals = g.get('valores') or {}
+        if res == 'vitoria':
+            if it['forca'] not in ('clara', 'apertada', 'depende-da-regua'):
+                err.append(f'{tag}: vitória sem força válida')
+            if crit not in ('maior', 'menor'):
+                err.append(f'{tag}: vitória exige criterio maior|menor')
+            if not all(isinstance(vals.get(k), (int, float)) for k in ('b', 'l')):
+                err.append(f'{tag}: vitória exige grafico.valores numéricos dos dois lados')
+            elif crit in ('maior', 'menor'):
+                vb, vl = vals['b'], vals['l']
+                calc = None if vb == vl else (('b' if vb < vl else 'l') if crit == 'menor' else ('b' if vb > vl else 'l'))
+                if calc != venc:
+                    err.append(f'{tag}: vencedor "{venc}" não bate com o critério "{crit}" sobre os valores ({vb} × {vl})')
+            if not it.get('selo'):
+                err.append(f'{tag}: vitória sem texto de selo')
+        for k in ('b', 'l'):
+            if not (it['lados'].get(k) or {}).get('valor'):
+                err.append(f'{tag}: lado {k} sem valor')
+            elif isinstance(vals.get(k), (int, float)):
+                n, casas = primeiro_numero(it['lados'][k]['valor'])
+                if n is None or abs(n - vals[k]) > 0.5 * 10 ** -casas + 1e-9:
+                    err.append(f'{tag}: texto "{it["lados"][k]["valor"]}" não bate com grafico.valores.{k} = {vals[k]}')
+        if it['impacto'] is not None and it['impacto'] not in niveis:
             err.append(f'{tag}: impacto inválido ({it["impacto"]})')
+        if it.get('pagina_id') in ('propostas', 'balanco') and it['impacto'] is not None:
+            err.append(f'{tag}: planos e promessas não têm canal de impacto (medem texto de plano/cumprimento)')
         if it['tema'] not in temas:
             err.append(f'{tag}: tema inválido ({it["tema"]})')
-        if it['pagina'] not in paginas:
+        if it['pagina'] not in paginas and it['pagina'] != '/comparacoes/':
             err.append(f'{tag}: página inválida ({it["pagina"]})')
-        if not all(k in it['lados'] and it['lados'][k].get('valor') for k in ('b', 'l')):
-            err.append(f'{tag}: lados b e l precisam de valor')
         if not it['como_chega'] or len(it['como_chega']) > 140:
             err.append(f'{tag}: como_chega vazio ou com mais de 140 caracteres')
         if not it['arquivos']:
@@ -402,28 +477,109 @@ def validate_registry():
             sha_cache.setdefault(p, sha256(p))
             if sha_cache[p] != a.get('sha256'):
                 err.append(f'{tag}: sha256 não confere para {a["arquivo"]}')
-        src = PUB / (it['pagina'].lstrip('/') + 'index.html')
-        if src not in page_ids:
-            page_ids[src] = set(re.findall(r'\sid="([^"]+)"', src.read_text(encoding='utf-8'))) if src.exists() else set()
-        if it['ancora'] not in page_ids[src]:
-            err.append(f'{tag}: âncora #{it["ancora"]} não existe em {it["pagina"]}')
+        if it['pagina'] in PAGINAS_ANCORA:
+            if it['ancora'] not in ids_da_pagina(it['pagina']):
+                err.append(f'{tag}: âncora #{it["ancora"]} não existe em {it["pagina"]}')
+            if it.get('ancora_card') and it['ancora_card'] not in ids_da_pagina(it['pagina']):
+                err.append(f'{tag}: cartão #{it["ancora_card"]} não existe em {it["pagina"]}')
     for it in itens:
-        for v in it.get('variante_de', []):
+        for v in it.get('variante_de', []) or []:
             if v not in ids:
                 err.append(f'id {it["id"]}: variante_de aponta para id inexistente ({v})')
-    # permanência: nenhum id publicado no último commit pode sumir ou trocar de ref
-    prev = _git('show', 'HEAD:public/' + REGISTRO)
-    if prev:
-        try:
-            for it in json.loads(prev).get('comparacoes', []):
-                if it['id'] not in ids:
-                    err.append(f'id {it["id"]} ({it["ref"]}) existia no último commit e sumiu: ids são permanentes (use status "descontinuado")')
-                elif ids[it['id']] != it['ref']:
-                    err.append(f'id {it["id"]} mudou de {it["ref"]} para {ids[it["id"]]}: ids não podem ser reaproveitados')
-        except (ValueError, KeyError):
-            pass
+        sub = it.get('substituido_por')
+        if sub is not None and (sub not in por_id or por_id[sub].get('status') != 'ativo'):
+            err.append(f'id {it["id"]}: substituido_por precisa ser um id ativo ({sub})')
+    # livro-razão append-only: todo id do livro existe com a mesma ref, slug e pergunta (e vice-versa)
+    vistos = set()
+    for e in livro.get('ids', []):
+        i = e.get('id')
+        if i in vistos:
+            err.append(f'{LIVRO_IDS}: id {i} repetido'); continue
+        vistos.add(i)
+        it = por_id.get(i)
+        if not it:
+            err.append(f'{LIVRO_IDS}: id {i} ({e.get("ref")}) sumiu do registro: ids são permanentes (use status "descontinuado")'); continue
+        if it.get('ref') != e.get('ref') or it.get('slug') != e.get('slug'):
+            err.append(f'id {i}: ref/slug diferente do livro-razão ({e.get("ref")}/{e.get("slug")} × {it.get("ref")}/{it.get("slug")})')
+        if it.get('status') == 'ativo' and 'lados' in it and e.get('pergunta') != reg_impressao(it):
+            err.append(f'id {i} ({e.get("ref")}): a pergunta mudou (métrica/unidade/critério/período); crie um id novo e descontinue este')
+    for i in ids:
+        if i not in vistos:
+            err.append(f'id {i}: não está no livro-razão {LIVRO_IDS}')
+    if vistos and max(vistos) >= prox:
+        err.append(f'proximo_id ({prox}) precisa ser maior que o maior id do livro-razão ({max(vistos)})')
+    # contra a produção: o livro publicado só pode crescer
+    prod, nota_prod = ledger_producao(site_url)
+    if prod:
+        local = {e['id']: e for e in livro.get('ids', [])}
+        for e in prod.get('ids', []):
+            l = local.get(e.get('id'))
+            if not l or any(l.get(k) != e.get(k) for k in ('ref', 'slug', 'pergunta')):
+                err.append(f'id {e.get("id")} ({e.get("ref")}) publicado em produção foi removido ou alterado no livro-razão')
+    elif 'inacessível' in nota_prod:
+        avisos.append('livro-razão: ' + nota_prod)
+    # pastas estáticas /c/<nome>/: precisam ser slug do registro ou nome reservado (sem colisão com seleções)
+    pc = PUB / 'c'
+    if pc.exists():
+        for d in pc.iterdir():
+            if d.is_dir() and d.name not in slugs and d.name not in reservados:
+                err.append(f'/c/{d.name}/ não é slug do registro nem nome reservado')
+            if d.is_dir() and rx_sel.match(d.name):
+                err.append(f'/c/{d.name}/ colide com o formato de seleção')
     ativos = sum(1 for it in itens if it.get('status') == 'ativo')
-    return err, f'{len(itens)} comparações ({ativos} ativas), ids 1–{prox - 1}, {len(sha_cache)} arquivos com sha256 conferido'
+    return err, avisos, (f'{len(itens)} comparações ({ativos} ativas), ids 1–{prox - 1}, {len(sha_cache)} arquivos com sha256 conferido, '
+                         f'livro-razão com {len(vistos)} ids ({nota_prod})')
+
+
+# --------------------------------------------- páginas: catálogo, estrelas, derivados
+ANALISE = {'comparativo': 'Governos', 'propostas': 'Planos 2026', 'balanco': 'Promessas'}
+
+
+def prerender_comparacoes(t, reg):
+    """Lista estática das comparações dentro de <div data-catalogo="lista"> (o catalogo.js substitui ao carregar):
+    buscadores e IAs leem todas as comparações, com os dois valores, o critério e a fonte."""
+    marca = '<!--PRERENDER-COMPARACOES-->'
+    if marca not in t:
+        return t, 0
+    itens = [c for c in reg['comparacoes'] if c.get('status') == 'ativo' and c.get('catalogo')]
+    out = []
+    for c in itens:
+        L = c['lados']
+        if c['resultado'] == 'vitoria':
+            res = f'{L[c["vencedor"]]["nome"]} à frente ({c["criterio"]} é melhor; diferença {c["forca"].replace("-", " ")})'
+        else:
+            res = {'contexto': 'contexto, não conta ponto', 'sem-placar': 'sem placar (comparação descritiva)'}.get(c['resultado'], 'não comparável')
+        out.append(f'<li id="cmp-{c["id"]}"><b>Comparação nº {c["id"]} · {esc(c["titulo"])}</b> '
+                   f'<span>{esc(ANALISE.get(c.get("pagina_id"), ""))} · {esc(c.get("tema_curto") or "")}</span><br>'
+                   f'{esc(L["b"]["nome"])}: {esc(L["b"]["valor"])} · {esc(L["l"]["nome"])}: {esc(L["l"]["valor"])} · {esc(res)}<br>'
+                   f'<small>Fonte: {esc(c["fonte"])}. {esc(c.get("ressalva") or "")}</small></li>')
+    return t.replace(marca, '<ol class="cat-pre">' + ''.join(out) + '</ol>', 1), len(out)
+
+
+def mapa_ancoras(reg, pagina):
+    """{id do cartão na página: [id da comparação, rótulo curto]} para a estrela injetada pelo catalogo.js."""
+    m = {}
+    for c in reg['comparacoes']:
+        if c.get('status') == 'ativo' and c.get('catalogo') and c.get('pagina') == pagina and c.get('ancora_card') and not c.get('variante_de'):
+            m.setdefault(c['ancora_card'], [c['id'], c.get('tema_curto') or c['titulo']])
+    return m
+
+
+def bloco_derivados(itens):
+    """Seção "Arquivos derivados" injetada em /fontes/ (no dist): registro e livro-razão, com SHA-256."""
+    linhas = ''.join(
+        f'<tr><td class="fname">{esc(n)}</td><td>{esc(d)}</td><td><code style="font-size:12px;overflow-wrap:anywhere">{h}</code></td>'
+        f'<td><a class="dl" href="/{esc(p)}" download data-download="1" data-file="{esc(n)}" data-type="json">Baixar</a></td></tr>'
+        for p, n, d, h in itens)
+    return ('<section class="chap" id="derivados" data-track-section="fontes-derivados" data-track-name="Derivados">'
+            '<div class="chap-hd"><div class="kicker">Calculados pelo site</div>'
+            '<h2>Arquivos derivados: o registro das comparações</h2></div>'
+            '<p class="lead">Não são arquivos oficiais: é o que o site calculou a partir deles. O <b>registro</b> traz cada comparação '
+            '(valores dos dois lados, critério, fonte e o SHA-256 do arquivo original usado); o <b>livro-razão</b> garante que o número de '
+            'cada comparação (usado nos links <code>/c/1-3-5</code>) nunca muda. Hashes também em '
+            '<a href="/dados/SHA256SUMS-derivados.txt">SHA256SUMS-derivados.txt</a>.</p>'
+            '<div class="tbl-card"><table class="dados-tbl"><thead><tr><th style="width:24%">Arquivo</th><th>O que é</th><th>SHA-256</th><th>Baixar</th></tr></thead>'
+            f'<tbody>{linhas}</tbody></table></div></section>')
 
 
 def main():
@@ -441,12 +597,14 @@ def main():
         warns.append('GA_MEASUREMENT_ID não configurado — analytics ficará inativo até preencher o .env')
 
     # registro único de comparações: erro aqui barra o build (dado errado não vai ao ar)
-    reg_err, reg_resumo = validate_registry()
+    reg_err, reg_avisos, reg_resumo = validate_registry(site_url)
     if reg_err:
         print('build FALHOU: registro %s inválido:' % REGISTRO)
         for e in reg_err:
             print('   -', e)
         return 1
+    warns.extend(reg_avisos)
+    registro = json.loads((PUB / REGISTRO).read_text(encoding='utf-8')) if (PUB / REGISTRO).exists() else None
 
     if DIST.exists():
         shutil.rmtree(DIST)
@@ -493,8 +651,22 @@ def main():
     raw = {u: (DIST / f).read_text(encoding='utf-8') for u, f, _ in PAGES}
     prop_data = embedded_json(raw['/propostas/'], 'data-catalogo')
     bal_data = embedded_json(raw['/balanco/'], 'data-promessas')
+    # catálogo de comparações: lista estática (antes do texto do llms-full, para entrar nele)
+    if registro and '/comparacoes/' in raw:
+        t, n = prerender_comparacoes(raw['/comparacoes/'], registro)
+        if n: raw['/comparacoes/'] = t; notes.append(f'{n} comparações pré-renderizadas')
     # texto para o llms-full.txt: do HTML antes da pré-renderização (os catálogos entram completos à parte)
     texts = [visible_text(raw[u]) for u, _, _ in PAGES]
+    # estrelas: mapa cartão -> comparação, lido pelo catalogo.js (só no dist; as páginas-fonte não mudam)
+    if registro:
+        n_est = 0
+        for u in ('/', '/propostas/', '/balanco/'):
+            m = mapa_ancoras(registro, u)
+            if m and '</head>' in raw[u]:
+                raw[u] = raw[u].replace('</head>', '<script id="bpd-ancoras" type="application/json">%s</script>\n</head>'
+                                        % json.dumps(m, ensure_ascii=False).replace('</', '<\\/'), 1)
+                n_est += len(m)
+        notes.append(f'{n_est} cartões com estrela')
     if prerender:
         t, n = prerender_propostas(raw['/propostas/'])
         if n: raw['/propostas/'] = t; notes.append(f'{n} propostas pré-renderizadas')
@@ -507,6 +679,19 @@ def main():
         raw['/fontes/'] = raw['/fontes/'].replace(
             '</head>', '<script type="application/ld+json">%s</script>\n</head>' % json.dumps(ld, ensure_ascii=False).replace('</', '<\\/'), 1)
         notes.append(f'{len(ld["dataset"])} Datasets no JSON-LD de /fontes/')
+    # /fontes/: arquivos derivados (registro e livro-razão) com SHA-256, separados dos originais
+    deriv = [(r, r.split('/')[-1], d, sha256(PUB / r)) for r, d in (
+        (REGISTRO, 'Registro das comparações: valores dos dois lados, critério, vencedor, força, fonte e SHA-256 dos arquivos originais'),
+        (LIVRO_IDS, 'Livro-razão dos números das comparações (só cresce): id, referência e impressão digital da pergunta'))
+        if (PUB / r).exists()]
+    if deriv:
+        (DIST / 'dados' / 'SHA256SUMS-derivados.txt').write_text(''.join(f'{h}  {r}\n' for r, _, _, h in deriv), encoding='utf-8')
+        marca = '<div class="explain">\n    <h4>Notas</h4>'
+        if marca in raw['/fontes/']:
+            raw['/fontes/'] = raw['/fontes/'].replace(marca, bloco_derivados(deriv) + '\n  ' + marca, 1)
+            notes.append('derivados com SHA-256 em /fontes/')
+        else:
+            warns.append('/fontes/: lugar da seção de derivados não encontrado')
     for u, f, _ in PAGES:
         (DIST / f).write_text(raw[u], encoding='utf-8')
 
@@ -520,8 +705,8 @@ def main():
 
     # checksums dos dados
     dados = sorted((DIST / 'dados').rglob('*'))
-    lines = [f'{sha256(p)}  dados/{p.relative_to(DIST / "dados")}' for p in dados if p.is_file() and p.name != 'SHA256SUMS.txt'
-             and str(p.relative_to(DIST)) not in DERIVADOS]
+    lines = [f'{sha256(p)}  dados/{p.relative_to(DIST / "dados")}' for p in dados if p.is_file()
+             and p.name not in ('SHA256SUMS.txt', 'SHA256SUMS-derivados.txt') and str(p.relative_to(DIST)) not in DERIVADOS]
     (DIST / 'dados' / 'SHA256SUMS.txt').write_text('\n'.join(lines) + '\n', encoding='utf-8')
 
     # sitemap (lastmod = data real da última alteração de cada página)
