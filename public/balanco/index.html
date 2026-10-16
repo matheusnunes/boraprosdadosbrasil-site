@@ -504,6 +504,17 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
 .sc .bar-rot{margin-left:78px}
 .sc-k .gb,.sc-k .gl,.sc-t .gb,.sc-t .gl{font-weight:800}
 .pl-n b{font-size:34px}
+
+/* ---- v7: ações por card (imagem + WhatsApp), estilo do BPD.montarCard ---- */
+.bpd-card-acoes{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 0}
+.bpd-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:22px;border:1px solid #d4d4d8;background:#fff;color:#18181b;font:600 14px/1.2 InterVar,-apple-system,sans-serif;text-decoration:none;cursor:pointer}
+.bpd-btn:hover{background:#fafafa;border-color:#a1a1aa}
+.bpd-btn--wa{background:#02522b;color:#fff;border-color:#02522b}
+.bpd-btn--wa:hover{background:#036b39;border-color:#036b39}
+.bpd-card-status{font-size:13px;color:#52525b}
+.sec-acoes.tem-card{justify-content:flex-start}
+.sec-acoes.tem-card .share{display:none}
+.mt-r .sbar{min-width:4px}
 /* ---- v5: seção = card ---- */
 .sc{padding:12px 14px 10px;margin:8px 0 6px}
 .sc-t{margin:0 0 4px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
@@ -590,6 +601,8 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "__SITE_URL__/#org", "name": "Bora pros dados Brasil", "url": "__SITE_URL__/", "logo": {"@type": "ImageObject", "url": "__SITE_URL__/assets/img/logo-400.png", "width": 400, "height": 225}, "description": "Análises descritivas com dados públicos oficiais do Brasil, sem juízo político, com os arquivos originais para download."}, {"@type": "WebSite", "@id": "__SITE_URL__/#website", "name": "Bora pros dados Brasil", "url": "__SITE_URL__/", "inLanguage": "pt-BR", "publisher": {"@id": "__SITE_URL__/#org"}}, {"@type": "BreadcrumbList", "@id": "__SITE_URL__/balanco/#breadcrumb", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Início", "item": "__SITE_URL__/"}, {"@type": "ListItem", "position": 2, "name": "Promessas e Realizações", "item": "__SITE_URL__/balanco/"}]}, {"@type": "WebPage", "@id": "__SITE_URL__/balanco/#webpage", "url": "__SITE_URL__/balanco/", "name": "Promessas cumpridas? Planos de Bolsonaro (2018) e Lula (2022) item a item", "description": "67 promessas dos planos de governo de Bolsonaro (2018) e Lula (2022) registrados no TSE, cada uma com veredito (cumprida, parcial, não cumprida…) e a fonte oficial.", "inLanguage": "pt-BR", "isPartOf": {"@id": "__SITE_URL__/#website"}, "primaryImageOfPage": {"@type": "ImageObject", "url": "__SITE_URL__/assets/img/og-balanco.jpg", "width": 1200, "height": 630}, "datePublished": "__DATE_PUBLISHED__", "dateModified": "__DATE_MODIFIED__", "breadcrumb": {"@id": "__SITE_URL__/balanco/#breadcrumb"}}, {"@type": "Article", "@id": "__SITE_URL__/balanco/#article", "headline": "Promessas de governo: o que foi prometido × o que foi cumprido", "description": "67 promessas dos planos de governo de Bolsonaro (2018) e Lula (2022) registrados no TSE, cada uma com veredito (cumprida, parcial, não cumprida…) e a fonte oficial.", "inLanguage": "pt-BR", "mainEntityOfPage": {"@id": "__SITE_URL__/balanco/#webpage"}, "image": "__SITE_URL__/assets/img/og-balanco.jpg", "datePublished": "__DATE_PUBLISHED__", "dateModified": "__DATE_MODIFIED__", "author": {"@id": "__SITE_URL__/#org"}, "publisher": {"@id": "__SITE_URL__/#org"}, "isAccessibleForFree": true, "articleSection": "Promessas de governo", "keywords": "promessas de campanha cumpridas, promessas de Bolsonaro cumpridas, promessas de Lula cumpridas, plano de governo, balanço de promessas, TSE", "isBasedOn": ["__SITE_URL__/dados/tse/2018BR280000614517.pdf", "__SITE_URL__/dados/tse/2022BR280001607829.pdf", "https://www.planalto.gov.br/", "https://www.camara.leg.br/", "https://www25.senado.leg.br/"], "about": [{"@type": "Person", "name": "Jair Bolsonaro", "sameAs": "https://pt.wikipedia.org/wiki/Jair_Bolsonaro"}, {"@type": "Person", "name": "Luiz Inácio Lula da Silva", "alternateName": "Lula", "sameAs": "https://pt.wikipedia.org/wiki/Luiz_Inácio_Lula_da_Silva"}]}]}</script>
 <link rel="stylesheet" href="/assets/css/share.css">
 <script defer src="/assets/js/share.js"></script>
+<script defer src="/assets/js/charts.js"></script>
+<script defer src="/assets/js/cards-balanco.js"></script>
 <script defer src="/assets/js/ui.js"></script>
 </head>
 <body class="pg-bal">
@@ -726,9 +739,9 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
     <figure class="card sc" id="q-sec-bolso">
       <p class="sc-t"><span class="selo-lado w2"><i class="mk mk--l" aria-hidden="true"></i>Governo Lula à frente</span> <span class="q-forca" title="Diferença clara: outras contas razoáveis dão o mesmo resultado.">clara</span></p>
       <p class="sc-k">Cumpridas: <span class="gb">Bolsonaro 0 de 7</span> × <span class="gl">Lula 5 de 7</span> · ↑ maior é melhor</p>
-      <div class="pt-r"><span class="pt-n"><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</span><div class="stb stb--s" role="img" aria-label="Não cumprida 4, Sem evidência oficial 3 (de 7)"><i class="st st--no" style="flex:4 1 0" title="Não cumprida: 4 de 7"><span>4</span></i><i class="st st--na" style="flex:3 1 0" title="Sem evidência oficial: 3 de 7"><span>3</span></i></div></div>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</span><div class="stb stb--s" role="img" aria-label="Não cumprida 4, Sem evidência oficial 3 (de 7)" style="width:100.0%"><i class="st st--no" style="flex:4 1 0" title="Não cumprida: 4 de 7"><span>4</span></i><i class="st st--na" style="flex:3 1 0" title="Sem evidência oficial: 3 de 7"><span>3</span></i></div></div>
       <p class="bar-rot">4 não cumpridas · 3 sem evidência oficial</p>
-      <div class="pt-r"><span class="pt-n"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><div class="stb stb--s" role="img" aria-label="Cumprida 5, Parcial 1, Não cumprida 1 (de 7)"><i class="st st--ok" style="flex:5 1 0" title="Cumprida: 5 de 7"><span>5</span></i><i class="st st--mid" style="flex:1 1 0" title="Parcial: 1 de 7"><span>1</span></i><i class="st st--no" style="flex:1 1 0" title="Não cumprida: 1 de 7"><span>1</span></i></div></div>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><div class="stb stb--s" role="img" aria-label="Cumprida 5, Parcial 1, Não cumprida 1 (de 7)" style="width:100.0%"><i class="st st--ok" style="flex:5 1 0" title="Cumprida: 5 de 7"><span>5</span></i><i class="st st--mid" style="flex:1 1 0" title="Parcial: 1 de 7"><span>1</span></i><i class="st st--no" style="flex:1 1 0" title="Não cumprida: 1 de 7"><span>1</span></i></div></div>
       <p class="bar-rot">5 cumpridas · 1 parcial · 1 não cumprida</p>
       <p class="pt-nota">Parciais 0 × 1 · em andamento: não se aplica × 0</p>
       <figcaption class="sc-src">Fonte: planos registrados no TSE (2018 e 2022) e prova em fontes oficiais, item a item · corte em 30/09/2026</figcaption>
@@ -753,9 +766,9 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
     <figure class="card sc" id="q-sec-servicos">
       <p class="sc-t"><span class="selo-lado w2"><i class="mk mk--l" aria-hidden="true"></i>Governo Lula à frente</span> <span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span></p>
       <p class="sc-k">Cumpridas: <span class="gb">Bolsonaro 0 de 5</span> × <span class="gl">Lula 4 de 12</span> · ↑ maior é melhor</p>
-      <div class="pt-r"><span class="pt-n"><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</span><div class="stb stb--s" role="img" aria-label="Parcial 3, Não cumprida 1, Sem evidência oficial 1 (de 5)"><i class="st st--mid" style="flex:3 1 0" title="Parcial: 3 de 5"><span>3</span></i><i class="st st--no" style="flex:1 1 0" title="Não cumprida: 1 de 5"><span>1</span></i><i class="st st--na" style="flex:1 1 0" title="Sem evidência oficial: 1 de 5"><span>1</span></i></div></div>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</span><div class="stb stb--s" role="img" aria-label="Parcial 3, Não cumprida 1, Sem evidência oficial 1 (de 5)" style="width:41.7%"><i class="st st--mid" style="flex:3 1 0" title="Parcial: 3 de 5"><span>3</span></i><i class="st st--no" style="flex:1 1 0" title="Não cumprida: 1 de 5"><span>1</span></i><i class="st st--na" style="flex:1 1 0" title="Sem evidência oficial: 1 de 5"><span>1</span></i></div></div>
       <p class="bar-rot">3 parciais · 1 não cumprida · 1 sem evidência oficial</p>
-      <div class="pt-r"><span class="pt-n"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><div class="stb stb--s" role="img" aria-label="Cumprida 4, Parcial 4, Em andamento 3, Sem evidência oficial 1 (de 12)"><i class="st st--ok" style="flex:4 1 0" title="Cumprida: 4 de 12"><span>4</span></i><i class="st st--mid" style="flex:4 1 0" title="Parcial: 4 de 12"><span>4</span></i><i class="st st--run" style="flex:3 1 0" title="Em andamento: 3 de 12"><span>3</span></i><i class="st st--na" style="flex:1 1 0" title="Sem evidência oficial: 1 de 12"><span>1</span></i></div></div>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><div class="stb stb--s" role="img" aria-label="Cumprida 4, Parcial 4, Em andamento 3, Sem evidência oficial 1 (de 12)" style="width:100.0%"><i class="st st--ok" style="flex:4 1 0" title="Cumprida: 4 de 12"><span>4</span></i><i class="st st--mid" style="flex:4 1 0" title="Parcial: 4 de 12"><span>4</span></i><i class="st st--run" style="flex:3 1 0" title="Em andamento: 3 de 12"><span>3</span></i><i class="st st--na" style="flex:1 1 0" title="Sem evidência oficial: 1 de 12"><span>1</span></i></div></div>
       <p class="bar-rot">4 cumpridas · 4 parciais · 3 em andamento · 1 sem evidência oficial</p>
       <p class="pt-nota">Parciais 3 × 4 · em andamento: não se aplica × 3 · <b>o que mudaria:</b> contando parciais, 3 de 5 × 8 de 12.</p>
       <figcaption class="sc-src">Fonte: planos registrados no TSE (2018 e 2022) e prova em fontes oficiais, item a item · corte em 30/09/2026</figcaption>
@@ -781,9 +794,9 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
     <figure class="card sc" id="q-sec-estado">
       <p class="sc-t"><span class="selo-lado w1"><i class="mk mk--b" aria-hidden="true"></i>Governo Bolsonaro à frente</span> <span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span></p>
       <p class="sc-k">Cumpridas: <span class="gb">Bolsonaro 5 de 13</span> × <span class="gl">Lula 1 de 7</span> · ↑ maior é melhor</p>
-      <div class="pt-r"><span class="pt-n"><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</span><div class="stb stb--s" role="img" aria-label="Cumprida 5, Não cumprida 3, Sem evidência oficial 5 (de 13)"><i class="st st--ok" style="flex:5 1 0" title="Cumprida: 5 de 13"><span>5</span></i><i class="st st--no" style="flex:3 1 0" title="Não cumprida: 3 de 13"><span>3</span></i><i class="st st--na" style="flex:5 1 0" title="Sem evidência oficial: 5 de 13"><span>5</span></i></div></div>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</span><div class="stb stb--s" role="img" aria-label="Cumprida 5, Não cumprida 3, Sem evidência oficial 5 (de 13)" style="width:100.0%"><i class="st st--ok" style="flex:5 1 0" title="Cumprida: 5 de 13"><span>5</span></i><i class="st st--no" style="flex:3 1 0" title="Não cumprida: 3 de 13"><span>3</span></i><i class="st st--na" style="flex:5 1 0" title="Sem evidência oficial: 5 de 13"><span>5</span></i></div></div>
       <p class="bar-rot">5 cumpridas · 3 não cumpridas · 5 sem evidência oficial</p>
-      <div class="pt-r"><span class="pt-n"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><div class="stb stb--s" role="img" aria-label="Cumprida 1, Em andamento 5, Sem evidência oficial 1 (de 7)"><i class="st st--ok" style="flex:1 1 0" title="Cumprida: 1 de 7"><span>1</span></i><i class="st st--run" style="flex:5 1 0" title="Em andamento: 5 de 7"><span>5</span></i><i class="st st--na" style="flex:1 1 0" title="Sem evidência oficial: 1 de 7"><span>1</span></i></div></div>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><div class="stb stb--s" role="img" aria-label="Cumprida 1, Em andamento 5, Sem evidência oficial 1 (de 7)" style="width:53.8%"><i class="st st--ok" style="flex:1 1 0" title="Cumprida: 1 de 7"><span>1</span></i><i class="st st--run" style="flex:5 1 0" title="Em andamento: 5 de 7"><span>5</span></i><i class="st st--na" style="flex:1 1 0" title="Sem evidência oficial: 1 de 7"><span>1</span></i></div></div>
       <p class="bar-rot">1 cumprida · 5 em andamento · 1 sem evidência oficial</p>
       <p class="pt-nota">Parciais 0 × 0 · em andamento: não se aplica × 5 · <b>o que mudaria:</b> Lula tem 5 de 7 em andamento.</p>
       <figcaption class="sc-src">Fonte: planos registrados no TSE (2018 e 2022) e prova em fontes oficiais, item a item · corte em 30/09/2026</figcaption>
@@ -808,9 +821,9 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
     <figure class="card sc" id="q-sec-seguranca">
       <p class="sc-t"><span class="selo-lado w2"><i class="mk mk--l" aria-hidden="true"></i>Governo Lula à frente</span> <span class="q-forca q-forca--apertada" title="Diferença apertada: outra conta razoável muda ou quase muda o resultado.">apertada</span></p>
       <p class="sc-k">Cumpridas: <span class="gb">Bolsonaro 0 de 8</span> × <span class="gl">Lula 2 de 8</span> · ↑ maior é melhor</p>
-      <div class="pt-r"><span class="pt-n"><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</span><div class="stb stb--s" role="img" aria-label="Parcial 1, Não cumprida 5, Sem evidência oficial 2 (de 8)"><i class="st st--mid" style="flex:1 1 0" title="Parcial: 1 de 8"><span>1</span></i><i class="st st--no" style="flex:5 1 0" title="Não cumprida: 5 de 8"><span>5</span></i><i class="st st--na" style="flex:2 1 0" title="Sem evidência oficial: 2 de 8"><span>2</span></i></div></div>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--b" aria-hidden="true"></i>Bolsonaro</span><div class="stb stb--s" role="img" aria-label="Parcial 1, Não cumprida 5, Sem evidência oficial 2 (de 8)" style="width:100.0%"><i class="st st--mid" style="flex:1 1 0" title="Parcial: 1 de 8"><span>1</span></i><i class="st st--no" style="flex:5 1 0" title="Não cumprida: 5 de 8"><span>5</span></i><i class="st st--na" style="flex:2 1 0" title="Sem evidência oficial: 2 de 8"><span>2</span></i></div></div>
       <p class="bar-rot">1 parcial · 5 não cumpridas · 2 sem evidência oficial</p>
-      <div class="pt-r"><span class="pt-n"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><div class="stb stb--s" role="img" aria-label="Cumprida 2, Em andamento 4, Não cumprida 1, Sem evidência oficial 1 (de 8)"><i class="st st--ok" style="flex:2 1 0" title="Cumprida: 2 de 8"><span>2</span></i><i class="st st--run" style="flex:4 1 0" title="Em andamento: 4 de 8"><span>4</span></i><i class="st st--no" style="flex:1 1 0" title="Não cumprida: 1 de 8"><span>1</span></i><i class="st st--na" style="flex:1 1 0" title="Sem evidência oficial: 1 de 8"><span>1</span></i></div></div>
+      <div class="pt-r"><span class="pt-n"><i class="mk mk--l" aria-hidden="true"></i>Lula</span><div class="stb stb--s" role="img" aria-label="Cumprida 2, Em andamento 4, Não cumprida 1, Sem evidência oficial 1 (de 8)" style="width:100.0%"><i class="st st--ok" style="flex:2 1 0" title="Cumprida: 2 de 8"><span>2</span></i><i class="st st--run" style="flex:4 1 0" title="Em andamento: 4 de 8"><span>4</span></i><i class="st st--no" style="flex:1 1 0" title="Não cumprida: 1 de 8"><span>1</span></i><i class="st st--na" style="flex:1 1 0" title="Sem evidência oficial: 1 de 8"><span>1</span></i></div></div>
       <p class="bar-rot">2 cumpridas · 4 em andamento · 1 não cumprida · 1 sem evidência oficial</p>
       <p class="pt-nota">Parciais 1 × 0 · em andamento: não se aplica × 4 · <b>o que mudaria:</b> Lula tem 4 de 8 em andamento.</p>
       <figcaption class="sc-src">Fonte: planos registrados no TSE (2018 e 2022) e prova em fontes oficiais, item a item · corte em 30/09/2026</figcaption>
@@ -1224,16 +1237,17 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
   function renderMapa(){
     var el = document.getElementById('placar-mapa'); if (!el) return;
     var h = ['<div class="mapa2">'];
+    var MAXT = 0; TEMA_ORD.forEach(function(k){ CANDS.forEach(function(cd){ MAXT = Math.max(MAXT, PROM.filter(function(it){ return it.tema===k && it.cand===cd; }).length); }); });
     TEMA_ORD.forEach(function(k){
       h.push('<div class="mt"><p class="mt-t">' + esc(temaLabel(k)) + '</p>');
       CANDS.forEach(function(cd){
         var l = PROM.filter(function(it){ return it.tema===k && it.cand===cd; });
         h.push('<div class="mt-r"><span class="mt-n"><i class="mk mk--' + LADO[cd] + '" aria-hidden="true"></i>' + CAND[cd].nome + '</span>'
-          + (l.length ? stackBar(l, LADO[cd]) : '<span class="mt-0">nenhuma promessa no tema</span>') + '<span class="mt-c">' + (l.length || '–') + '</span></div>');
+          + (l.length ? '<div style="width:' + (l.length / MAXT * 100).toFixed(1) + '%">' + stackBar(l, LADO[cd]) + '</div>' : '<span class="mt-0">nenhuma promessa no tema</span>') + '<span class="mt-c">' + (l.length || '–') + '</span></div>');
       });
       h.push('</div>');
     });
-    h.push('</div>' + legenda());
+    h.push('</div><p class="note" style="margin-top:6px">Largura da barra = número de promessas do lado no tema (mesma escala para todos).</p>' + legenda());
     el.innerHTML = h.join('');
   }
 
@@ -1409,6 +1423,53 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
   renderMapa();
 })();
 
+</script>
+<script>
+/* v7: cada seção ganha [Compartilhar imagem] (PNG 1080×1350 do card do data-viz) + [WhatsApp].
+   O que fica na tela é o bloco da página; o card do charts.js só gera a imagem. */
+(function(){
+  var MAPA = {"resumo": "b-placar", "cap-bolso": "b-bolso", "cap-servicos": "b-servicos", "cap-estado": "b-estado", "cap-seguranca": "b-seguranca"};
+  function track(n, p){ try { if (window.__track) window.__track(n, p); } catch (e) {} }
+  function acoes(alvo, def, texto, ancora){
+    var box = document.createElement('div'); box.className = 'bpd-card-acoes';
+    var st = document.createElement('span'); st.className = 'bpd-card-status'; st.setAttribute('role', 'status');
+    var url = location.origin + location.pathname + '#' + ancora;
+    var bImg = document.createElement('button'); bImg.type = 'button'; bImg.className = 'bpd-btn bpd-btn--img'; bImg.textContent = 'Compartilhar imagem';
+    bImg.addEventListener('click', function(){
+      st.textContent = 'Gerando a imagem…';
+      track('share_click', { section: def.id, method: 'image', placement: 'card' });
+      BPD.cardPNG(def, 'feed').then(function(blob){
+        var nome = 'bora-pros-dados-' + def.id + '.png', file = null;
+        try { file = new File([blob], nome, { type: 'image/png' }); } catch (e) {}
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          return navigator.share({ files: [file], text: texto + ' ' + url }).then(function(){ st.textContent = ''; track('share_success', { section: def.id, method: 'image' }); }, function(){ st.textContent = ''; });
+        }
+        var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome; document.body.appendChild(a); a.click();
+        setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+        st.textContent = 'Imagem baixada. Agora é só anexar na conversa.';
+        track('share_success', { section: def.id, method: 'download' });
+      }).catch(function(){ st.textContent = 'Não deu para gerar a imagem agora.'; });
+    });
+    var bWa = document.createElement('a'); bWa.className = 'bpd-btn bpd-btn--wa'; bWa.textContent = 'WhatsApp'; bWa.target = '_blank'; bWa.rel = 'noopener';
+    bWa.href = 'https://wa.me/?text=' + encodeURIComponent(texto + ' Números, ressalvas e método: ' + url + (url.indexOf('?') < 0 ? '' : ''));
+    bWa.addEventListener('click', function(){ track('share_click', { section: def.id, method: 'whatsapp', placement: 'card' }); });
+    box.appendChild(bImg); box.appendChild(bWa); box.appendChild(st);
+    alvo.appendChild(box);
+  }
+  function inicia(){
+    var DEFS = window.CARDS_BALANCO; if (!window.BPD || !BPD.cardPNG || !DEFS) return;
+    var porId = {}; DEFS.forEach(function(d){ porId[d.id] = d; });
+    Object.keys(MAPA).forEach(function(sec){
+      var s = document.getElementById(sec), def = porId[MAPA[sec]]; if (!s || !def) return;
+      var sh = s.querySelector('.share[data-share-text]'), texto = sh ? sh.getAttribute('data-share-text') : document.title;
+      var alvo = s.querySelector('.sec-acoes') || s.querySelector('.r-acoes');
+      if (!alvo) return;
+      if (alvo.classList.contains('sec-acoes')) alvo.classList.add('tem-card');
+      acoes(alvo, def, texto, sec);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inicia); else inicia();
+})();
 </script>
 </body>
 </html>

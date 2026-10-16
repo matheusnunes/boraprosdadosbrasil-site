@@ -507,6 +507,17 @@ table.cat td.who.lula::before{border-radius:2px;background:var(--gl)}
 .pl-nota{margin:6px 0 0;font-size:12.5px;color:#52525b}
 .pl-leg{display:flex;flex-wrap:wrap;gap:4px 14px;margin:2px 0 4px;font-size:12.5px;color:#3f3f46}
 .pl-leg span{display:inline-flex;align-items:center;gap:5px}
+
+/* ---- v7: ações por card (imagem + WhatsApp), estilo do BPD.montarCard ---- */
+.bpd-card-acoes{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 0}
+.bpd-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:22px;border:1px solid #d4d4d8;background:#fff;color:#18181b;font:600 14px/1.2 InterVar,-apple-system,sans-serif;text-decoration:none;cursor:pointer}
+.bpd-btn:hover{background:#fafafa;border-color:#a1a1aa}
+.bpd-btn--wa{background:#02522b;color:#fff;border-color:#02522b}
+.bpd-btn--wa:hover{background:#036b39;border-color:#036b39}
+.bpd-card-status{font-size:13px;color:#52525b}
+.sec-acoes.tem-card{justify-content:flex-start}
+.sec-acoes.tem-card .share{display:none}
+.mt-r .sbar{min-width:4px}
 /* ---- v5: seção = card ---- */
 .sc{padding:12px 14px 10px;margin:8px 0 6px}
 .sc-t{margin:0 0 4px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
@@ -549,6 +560,8 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
 <link rel="stylesheet" href="/assets/css/share.css">
 <script defer src="/assets/js/share.js"></script>
 <script defer src="/assets/js/charts.js"></script>
+<script defer src="/assets/js/charts.js"></script>
+<script defer src="/assets/js/cards-propostas.js"></script>
 <script defer src="/assets/js/ui.js"></script>
 </head>
 <body class="pg-prop">
@@ -1514,5 +1527,52 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
 })();
 </script>
 
+<script>
+/* v7: cada seção ganha [Compartilhar imagem] (PNG 1080×1350 do card do data-viz) + [WhatsApp].
+   O que fica na tela é o bloco da página; o card do charts.js só gera a imagem. */
+(function(){
+  var MAPA = {"resumo": "p-geral", "cap-bolso": "p-bolso", "cap-seguranca": "p-seguranca", "cap-servicos": "p-servicos", "cap-economia": "p-economia", "cap-ambiente": "p-ambiente"};
+  function track(n, p){ try { if (window.__track) window.__track(n, p); } catch (e) {} }
+  function acoes(alvo, def, texto, ancora){
+    var box = document.createElement('div'); box.className = 'bpd-card-acoes';
+    var st = document.createElement('span'); st.className = 'bpd-card-status'; st.setAttribute('role', 'status');
+    var url = location.origin + location.pathname + '#' + ancora;
+    var bImg = document.createElement('button'); bImg.type = 'button'; bImg.className = 'bpd-btn bpd-btn--img'; bImg.textContent = 'Compartilhar imagem';
+    bImg.addEventListener('click', function(){
+      st.textContent = 'Gerando a imagem…';
+      track('share_click', { section: def.id, method: 'image', placement: 'card' });
+      BPD.cardPNG(def, 'feed').then(function(blob){
+        var nome = 'bora-pros-dados-' + def.id + '.png', file = null;
+        try { file = new File([blob], nome, { type: 'image/png' }); } catch (e) {}
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          return navigator.share({ files: [file], text: texto + ' ' + url }).then(function(){ st.textContent = ''; track('share_success', { section: def.id, method: 'image' }); }, function(){ st.textContent = ''; });
+        }
+        var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome; document.body.appendChild(a); a.click();
+        setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+        st.textContent = 'Imagem baixada. Agora é só anexar na conversa.';
+        track('share_success', { section: def.id, method: 'download' });
+      }).catch(function(){ st.textContent = 'Não deu para gerar a imagem agora.'; });
+    });
+    var bWa = document.createElement('a'); bWa.className = 'bpd-btn bpd-btn--wa'; bWa.textContent = 'WhatsApp'; bWa.target = '_blank'; bWa.rel = 'noopener';
+    bWa.href = 'https://wa.me/?text=' + encodeURIComponent(texto + ' Números, ressalvas e método: ' + url + (url.indexOf('?') < 0 ? '' : ''));
+    bWa.addEventListener('click', function(){ track('share_click', { section: def.id, method: 'whatsapp', placement: 'card' }); });
+    box.appendChild(bImg); box.appendChild(bWa); box.appendChild(st);
+    alvo.appendChild(box);
+  }
+  function inicia(){
+    var DEFS = window.CARDS_PROPOSTAS; if (!window.BPD || !BPD.cardPNG || !DEFS) return;
+    var porId = {}; DEFS.forEach(function(d){ porId[d.id] = d; });
+    Object.keys(MAPA).forEach(function(sec){
+      var s = document.getElementById(sec), def = porId[MAPA[sec]]; if (!s || !def) return;
+      var sh = s.querySelector('.share[data-share-text]'), texto = sh ? sh.getAttribute('data-share-text') : document.title;
+      var alvo = s.querySelector('.sec-acoes') || s.querySelector('.r-acoes');
+      if (!alvo) return;
+      if (alvo.classList.contains('sec-acoes')) alvo.classList.add('tem-card');
+      acoes(alvo, def, texto, sec);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inicia); else inicia();
+})();
+</script>
 </body>
 </html>
