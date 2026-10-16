@@ -1238,7 +1238,7 @@
 
   /* blocos (resumo da home): dois blocos de mesmo tamanho, quesitos em grade, selo "apertada" igual */
   GRAF.blocos = { flex: false, desenhar: function (c, x, y, w, h, gr) {
-    var C = c.C, grupos = gr.grupos.slice().sort(function (a, b) { return ORDEM.indexOf(a.vencedor) - ORDEM.indexOf(b.vencedor); });
+    var C = c.C, grupos = gr.manterOrdem ? gr.grupos.slice() : gr.grupos.slice().sort(function (a, b) { return ORDEM.indexOf(a.vencedor) - ORDEM.indexOf(b.vencedor); });
     var lado2 = w >= c.z(600), bw = lado2 ? (w - c.z(14)) / 2 : w, pad = c.z(12), th = c.z(36), tg = c.z(7);
     var ap0 = c.w('apertada', 12, 700) + c.z(12), cw2 = (bw - 2 * pad - c.z(4) - tg) / 2;
     var cabe2 = grupos.every(function (g2) { return g2.itens.every(function (q) { return c.w('✓ ' + q.nome, 12, 700) + c.z(16) + (q.apertada ? ap0 + c.z(6) : 0) <= cw2; }); });
