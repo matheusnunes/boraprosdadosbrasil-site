@@ -764,8 +764,10 @@ def main():
         if (PUB / r).exists()]
     if deriv:
         (DIST / 'dados' / 'SHA256SUMS-derivados.txt').write_text(''.join(f'{h}  {r}\n' for r, _, _, h in deriv), encoding='utf-8')
-        marca = '<div class="explain">\n    <h4>Notas</h4>'
-        if marca in raw['/fontes/']:
+        # marca do bloco "Notas" (h4 antes da revisão de acessibilidade; h2 depois)
+        marca = next((m for m in ('<div class="explain">\n    <h2>Notas</h2>', '<div class="explain">\n    <h4>Notas</h4>')
+                      if m in raw['/fontes/']), None)
+        if marca:
             ind, n_ind = bloco_indicadores(registro, raw['/fontes/']) if registro else ('', 0)
             raw['/fontes/'] = raw['/fontes/'].replace(marca, ind + bloco_derivados(deriv) + '\n  ' + marca, 1)
             if n_ind: notes.append(f'{n_ind} arquivos dos indicadores do catálogo em /fontes/')
