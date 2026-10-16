@@ -765,3 +765,5 @@ html.ui-teclado { scroll-behavior: auto !important; }
   .bpd-car-slide > * { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; }
   .bpd-car-slide > * > .bpd-card, .bpd-car-slide > * > .card-slot, .bpd-car-slide > .bpd-card { flex: 1 1 auto; display: flex; flex-direction: column; }
 }
+/* "Ver todas as N comparações": link em linha (flex descartava os espaços em volta do número) */
+.ver-todas > a { display: inline-block !important; }

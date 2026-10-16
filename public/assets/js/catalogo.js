@@ -345,10 +345,14 @@
       el('span', 'cat-id', 'Comparação nº ' + it.id, { title: 'Número permanente desta comparação (usado no link de compartilhar)' }));
     add(top, tags, opt.semEstrela ? null : estrela(it.id, it.tema_curto || it.titulo, opt.aoMudar));
     a.appendChild(top);
-    a.appendChild(el('h3', 'cat-sr', titulo(it)));
+    a.appendChild(el('h2', 'cat-sr', titulo(it)));
     var box = el('div', 'cat-graf', null, { 'aria-hidden': null });
     a.appendChild(box);
-    preguicoso(box, function () { box.__svg = desenhar(box, it); });
+    preguicoso(box, function () {
+      box.__svg = desenhar(box, it);
+      // a camada de toque da trajetória (rect aria-hidden) não deve receber foco pelo Tab (axe: aria-hidden-focus)
+      Array.prototype.forEach.call(box.querySelectorAll('[aria-hidden="true"][tabindex]'), function (r) { r.setAttribute('tabindex', '-1'); });
+    });
     var acoes = el('div', 'cat-actions');
     var bImg = el('button', 'cat-btn', 'Imagem', { type: 'button', 'aria-label': 'Enviar ou baixar a imagem desta comparação' });
     bImg.addEventListener('click', function () { box.__desenha && box.__desenha(); compartilharImagem(box.querySelector('svg'), 'comparacao-' + it.id + '-' + it.slug, textoItem(it) + ' ' + BASE + '/c/' + it.slug + '/?o=img', 'cartao'); });
@@ -751,19 +755,20 @@
     for (k in mapa) if (mapa.hasOwnProperty(k)) {
       var alvo = D.getElementById(k); if (!alvo) continue;
       var id = mapa[k][0], rot = mapa[k][1];
-      // cartão .vrd: ao lado do compartilhar (.vrd-acoes, sempre visível); seções de planos/promessas: no cabeçalho
-      var host = alvo.querySelector('.vrd-acoes') || alvo.querySelector('.vrd-topo') || alvo.querySelector('.chap-hd') || alvo;
+      // na linha de ações do cartão ([Compartilhar imagem] [WhatsApp] ☆), à direita, como último item; o .bpd-card-acoes
+      // é montado pelo charts.js (inclusive dentro de .bpd-car-slide do carrossel), então a estrela é realocada depois
+      var host = alvo.querySelector('.bpd-card-acoes') || alvo.querySelector('.vrd-acoes') || alvo.querySelector('.chap-hd') || alvo;
       if (host.querySelector('.cat-star')) continue;
       var b = estrela(id, rot, null);
       b.classList.add('cat-star--pg');
-      if (host.classList.contains('chap-hd')) host.classList.add('cat-com-estrela');
+      host.classList.add('cat-com-estrela');
       host.appendChild(b); n += 1;
     }
-    // cartões montados pelo charts.js (montarCard) têm a linha [Compartilhar imagem] [WhatsApp]: a estrela vai para ela
+    // o charts.js monta o cartão (.card-slot) depois: a estrela muda para o canto do cartão montado
     function reloca() {
       Array.prototype.forEach.call(D.querySelectorAll('.cat-star--pg'), function (st) {
-        var card = st.closest('.vrd'), alvo = card && card.querySelector('.bpd-card-acoes');
-        if (alvo && st.parentNode !== alvo) alvo.appendChild(st);
+        var card = st.closest('.vrd, section'), alvo = card && card.querySelector('.bpd-card-acoes');
+        if (alvo && st.parentNode !== alvo) { alvo.classList.add('cat-com-estrela'); alvo.appendChild(st); }
       });
     }
     [0, 600, 1500, 3000].forEach(function (t) { setTimeout(reloca, t); });
@@ -801,7 +806,60 @@
     var a = e.target && e.target.closest ? e.target.closest('a[href="#metodo-canais"]') : null;
     var d = a && D.getElementById('metodo-canais'); if (d) d.open = true;
   });
+  /* ------------------------------------------------------------------ diálogos das páginas (#mcat, #modal, #modal-detail, #modal-plan)
+     Acessibilidade (2.1.2 / 2.4.3): enquanto um .modal-backdrop está aberto, o resto da página fica inert, o Tab
+     circula só dentro do diálogo, Esc fecha (se a página não fechar, clica no "Fechar") e o foco volta ao gatilho. */
+  function guardaModais() {
+    var mods = D.querySelectorAll('.modal-backdrop'); if (!mods.length) return;
+    var aberto = null, gatilho = null, inertes = [], ultimoFoco = null;
+    function focaveis(m) {
+      return Array.prototype.filter.call(m.querySelectorAll('a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+        function (e) { return e.offsetWidth > 0 || e.offsetHeight > 0; });
+    }
+    function abriu(m) {
+      if (aberto === m) return;
+      if (!aberto) gatilho = ultimoFoco;
+      aberto = m;
+      inertes.forEach(function (c) { c.removeAttribute('inert'); }); inertes = [];
+      Array.prototype.forEach.call(D.body.children, function (c) {
+        if (c !== m && !c.contains(m) && c.tagName !== 'SCRIPT' && !c.hasAttribute('inert')) { c.setAttribute('inert', ''); inertes.push(c); }
+      });
+      m.setAttribute('aria-hidden', 'false');
+      setTimeout(function () {
+        if (!m.contains(D.activeElement)) { var f = m.querySelector('.modal-body[tabindex]') || focaveis(m)[0]; if (f) f.focus({ preventScroll: true }); }
+      }, 40);
+    }
+    function fechou(m) {
+      if (aberto !== m) return;
+      aberto = null; m.setAttribute('aria-hidden', 'true');
+      inertes.forEach(function (c) { c.removeAttribute('inert'); }); inertes = [];
+      setTimeout(function () {
+        if (aberto) return;   // trocou direto para outro diálogo
+        var a = D.activeElement;
+        if (gatilho && D.body.contains(gatilho) && (!a || a === D.body || m.contains(a))) gatilho.focus();
+        gatilho = null;
+      }, 40);
+    }
+    D.addEventListener('focusin', function (e) { if (!aberto && !(e.target.closest && e.target.closest('.modal-backdrop'))) ultimoFoco = e.target; }, true);
+    Array.prototype.forEach.call(mods, function (m) {
+      var obs = new MutationObserver(function () { if (m.classList.contains('open')) abriu(m); else fechou(m); });
+      obs.observe(m, { attributes: true, attributeFilter: ['class'] });
+    });
+    D.addEventListener('keydown', function (e) {
+      if (!aberto) return;
+      if (e.key === 'Tab') {
+        var f = focaveis(aberto); if (!f.length) { e.preventDefault(); return; }
+        var cur = D.activeElement, i = f.indexOf(cur);
+        if (e.shiftKey && (i <= 0)) { e.preventDefault(); f[f.length - 1].focus(); }
+        else if (!e.shiftKey && (i === f.length - 1 || i < 0)) { e.preventDefault(); f[0].focus(); }
+      } else if (e.key === 'Escape') {
+        var m = aberto;
+        setTimeout(function () { if (m.classList.contains('open')) { var x = m.querySelector('.close-btn'); if (x) x.click(); } }, 60);
+      }
+    }, true);
+  }
   function boot() {
+    guardaModais();
     var mapaEl = D.getElementById('bpd-ancoras');
     if (mapaEl) { try { iniciarEstrelas(JSON.parse(mapaEl.textContent)); } catch (e) {} }
     ligaAtalhos(0);
