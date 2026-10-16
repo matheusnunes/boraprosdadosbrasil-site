@@ -1243,6 +1243,7 @@
 
   /* blocos (resumo da home): dois blocos de mesmo tamanho, quesitos em grade, selo "apertada" igual */
   GRAF.blocos = { flex: false, desenhar: function (c, x, y, w, h, gr) {
+    // manterOrdem: segue a ordem dada (ex.: a do placar da home, Economia → Contas); senão, ordem fixa Bolsonaro → Lula
     var C = c.C, grupos = gr.manterOrdem ? gr.grupos.slice() : gr.grupos.slice().sort(function (a, b) { return ORDEM.indexOf(a.vencedor) - ORDEM.indexOf(b.vencedor); });
     var lado2 = w >= c.z(600), bw = lado2 ? (w - c.z(14)) / 2 : w, pad = c.z(12), th = c.z(36), tg = c.z(7);
     var ap0 = c.w('apertada', 12, 700) + c.z(12), cw2 = (bw - 2 * pad - c.z(4) - tg) / 2;
@@ -1470,7 +1471,7 @@
   /* compatibilidade com a v0.2: cardSintese(el, {formato, titulo, sub, grupos, contexto, fecho, rodapeContagem, fonte}) */
   function cardSintese(cont, o) {
     return card(cont, { id: 'resumo', titulo: o.titulo, criterioTexto: o.sub, fonte: o.fonte, url: o.url, atualizado: o.atualizado,
-      grafico: { tipo: 'blocos', grupos: o.grupos, contexto: o.contexto, fecho: o.fecho, rodape: o.rodapeContagem } }, o.formato || 'web');
+      grafico: { tipo: 'blocos', grupos: o.grupos, manterOrdem: o.manterOrdem, contexto: o.contexto, fecho: o.fecho, rodape: o.rodapeContagem } }, o.formato || 'web');
   }
 
 
@@ -1680,6 +1681,6 @@
     promessas: promessas, resumo: resumo, card: card, montarCard: montarCard, carrossel: carrossel, cardPNG: cardPNG, cardSintese: cardSintese, cardSelecao: cardSelecao,
     carregarFonte: function () { return Promise.all(['400', '600', '700', '800'].map(function (w) { return document.fonts.load(w + ' 20px InterVar'); })); },
     paraPNG: paraPNG, redesenhar: function () { redesenhar(true); redesenharCards(true); },
-    TEMAS: TEMAS, FORMATOS: FORMATOS, STATUS: STATUS, urlFonte: '/assets/fonts/inter-latin-var.woff2', versao: '0.3.3'
+    TEMAS: TEMAS, FORMATOS: FORMATOS, STATUS: STATUS, urlFonte: '/assets/fonts/inter-latin-var.woff2', versao: '0.3.4'
   };
 })(typeof window !== 'undefined' ? window : this);
