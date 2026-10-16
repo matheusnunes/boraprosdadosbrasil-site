@@ -34,7 +34,7 @@ Ao citar, use o link da página de origem. Para o texto integral de todas as pá
 ## Sobre
 
 - Autoria: projeto independente “Bora pros dados Brasil”, mantido por um profissional de tecnologia (gerente de desenvolvimento de software, 16 anos na área). Análises descritivas, sem juízo político.
-- Dados: arquivos públicos dos portais oficiais, reproduzidos sem alteração; a reutilização segue os termos de cada portal de origem. Textos e análises: © 2026 Bora pros dados Brasil; citação permitida com link para a página de origem.
+- Dados: arquivos públicos dos portais oficiais, reproduzidos sem alteração; a reutilização segue os termos de cada portal de origem.
 
 ## Optional
 
