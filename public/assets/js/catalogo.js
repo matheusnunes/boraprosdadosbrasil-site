@@ -205,6 +205,27 @@
     if (p0) out.push('Planos 2026, ferramenta nomeada: ' + p0.lados.b.curto + ' ' + p0.lados.b.valor + ' × ' + p0.lados.l.curto + ' ' + p0.lados.l.valor + ' (programas em execução contam)');
     return out;
   }
+  function selecaoCurta(lista) {   // "Bolsonaro 1 · Lula 2" (e Flávio, se houver planos)
+    var r = contaPorAnalise(lista), out = [];
+    ['comparativo', 'propostas', 'balanco'].forEach(function (pid) {
+      var c = r[pid]; if (!c) return;
+      var L = c.it.lados, pre = Object.keys(r).length > 1 ? ANALISE[pid] + ': ' : '';
+      out.push(pre + L.b.curto + ' ' + c.b + ' · ' + L.l.curto + ' ' + c.l + (c.outro ? ' · sem placar ' + c.outro : ''));
+    });
+    return out.join(' | ');
+  }
+  function placarCurto() {          // os dois blocos do placar dos governos, no vocabulário decidido
+    var blocos = {}, ordem = [];
+    ativos().forEach(function (c) {
+      if (!c.no_placar || c.resultado !== 'vitoria' || !c.bloco_placar) return;
+      if (!blocos[c.bloco_placar]) { blocos[c.bloco_placar] = { b: 0, l: 0 }; ordem.push(c.bloco_placar); }
+      blocos[c.bloco_placar][c.vencedor] += 1;
+    });
+    return ordem.map(function (b) {
+      var x = blocos[b];
+      return b + ': ' + (x.b && x.l ? 'Bolsonaro ' + x.b + ' × Lula ' + x.l : (x.b ? 'Bolsonaro' : 'Lula') + ' (' + (x.b || x.l) + ')');
+    }).join(' · ');
+  }
   function porRef(r) { var c = REG.comparacoes, i; for (i = 0; i < c.length; i += 1) if (c[i].ref === r && c[i].status === 'ativo') return c[i]; return null; }
 
   /* ------------------------------------------------------------------ gráfico do cartão */
@@ -536,12 +557,19 @@
         var c = cc[it.impacto] || (cc[it.impacto] = { b: 0, l: 0, o: 0 });
         if (it.resultado === 'vitoria') c[it.vencedor] += 1; else c.o += 1;
       });
-      canalCont = el('p', 'cat-note cat-canal-cont');
-      var CURTO = { bolso: 'No bolso', servicos: 'Serviços', economia: 'Contas do governo', panorama: 'Panorama' };
-      canalCont.appendChild(D.createTextNode('À frente, por canal: ' + nivs.filter(function (k) { return cc[k]; }).map(function (k) {
-        var c = cc[k]; return (CURTO[k] || REG.impacto_niveis[k].rotulo) + ' — Bolsonaro ' + c.b + ', Lula ' + c.l;
-      }).join(' · ') + '. Canal não é importância. '));
-      canalCont.appendChild(el('a', null, 'Como definimos os canais e o pré-registro ›', { href: '#metodo-canais' }));
+      var CURTO = { bolso: 'No bolso', servicos: 'Serviços', economia: 'Contas', panorama: 'Panorama' };
+      canalCont = el('div', 'cat-canal-cont', null, { role: 'group', 'aria-label': 'Quantas comparações cada lado tem à frente, por canal' });
+      var cab = el('p', 'cat-canal-hd');
+      add(cab, D.createTextNode('À frente ('), el('i', 'mk mk--b', null, { 'aria-hidden': 'true' }), D.createTextNode(' Bolsonaro × '),
+        el('i', 'mk mk--l', null, { 'aria-hidden': 'true' }), D.createTextNode(' Lula) · '), el('a', null, 'método ›', { href: '#metodo-canais' }));
+      var grade = el('dl', 'cat-canal-tab');
+      nivs.filter(function (k) { return cc[k]; }).forEach(function (k) {
+        var c = cc[k], cel = el('div');
+        add(cel, el('dt', null, CURTO[k] || REG.impacto_niveis[k].rotulo, { title: REG.impacto_niveis[k].rotulo }),
+          el('dd', null, c.b + ' × ' + c.l, { 'aria-label': 'Bolsonaro ' + c.b + ', Lula ' + c.l }));
+        grade.appendChild(cel);
+      });
+      add(canalCont, cab, grade);
     }
     var bModo = el('button', 'cat-chip', '', { type: 'button' });
     bModo.addEventListener('click', function () { est.modo = modoAtual() === 'lista' ? 'cartoes' : 'lista'; aplicar(); });
@@ -667,9 +695,9 @@
     root.appendChild(add(el('p', 'sel-neutro'), D.createTextNode('Este site compara dados oficiais com a mesma regra para os dois lados. Não indica voto. '), el('a', null, 'Quem fez ›', { href: '/sobre/' })));
     // contexto: esta seleção e o site inteiro, por análise (2 blocos curtos)
     var ctx = el('div', 'sel-ctx');
-    if (n) ctx.appendChild(el('p', null, 'Nesta seleção: ' + linhasContagem(achados).join(' · ') + '.'));
-    ctx.appendChild(el('p', null, 'No site: ' + resumoSite().join(' · ') + '.'));
-    ctx.appendChild(el('a', 'cat-link', 'Ver todas as comparações, dos dois lados ›', { href: '/comparacoes/' }));
+    if (n) ctx.appendChild(el('p', null, 'Nesta seleção: ' + selecaoCurta(achados) + '.'));
+    ctx.appendChild(el('p', null, 'No site: ' + placarCurto() + '.'));
+    ctx.appendChild(el('a', 'cat-link', 'Ver o placar completo ›', { href: '/#resumo' }));
     root.appendChild(ctx);
     // P1-11: seleção só com vitórias de um lado → link simétrico para as do outro lado, na mesma análise
     var cpa = contaPorAnalise(achados), pid;
