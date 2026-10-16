@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,follow">
+<!-- Página de chegada dos links /c/1-3-5 (rewrite 200 no netlify.toml; /c/<slug>/ estáticos têm prioridade).
+     Prévia (OG) estática e neutra: igual para qualquer seleção. -->
+<meta name="description" content="Uma seleção de comparações com dados oficiais: em cada uma, os números dos dois lados, a fonte e a data.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Bora pros dados Brasil">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Comparações escolhidas para você, com dados oficiais">
+<meta property="og:description" content="Governo Bolsonaro × Governo Lula: em cada comparação, os números dos dois lados, a fonte oficial e a data. Confira e veja todas.">
+<meta property="og:url" content="__SITE_URL__/c/">
+<meta property="og:image" content="__SITE_URL__/assets/img/og-comparativo.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Bora pros dados Brasil: comparações com dados oficiais">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/img/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<meta name="theme-color" content="#02522b">
+<title>Comparações escolhidas para você · Bora pros dados Brasil</title>
+<script>
+/* ?o=wa (código curto do share.js) → UTM completa, ANTES do analytics.js (que é defer) ler a URL */
+(function(){var M={wa:'whatsapp',tg:'telegram',x:'x',fb:'facebook',cp:'copia',ns:'nativo',img:'imagem'};
+var o=(/[?&]o=([a-z]+)/.exec(location.search)||[])[1];if(!o&&/utm_/.test(location.search))return;
+var ids=(/^\/c\/([0-9][0-9-]*)/.exec(location.pathname)||/[?&]ids=([0-9-]+)/.exec(location.search)||[])[1]||'';
+var resto=location.search.replace(/^\?/,'').split('&').filter(function(kv){return kv&&!/^o=/.test(kv);});
+resto.push('utm_source='+(M[o]||'link'),'utm_medium=share','utm_campaign=selecao','utm_content='+encodeURIComponent(ids));
+try{history.replaceState(null,'',location.pathname+'?'+resto.join('&')+location.hash);}catch(e){}})();
+</script>
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/share.css">
+<link rel="stylesheet" href="/assets/css/catalogo.css">
+<script>window.SITE_CONFIG={"gaId":"__GA_ID__","siteUrl":"__SITE_URL__","pageId":"selecao","consent":"__CONSENT__"};</script>
+<script defer src="/assets/js/analytics.js"></script>
+<script defer src="/assets/js/charts.js"></script>
+<script defer src="/assets/js/catalogo.js"></script>
+</head>
+<body class="cat-page">
+<header class="sitebar">
+  <div class="sb-in">
+    <a class="sb-brand" href="/" aria-label="Bora pros dados Brasil, início"><img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil" width="200" height="113"></a>
+    <nav class="sb-nav" aria-label="Páginas do site">
+      <a href="/">Governo Lula × Bolsonaro</a>
+      <a href="/propostas/">Propostas 2026</a>
+      <a href="/balanco/">Promessas e Realizações Lula × Bolsonaro</a>
+      <a href="/meus-dados/">Meus dados</a>
+    </nav>
+  </div>
+</header>
+<main class="cat-wrap" id="topo">
+  <div data-catalogo="selecao"><p class="cat-note">Carregando a seleção…</p></div>
+  <noscript><p>Esta página precisa de JavaScript. Veja as comparações em <a href="/">Governo Lula × Bolsonaro</a>, <a href="/propostas/">Propostas 2026</a> e <a href="/balanco/">Promessas e Realizações</a>.</p></noscript>
+  <p class="cat-note">Este site compara dados com a mesma regra para os dois lados. Não indica voto. <a href="/fontes/">Fontes e arquivos originais (SHA-256)</a>.</p>
+</main>
+</body>
+</html>

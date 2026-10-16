@@ -47,3 +47,28 @@
     Content-Type = "text/plain; charset=utf-8"
     X-Robots-Tag = "noindex"
     Cache-Control = "public, max-age=3600"
+
+# Catálogo "Meus dados" e links de seleção compartilhada (/c/1-3-5): fora do índice dos buscadores,
+# mas sem bloquear no robots.txt (os robôs de prévia do WhatsApp/Facebook precisam ler o OG).
+[[headers]]
+  for = "/c/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+[[headers]]
+  for = "/meus-dados/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+# registro único das comparações: revalida a cada 5 min (muda quando um dado é corrigido)
+[[headers]]
+  for = "/dados/comparacoes.json"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+# Seleção compartilhada: /c/1-3-5-6-7 → página de chegada (rewrite 200, a URL fica igual).
+# Sem "force": arquivos que existem têm prioridade (shadowing), então as páginas estáticas
+# por comparação /c/<slug>/ (30-share-spec §4) continuam funcionando. Slugs sempre começam
+# com letra (o build valida), seleções só têm dígitos e hífens: não há colisão.
+[[redirects]]
+  from = "/c/*"
+  to = "/c/index.html"
+  status = 200

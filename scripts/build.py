@@ -320,6 +320,107 @@ def llms_full(site_url, texts, prop_data, bal_data, dates):
     return '\n'.join(out).rstrip() + '\n'
 
 
+# ------------------------------------------- registro único de comparações
+REGISTRO = 'dados/comparacoes.json'
+DERIVADOS = {REGISTRO}  # publicados em /dados/, mas não são "arquivos originais" (fora do SHA256SUMS dos 32)
+REG_CAMPOS = ('id', 'ref', 'slug', 'status', 'titulo', 'tema', 'pagina', 'ancora', 'catalogo', 'metrica', 'lados',
+              'resultado', 'vencedor', 'criterio', 'forca', 'ressalva', 'impacto', 'como_chega', 'fonte', 'arquivos', 'atualizado_em')
+REG_RESULTADO = {'vitoria', 'contexto', 'sem-placar', 'nao-comparavel'}
+
+
+def validate_registry():
+    """Valida public/dados/comparacoes.json. Devolve (erros, resumo). Erros barram o build:
+    ids inteiros únicos e permanentes (nenhum id do último commit pode sumir ou mudar de ref),
+    slugs únicos com letra (não colidem com /c/1-3-5), campos obrigatórios, valores válidos,
+    arquivos existentes com sha256 conferido e âncora existente na página de origem."""
+    f = PUB / REGISTRO
+    if not f.exists():
+        return [], 'registro ausente'
+    err = []
+    try:
+        reg = json.loads(f.read_text(encoding='utf-8'))
+    except ValueError as e:
+        return [f'{REGISTRO}: JSON inválido ({e})'], ''
+    itens, prox = reg.get('comparacoes', []), reg.get('proximo_id', 0)
+    niveis, temas, paginas = reg.get('impacto_niveis', {}), reg.get('temas', {}), reg.get('paginas', {})
+    ids, slugs, refs = {}, set(), {}
+    page_ids, sha_cache = {}, {}
+    for it in itens:
+        tag = f'id {it.get("id")} ({it.get("ref")})'
+        falta = [k for k in REG_CAMPOS if k not in it]
+        if falta:
+            err.append(f'{tag}: campos obrigatórios ausentes: {", ".join(falta)}'); continue
+        i = it['id']
+        if not isinstance(i, int) or isinstance(i, bool) or i < 1:
+            err.append(f'{tag}: id deve ser inteiro >= 1')
+        elif i in ids:
+            err.append(f'{tag}: id repetido (também em {ids[i]})')
+        elif i >= prox:
+            err.append(f'{tag}: id >= proximo_id ({prox})')
+        ids[i] = it['ref']
+        if it['ref'] in refs:
+            err.append(f'{tag}: ref repetida')
+        refs[it['ref']] = i
+        if not re.match(r'^[a-z][a-z0-9-]*$', it['slug']) or it['slug'] in slugs:
+            err.append(f'{tag}: slug inválido ou repetido ({it["slug"]}); precisa começar com letra')
+        slugs.add(it['slug'])
+        if it['status'] not in ('ativo', 'descontinuado'):
+            err.append(f'{tag}: status inválido')
+        if it['status'] == 'ativo' and i in reg.get('ids_retirados', []):
+            err.append(f'{tag}: id retirado não pode voltar a ser usado')
+        if it['status'] != 'ativo':
+            continue
+        if it['resultado'] not in REG_RESULTADO:
+            err.append(f'{tag}: resultado inválido ({it["resultado"]})')
+        if (it['resultado'] == 'vitoria') != (it['vencedor'] in ('b', 'l')):
+            err.append(f'{tag}: vencedor só existe (b|l) quando resultado = vitoria')
+        if it['resultado'] == 'vitoria' and it['forca'] not in ('clara', 'apertada', 'depende-da-regua'):
+            err.append(f'{tag}: vitória sem força válida')
+        if it['criterio'] not in ('maior', 'menor', None):
+            err.append(f'{tag}: criterio inválido')
+        if it['impacto'] not in niveis:
+            err.append(f'{tag}: impacto inválido ({it["impacto"]})')
+        if it['tema'] not in temas:
+            err.append(f'{tag}: tema inválido ({it["tema"]})')
+        if it['pagina'] not in paginas:
+            err.append(f'{tag}: página inválida ({it["pagina"]})')
+        if not all(k in it['lados'] and it['lados'][k].get('valor') for k in ('b', 'l')):
+            err.append(f'{tag}: lados b e l precisam de valor')
+        if not it['como_chega'] or len(it['como_chega']) > 140:
+            err.append(f'{tag}: como_chega vazio ou com mais de 140 caracteres')
+        if not it['arquivos']:
+            err.append(f'{tag}: sem arquivo de fonte')
+        for a in it['arquivos']:
+            p = PUB / a['arquivo'].lstrip('/')
+            if not p.exists():
+                err.append(f'{tag}: arquivo não existe: {a["arquivo"]}'); continue
+            sha_cache.setdefault(p, sha256(p))
+            if sha_cache[p] != a.get('sha256'):
+                err.append(f'{tag}: sha256 não confere para {a["arquivo"]}')
+        src = PUB / (it['pagina'].lstrip('/') + 'index.html')
+        if src not in page_ids:
+            page_ids[src] = set(re.findall(r'\sid="([^"]+)"', src.read_text(encoding='utf-8'))) if src.exists() else set()
+        if it['ancora'] not in page_ids[src]:
+            err.append(f'{tag}: âncora #{it["ancora"]} não existe em {it["pagina"]}')
+    for it in itens:
+        for v in it.get('variante_de', []):
+            if v not in ids:
+                err.append(f'id {it["id"]}: variante_de aponta para id inexistente ({v})')
+    # permanência: nenhum id publicado no último commit pode sumir ou trocar de ref
+    prev = _git('show', 'HEAD:public/' + REGISTRO)
+    if prev:
+        try:
+            for it in json.loads(prev).get('comparacoes', []):
+                if it['id'] not in ids:
+                    err.append(f'id {it["id"]} ({it["ref"]}) existia no último commit e sumiu: ids são permanentes (use status "descontinuado")')
+                elif ids[it['id']] != it['ref']:
+                    err.append(f'id {it["id"]} mudou de {it["ref"]} para {ids[it["id"]]}: ids não podem ser reaproveitados')
+        except (ValueError, KeyError):
+            pass
+    ativos = sum(1 for it in itens if it.get('status') == 'ativo')
+    return err, f'{len(itens)} comparações ({ativos} ativas), ids 1–{prox - 1}, {len(sha_cache)} arquivos com sha256 conferido'
+
+
 def main():
     env = load_env()
     warns = []
@@ -333,6 +434,14 @@ def main():
     if not re.match(r'^G-[A-Z0-9]{6,}$', ga) or len(set(ga[2:])) == 1:
         ga = ''
         warns.append('GA_MEASUREMENT_ID não configurado — analytics ficará inativo até preencher o .env')
+
+    # registro único de comparações: erro aqui barra o build (dado errado não vai ao ar)
+    reg_err, reg_resumo = validate_registry()
+    if reg_err:
+        print('build FALHOU: registro %s inválido:' % REGISTRO)
+        for e in reg_err:
+            print('   -', e)
+        return 1
 
     if DIST.exists():
         shutil.rmtree(DIST)
@@ -398,7 +507,8 @@ def main():
 
     # checksums dos dados
     dados = sorted((DIST / 'dados').rglob('*'))
-    lines = [f'{sha256(p)}  dados/{p.relative_to(DIST / "dados")}' for p in dados if p.is_file() and p.name != 'SHA256SUMS.txt']
+    lines = [f'{sha256(p)}  dados/{p.relative_to(DIST / "dados")}' for p in dados if p.is_file() and p.name != 'SHA256SUMS.txt'
+             and str(p.relative_to(DIST)) not in DERIVADOS]
     (DIST / 'dados' / 'SHA256SUMS.txt').write_text('\n'.join(lines) + '\n', encoding='utf-8')
 
     # sitemap (lastmod = data real da última alteração de cada página)
@@ -434,6 +544,7 @@ def main():
     print(f'build ok -> {DIST}')
     print(f'  páginas: {len(PAGES)} | tokens substituídos em {n_tok} arquivo(s) | links internos verificados: {checked} | JSON-LD válidos: {n_ld}')
     print(f'  dados: {len(lines)} arquivos, SHA256SUMS.txt regenerado')
+    print(f'  registro: {reg_resumo}')
     print('  seo/ia: ' + ('; '.join(notes) if notes else 'nada a fazer') + ' | llms-full.txt gerado')
     for w in warns:
         print('  AVISO:', w)
