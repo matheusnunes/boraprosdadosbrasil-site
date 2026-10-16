@@ -68,7 +68,8 @@
   }
 
   function copyBtn() {
-    return IMGCLIP ? btn('copy', 'Copiar imagem', 'Copiar a imagem, com a fonte e o link do site') : btn('copy', 'Copiar', 'Copiar o texto com o link e baixar a imagem');
+    /* o nome acessível começa pelo texto visível do botão (WCAG 2.5.3) */
+    return IMGCLIP ? btn('copy', 'Copiar imagem', 'Copiar imagem, com a fonte e o link do site') : btn('copy', 'Copiar', 'Copiar o texto com o link e baixar a imagem');
   }
   var TOAST = null;
   /* a região viva já existe vazia desde o init: leitores de tela só anunciam mudanças em regiões que já estavam no DOM */
