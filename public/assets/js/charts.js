@@ -1493,6 +1493,7 @@
   var CSS_CAR = '.bpd-car{position:relative}' +
     '.bpd-car-trilho{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}' +
     '.bpd-car-nav{display:none}' +
+    '.bpd-car-slide{display:flex;min-width:0}.bpd-car-slide>*{flex:1 1 auto;min-width:0}' +
     '@media (max-width:760px){' +
     '.bpd-car-trilho{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:0;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:stretch;padding-bottom:2px}' +
     '.bpd-car-trilho::-webkit-scrollbar{display:none}' +
@@ -1526,9 +1527,12 @@
     var trilho = document.createElement('div'); trilho.className = 'bpd-car-trilho';
     trilho.setAttribute('role', 'region'); trilho.setAttribute('aria-roledescription', 'carrossel');
     trilho.setAttribute('aria-label', op.rotulo || 'Cards desta seção'); trilho.tabIndex = 0;
-    itens.forEach(function (it, i) {
-      it.setAttribute('role', 'group'); it.setAttribute('aria-roledescription', 'card');
-      it.setAttribute('aria-label', (i + 1) + ' de ' + itens.length); trilho.appendChild(it);
+    // cada card vai num invólucro <div role="group" aria-roledescription="slide"> (não muda o papel do elemento do card)
+    itens = itens.map(function (it, i) {
+      var sl = document.createElement('div'); sl.className = 'bpd-car-slide';
+      sl.setAttribute('role', 'group'); sl.setAttribute('aria-roledescription', 'slide');
+      sl.setAttribute('aria-label', (i + 1) + ' de ' + itens.length);
+      sl.appendChild(it); trilho.appendChild(sl); return sl;
     });
     cont.appendChild(trilho);
     var nav = document.createElement('div'); nav.className = 'bpd-car-nav';
