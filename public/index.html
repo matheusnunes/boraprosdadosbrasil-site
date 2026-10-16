@@ -437,6 +437,7 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
 <link rel="stylesheet" href="/assets/css/catalogo.css">
 </head>
 <body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <header class="sitebar">
   <div class="sb-in">
     <a class="sb-brand" href="/" aria-label="Bora pros dados Brasil, início"><img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil" width="200" height="113"></a>
@@ -449,7 +450,7 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
     </nav>
   </div>
 </header>
-<nav class="topnav" aria-label="Seções">
+<nav class="topnav" aria-label="Seções desta página">
   <div class="in">
     <a href="#topo">Início</a>
     <a href="#resumo">Placar</a>
@@ -466,6 +467,7 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   </div>
   <div class="prog" id="prog"></div>
 </nav>
+<main id="conteudo" tabindex="-1">
 <div class="wrap" id="topo">
   <div class="hdr hero">
     <div>
@@ -1393,23 +1395,24 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
   </details>
 </section>
 
-
+</div>
+</main>
 <footer class="sitefoot">
   <div class="sf-in">
     <div class="sf-brand">
       <img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil">
       <p>Análises descritivas com dados públicos oficiais do Brasil, sem juízo político. Tudo com fonte aberta e os arquivos originais disponíveis para download.</p>
     </div>
-    <div class="sf-col" id="quem-fez"><h4>Quem sou</h4>
+    <div class="sf-col" id="quem-fez"><h2>Quem sou</h2>
       <p>Profissional da área de tecnologia há 16 anos e atuo como Gerente de Desenvolvimento de Software. Lidero o time responsável pela plataformização e disponibilização de dados por diferentes meios em uma Big Tech brasileira, referência no mercado, atuando em um ambiente de altíssima volumetria e escala.</p>
     </div>
     <div class="sf-col-group">
-    <div class="sf-col"><h4>Análises</h4>
+    <div class="sf-col"><h2>Análises</h2>
       <a href="/">Governo Lula × Bolsonaro</a>
       <a href="/propostas/">Propostas 2026</a>
       <a href="/balanco/">Promessas e Realizações Lula × Bolsonaro</a>
     </div>
-    <div class="sf-col"><h4>Método e dados</h4>
+    <div class="sf-col"><h2>Método e dados</h2>
       <a href="/sobre/">Sobre e método</a>
       <a href="#apendice">Como calculamos</a>
       <a href="/fontes/">Dados abertos (52 arquivos)</a>
@@ -1419,7 +1422,6 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
 </div>
   <div class="sf-base">© 2026 Bora pros dados Brasil · dados públicos oficiais · atualizado em <time datetime="__UPDATED_ISO__">__UPDATED__</time> · <a href="/dados/SHA256SUMS.txt">integridade dos arquivos (SHA-256)</a> · Este site compara dados com a mesma regra para os dois lados. Não indica voto.</div>
 </footer>
-</div>
 <script>
 (function(){
   var bar = document.getElementById('prog');

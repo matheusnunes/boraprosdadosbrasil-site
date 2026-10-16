@@ -48,6 +48,11 @@ a{color:#02522b}
 .metodos a{display:inline-flex;align-items:center;min-height:40px;padding:4px 12px;border:1px solid var(--border);border-radius:999px;background:#fafafa;color:#18181b;text-decoration:none;font-size:14.5px}
 .metodos a:hover{border-color:#02522b}
 .upd{font-size:14px;color:#52525b;margin:12px 0 0}
+.siglas{margin:4px 0 10px;display:grid;gap:6px}
+.siglas div{display:grid;grid-template-columns:minmax(92px,auto) 1fr;gap:2px 12px;font-size:15px;line-height:1.45}
+.siglas dt{font-weight:700}
+.siglas dd{margin:0;color:#3f3f46}
+@media(max-width:420px){.siglas div{grid-template-columns:1fr}}
 @media(max-width:760px){.wrap{padding:22px 16px 10px}.sobre{padding:4px 16px 14px}}
 @media (pointer:coarse){.metodos a{min-height:44px}}
 </style>
@@ -58,6 +63,7 @@ a{color:#02522b}
 <script defer src="/assets/js/ui.js"></script>
 </head>
 <body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <header class="sitebar">
   <div class="sb-in">
     <a class="sb-brand" href="/" aria-label="Bora pros dados Brasil, início"><img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil" width="200" height="113"></a>
@@ -70,10 +76,11 @@ a{color:#02522b}
     </nav>
   </div>
 </header>
+<main id="conteudo" tabindex="-1">
 <div class="q-cred-wrap">
   <div class="q-cred" role="note" aria-label="Sobre a confiabilidade destes dados">
     <span class="q-cred-selo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 3.5v6c0 5-3.4 8.8-8 10.5-4.6-1.7-8-5.5-8-10.5v-6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg> Só fontes oficiais</span>
-    <span class="q-cred-fontes"><b>IBGE</b> · <b>Banco Central</b> · <b>Tesouro</b> · <b>TSE</b> · <b>Fed</b></span>
+    <span class="q-cred-fontes"><b><abbr title="Instituto Brasileiro de Geografia e Estatística">IBGE</abbr></b> · <b>Banco Central</b> · <b>Tesouro</b> · <b><abbr title="Tribunal Superior Eleitoral">TSE</abbr></b> · <b><abbr title="Federal Reserve, o banco central dos EUA">Fed</abbr></b></span>
     <span class="q-cred-data">Atualizado em <time datetime="__UPDATED_ISO__">__UPDATED__</time></span>
     <span class="q-cred-links"><a href="#regras">Como calculamos ›</a><a href="/fontes/">50 arquivos com SHA-256 ›</a><a href="#quem-fez">Quem fez ›</a></span>
   </div>
@@ -97,7 +104,7 @@ a{color:#02522b}
     </section>
     <section id="origem" aria-labelledby="origem-t">
       <h2 id="origem-t">De onde vêm os números</h2>
-      <p>Só de fontes oficiais: IBGE, Banco Central, Tesouro Nacional, TSE e, para o juro dos EUA, o Federal Reserve; as regras do gasto, do Planalto, do Congresso e do STF. Os 50 arquivos estão em <a href="/fontes/">/fontes/</a>, do jeito que os portais publicam, cada um com sua impressão digital (<a href="/dados/SHA256SUMS.txt">SHA-256</a>).</p>
+      <p>Só de fontes oficiais: IBGE (Instituto Brasileiro de Geografia e Estatística), Banco Central, Tesouro Nacional, TSE (Tribunal Superior Eleitoral) e, para o juro dos EUA, o Federal Reserve (o banco central americano); as regras do gasto, do Planalto, do Congresso e do STF (Supremo Tribunal Federal). Os 50 arquivos estão em <a href="/fontes/">/fontes/</a>, do jeito que os portais publicam, cada um com sua impressão digital (<a href="/dados/SHA256SUMS.txt">SHA-256</a>).</p>
     </section>
     <section id="regras" aria-labelledby="regras-t">
       <h2 id="regras-t">As regras</h2>
@@ -109,6 +116,22 @@ a{color:#02522b}
         <li><a href="/balanco/#metodo">Promessas</a></li>
         <li><a href="/fontes/#sha256">Conferir um arquivo</a></li>
       </ul>
+    </section>
+    <section id="siglas" aria-labelledby="siglas-t">
+      <h2 id="siglas-t">Siglas que aparecem no site</h2>
+      <dl class="siglas">
+        <div><dt>IBGE</dt><dd>Instituto Brasileiro de Geografia e Estatística</dd></div>
+        <div><dt>TSE</dt><dd>Tribunal Superior Eleitoral (onde os planos de governo são registrados)</dd></div>
+        <div><dt>STF</dt><dd>Supremo Tribunal Federal</dd></div>
+        <div><dt>PIB</dt><dd>Produto Interno Bruto: tudo o que o país produz em um ano</dd></div>
+        <div><dt>IPCA e INPC</dt><dd>os índices oficiais de inflação (o quanto os preços sobem)</dd></div>
+        <div><dt>Selic</dt><dd>o juro básico da economia, decidido pelo Banco Central</dd></div>
+        <div><dt>PNAD</dt><dd>Pesquisa Nacional por Amostra de Domicílios, do IBGE (emprego e renda)</dd></div>
+        <div><dt>SGS e SIDRA</dt><dd>os sistemas de séries do Banco Central e de tabelas do IBGE</dd></div>
+        <div><dt>SICONFI, RREO e RGF</dt><dd>o sistema e os relatórios oficiais de contas públicas do Tesouro Nacional</dd></div>
+        <div><dt>RTN</dt><dd>Resultado do Tesouro Nacional, o boletim mensal das contas do governo</dd></div>
+        <div><dt>SHA-256</dt><dd>a “impressão digital” de um arquivo, para conferir que ele não mudou</dd></div>
+      </dl>
     </section>
     <section id="erro" aria-labelledby="erro-t">
       <h2 id="erro-t">Achou um erro?</h2>
@@ -123,22 +146,23 @@ a{color:#02522b}
     </section>
   </article>
 </div>
+</main>
 <footer class="sitefoot">
   <div class="sf-in">
     <div class="sf-brand">
       <img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil">
       <p>Análises descritivas com dados públicos oficiais do Brasil, sem juízo político. Tudo com fonte aberta e os arquivos originais disponíveis para download.</p>
     </div>
-    <div class="sf-col" id="quem-fez"><h4>Quem sou</h4>
+    <div class="sf-col" id="quem-fez"><h2>Quem sou</h2>
       <p>Profissional da área de tecnologia há 16 anos e atuo como Gerente de Desenvolvimento de Software. Lidero o time responsável pela plataformização e disponibilização de dados por diferentes meios em uma Big Tech brasileira, referência no mercado, atuando em um ambiente de altíssima volumetria e escala.</p>
     </div>
     <div class="sf-col-group">
-    <div class="sf-col"><h4>Análises</h4>
+    <div class="sf-col"><h2>Análises</h2>
       <a href="/">Governo Lula × Bolsonaro</a>
       <a href="/propostas/">Propostas 2026</a>
       <a href="/balanco/">Promessas e Realizações Lula × Bolsonaro</a>
     </div>
-    <div class="sf-col"><h4>Método e dados</h4>
+    <div class="sf-col"><h2>Método e dados</h2>
       <a href="/sobre/" aria-current="page">Sobre e método</a>
       <a href="/#apendice">Como calculamos</a>
       <a href="/fontes/">Dados abertos (50 arquivos)</a>

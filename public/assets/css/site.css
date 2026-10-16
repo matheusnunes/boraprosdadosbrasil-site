@@ -13,7 +13,7 @@
 .sitefoot{background:#ffffff;border-top:1px solid #e4e4e7;margin-top:44px}
 .sitefoot .sf-in{max-width:1180px;margin:0 auto;padding:30px 20px 8px;display:grid;gap:22px;grid-template-columns:1fr}
 @media(min-width:760px){.sitefoot .sf-in{grid-template-columns:1.5fr 1fr 1fr 1.1fr}}
-.sf-col h4{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#71717a}
+.sf-col h2,.sf-col h4{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#71717a}
 .sf-col a{display:block;font-size:13.5px;color:#3f3f46;text-decoration:none;padding:2px 0}
 .sf-col a:hover{color:#18181b;text-decoration:underline}
 .sf-col p{font-size:12.5px;color:#71717a;margin:0;line-height:1.65}
@@ -32,7 +32,7 @@
 .dados-tbl .fname{font-size:12.5px;word-break:break-all;font-variant-numeric:tabular-nums}
 .dl{display:inline-block;padding:5px 11px;border:1px solid #e4e4e7;border-radius:8px;background:#ffffff;text-decoration:none;font-size:12.5px;font-weight:600;white-space:nowrap;color:#18181b}
 .dl:hover{border-color:var(--site-blue);color:var(--site-blue)}
-.sha{display:block;font-size:10.5px;color:#a1a1aa;margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.sha{display:block;font-size:10.5px;color:#52525b;margin-top:3px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 .dados-nota{font-size:12.5px;color:#71717a;margin:10px 0 0;line-height:1.65}
 .dados-nota a{color:#52525b}
 /* faixa de consentimento (só aparece se CONSENT_MODE=banner) */
@@ -62,7 +62,7 @@ figure.card canvas { max-width: 100%; }
    ===================================================================== */
 html { scroll-padding-top: 64px; }
 ::selection { background: rgba(2,82,43,.18); }
-a:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline: 2px solid rgba(2,82,43,.45); outline-offset: 2px; border-radius: 6px; }
+/* foco visível: ver o bloco "Acessibilidade" no fim do arquivo (3 px, cor sólida, contraste ≥ 3:1) */
 
 /* tipografia com mais hierarquia */
 .wrap h1 { font-size: clamp(30px, 3.6vw, 42px); line-height: 1.12; letter-spacing: -.032em; font-weight: 800; }
@@ -137,7 +137,6 @@ body {
 
 /* filtros: foco moderno */
 .filters select:focus, .filters input:focus {
-  outline: none;
   border-color: #003fb0;
   box-shadow: 0 0 0 3px rgba(0,63,176,.12);
 }
@@ -285,7 +284,7 @@ a { text-underline-offset: 2px; }
 .sf-col p, .sf-brand p { line-height: 1.62; }
 
 /* Ajustes 10/10 (g): rodapé, todas as fontes na mesma cor */
-.sitefoot .sf-col h4, .sitefoot .sf-col a, .sitefoot .sf-col p,
+.sitefoot .sf-col h2, .sitefoot .sf-col h4, .sitefoot .sf-col a, .sitefoot .sf-col p,
 .sitefoot .sf-brand p, .sitefoot .sf-base, .sitefoot .sf-base a { color: #52525b; }
 
 /* =====================================================================
@@ -421,7 +420,7 @@ html[data-theme="dark"]{
 @media (max-width: 760px) {
   figcaption, .sc th, .dados-tbl th, td.n, .mapa td.n, .chip, .chip.sm, .chipw, .chipu, .card .party,
   .kpi .inf, .ns .tag2, .badge, .vname small, .filters label, .kicker, .eyebrow, .sf-col h4,
-  .sf-base, .sbar i, .verdict .tag, .toc a small, .kpi .lbl, .kpi .dlt, .ns .k, .ns .d, .chipsnote,
+  .sf-base, .sf-col h2, .sbar i, .verdict .tag, .toc a small, .kpi .lbl, .kpi .dlt, .ns .k, .ns .d, .chipsnote,
   .answer, .sha, .legend .chip, .wrap table th { font-size: 12.5px; }
   .sc th, .dados-tbl th { font-size: 13px; }
   /* notas com tamanho fixado no próprio HTML (style="font-size:11px/12px") */
@@ -694,3 +693,69 @@ html.ui-travado, html.ui-travado body { overflow: hidden; }
   table.cat td { min-width: 0; overflow-wrap: anywhere; }
   table.cat td .chip, table.cat td [class*="chip"] { white-space: normal; }
 }
+
+/* =====================================================================
+   ACESSIBILIDADE (16/10/2026) — WCAG 2.2 AA + eMAG
+   1 pular para o conteúdo · 2 foco visível único · 3 foco não encoberto
+   pelas barras fixas · 4 movimento reduzido · 5 reflow a 320 px ·
+   6 alvos de toque sem sobreposição · 7 regiões roláveis focáveis
+   ===================================================================== */
+/* 1. "Pular para o conteúdo": 1º item do Tab, aparece só com o foco */
+.pular {
+  position: absolute; left: 12px; top: -200px; z-index: 200;
+  display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 18px;
+  background: #18181b; color: #fff; font-weight: 700; font-size: 16px; text-decoration: none;
+  border-radius: 0 0 12px 12px; box-shadow: 0 6px 18px -6px rgba(0,0,0,.4);
+}
+.pular:focus, .pular:focus-visible { top: 0; outline: 3px solid #02522b !important; outline-offset: 0 !important; }
+main:focus { outline: none; }
+main:focus-visible { outline: none !important; }
+
+/* 2. Foco visível único: anel sólido de 3 px na cor da marca (9,4:1 no branco; ≥ 3:1 nos fundos
+   claros do site). Vence os estilos das páginas (inclusive outline:none e anéis translúcidos). */
+:focus-visible { outline: 3px solid #02522b !important; outline-offset: 2px !important; }
+summary:focus-visible { border-radius: 10px; }
+/* itens dentro de faixas roláveis (abas e menu de seções): anel por dentro, para não ser cortado */
+.sb-nav a:focus-visible, .topnav a:focus-visible, .ui-rola a:focus-visible { outline-offset: -3px !important; border-radius: 8px; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline-offset: 1px !important; }
+.consent :focus-visible, .pular:focus-visible { outline-color: #fff !important; }
+
+/* 3. Foco não encoberto (WCAG 2.4.11): a rolagem automática deixa folga para o menu de
+   seções (topo) e para a barra inferior fixa do celular */
+html { scroll-padding-top: 72px; }
+html.ui-teclado { scroll-behavior: auto !important; }
+@media (max-width: 760px) {
+  html { scroll-padding-bottom: calc(var(--bbar-h) + 20px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* 4. Movimento reduzido: sem rolagem suave, animações e transições (gráficos, carrosséis, folhas) */
+@media (prefers-reduced-motion: reduce) {
+  html, html:focus-within, .topnav .in, .ui-rola { scroll-behavior: auto !important; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important; transition-delay: 0s !important; scroll-behavior: auto !important;
+  }
+}
+
+/* 5. Reflow a 320 px (zoom de 400%) e espaçamento de texto (WCAG 1.4.10 / 1.4.12):
+   rótulos que não podiam quebrar linha passam a quebrar em telas estreitas */
+@media (max-width: 480px) {
+  .chv-l { white-space: normal; }
+  td .chip, td .chipw { white-space: normal; }
+}
+
+/* 6. Links da faixa de credibilidade: alvos ≥ 24 px sem sobreposição entre linhas (WCAG 2.5.8) */
+@media (pointer: coarse) {
+  .q-cred-links { row-gap: 2px; }
+  .q-cred-links a { min-height: 36px; margin-top: 0; margin-bottom: 0; }
+}
+
+/* listas de links em "Saiba mais" (documentos citados): cada link com ≥ 24 px de altura */
+.nu-docs li > a { display: inline-block; padding: 4px 0; }
+
+/* 7. Região rolável (tabelas largas) que o ui.js torna focável pelo teclado */
+[data-a11y-rola]:focus-visible { outline-offset: -3px !important; }
+
+/* barra inferior: botões com rótulo do estado (aria-expanded) */
+.bbar-btn[aria-expanded="true"] { background: #f4f4f5; }
+.bbar-btn--pri[aria-expanded="true"] { background: var(--marca-2); }

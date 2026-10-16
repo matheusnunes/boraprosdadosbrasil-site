@@ -5,6 +5,8 @@
       (ECharts: echarts.getInstanceByDom(el).resize(); charts.js: evento resize); âncora (#id) dentro de
       <details> fechado abre o <details>; details[data-abrir-desktop] não tem mais efeito (tudo começa fechado)
    3. barra inferior fixa (≤ 760 px, páginas com .topnav): Resumo · Compartilhar · Seções, com folhas inferiores
+   4. acessibilidade: nomes com contexto ("Saiba mais sobre …"), tabelas roláveis focáveis, foco nunca
+      escondido pelas barras fixas, aria-current no menu de seções, foco segue o "Pular para o conteúdo"
    Eventos (via data-track, lidos pelo analytics.js): bbar_click (label resumo|compartilhar|secoes).
    Compartilhar usa o componente .share (share.js): share_click / share_success / share_cancel. */
 (function () {
@@ -32,6 +34,8 @@
       sc.classList.toggle('ui-fade-r', max > 4 && sc.scrollLeft < max - 4);
     }
     sc.addEventListener('scroll', function () { if (!t) { t = true; raf(upd); } }, { passive: true });
+    /* foco pelo teclado num item escondido na borda: traz o item para o meio da faixa */
+    sc.addEventListener('focusin', function (e) { if (e.target && e.target !== sc) centraliza(sc, e.target, false); });
     win.addEventListener('resize', upd);
     upd();
     return upd;
@@ -147,7 +151,19 @@
     return s && (s.querySelector('.share:not([data-share-variant])') || s.querySelector('.share:not([data-share-section="auto"])'));
   }
 
-  var folhaAberta = null, focoAntes = null;
+  var folhaAberta = null, focoAntes = null, inertes = [];
+  /* com a folha aberta, o resto da página fica inerte (leitor de tela e Tab não saem da folha) */
+  function inerte(f, liga) {
+    if (liga) {
+      inertes = $$('body > *').filter(function (n) {
+        return n !== f && !n.hasAttribute('inert') && !/^(SCRIPT|STYLE|TEMPLATE)$/.test(n.tagName);
+      });
+      inertes.forEach(function (n) { n.setAttribute('inert', ''); if (!('inert' in n)) n.setAttribute('aria-hidden', 'true'); });
+    } else {
+      inertes.forEach(function (n) { n.removeAttribute('inert'); if (!('inert' in n)) n.removeAttribute('aria-hidden'); });
+      inertes = [];
+    }
+  }
   function folha(id, titulo) {
     var f = el('div', 'ui-sheet', { id: id, role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': id + '-t', hidden: '' });
     var fundo = el('button', 'ui-sheet-fundo', { type: 'button', 'aria-label': 'Fechar', tabindex: '-1' });
@@ -157,7 +173,7 @@
     hd.appendChild(el('h2', '', { id: id + '-t' }, titulo)); hd.appendChild(x);
     p.appendChild(el('div', 'ui-sheet-pega', { 'aria-hidden': 'true' })); p.appendChild(hd);
     f.appendChild(fundo); f.appendChild(p);
-    fundo.addEventListener('click', fecha); x.addEventListener('click', fecha);
+    fundo.addEventListener('click', function () { fecha(); }); x.addEventListener('click', function () { fecha(); });
     doc.body.appendChild(f);
     f.__painel = p;
     return f;
@@ -167,13 +183,18 @@
     focoAntes = origem || doc.activeElement;
     f.hidden = false; folhaAberta = f;
     html.classList.add('ui-travado');
+    if (origem && origem.setAttribute) origem.setAttribute('aria-expanded', 'true');
+    inerte(f, true);
     var foco = f.querySelector('.ui-sheet-x');
     if (foco) foco.focus();
   }
-  function fecha() {
+  function fecha(semDevolverFoco) {
     if (!folhaAberta) return;
     folhaAberta.hidden = true; folhaAberta = null;
     html.classList.remove('ui-travado');
+    inerte(null, false);
+    if (focoAntes && focoAntes.hasAttribute && focoAntes.hasAttribute('aria-expanded')) focoAntes.setAttribute('aria-expanded', 'false');
+    if (semDevolverFoco === true) return;
     if (focoAntes && focoAntes.focus) { try { focoAntes.focus({ preventScroll: true }); } catch (e) { focoAntes.focus(); } }
   }
   doc.addEventListener('keydown', function (e) {
@@ -214,7 +235,8 @@
     var ul = el('ul', 'ui-secoes');
     links.forEach(function (a) {
       var li = el('li'), b = el('a', '', { href: a.getAttribute('href') }, (a.textContent || '').trim());
-      b.addEventListener('click', function () { fecha(); });
+      /* ao escolher a seção, o foco vai para ela (e não volta para a barra inferior) */
+      b.addEventListener('click', function () { fecha(true); focaAlvo(alvoDoHash(b.getAttribute('href'))); });
       li.appendChild(b); ul.appendChild(li);
     });
     f.__painel.appendChild(ul);
@@ -238,9 +260,9 @@
     var bar = el('nav', 'bbar', { 'aria-label': 'Atalhos' });
     var bRes = el('a', 'bbar-btn', { href: alvoResumo(), 'data-track': 'bbar_click', 'data-track-label': 'resumo' });
     bRes.innerHTML = ICO.resumo + '<span>Resumo</span>';
-    var bSh = el('button', 'bbar-btn bbar-btn--pri', { type: 'button', 'aria-haspopup': 'dialog', 'data-track': 'bbar_click', 'data-track-label': 'compartilhar' });
+    var bSh = el('button', 'bbar-btn bbar-btn--pri', { type: 'button', 'aria-haspopup': 'dialog', 'aria-expanded': 'false', 'data-track': 'bbar_click', 'data-track-label': 'compartilhar' });
     bSh.innerHTML = ICO.share + '<span>Compartilhar</span>';
-    var bSec = el('button', 'bbar-btn', { type: 'button', 'aria-haspopup': 'dialog', 'data-track': 'bbar_click', 'data-track-label': 'secoes' });
+    var bSec = el('button', 'bbar-btn', { type: 'button', 'aria-haspopup': 'dialog', 'aria-expanded': 'false', 'data-track': 'bbar_click', 'data-track-label': 'secoes' });
     bSec.innerHTML = ICO.secoes + '<span>Seções</span>';
     bar.appendChild(bRes); bar.appendChild(bSh); bar.appendChild(bSec);
     doc.body.appendChild(bar);
@@ -265,10 +287,197 @@
     upd();
   }
 
+  /* ------------------------------------------------ 4. acessibilidade (WCAG 2.2 AA / eMAG) */
+  var FOCAVEL = /^(A|BUTTON|INPUT|SELECT|TEXTAREA|SUMMARY)$/;
+  function focaAlvo(alvo) {
+    if (!alvo) return;
+    abreAte(alvo);
+    if (!FOCAVEL.test(alvo.tagName) && !alvo.hasAttribute('tabindex')) alvo.setAttribute('tabindex', '-1');
+    setTimeout(function () { try { alvo.focus({ preventScroll: true }); } catch (e) { alvo.focus(); } }, 0);
+  }
+
+  /* 4.1 nomes acessíveis com contexto: "Saiba mais", "Fechar", "Ver os números em tabela",
+     "Compartilhar imagem", "WhatsApp" se repetem dezenas de vezes; o leitor de tela passa a ouvir
+     "Saiba mais sobre Salário mínimo real". O texto visível continua no começo do nome (WCAG 2.5.3). */
+  var GENERICO = /^(saiba mais|ver mais|ver menos|fechar|ver os números em tabela|ver em tabela|ver gráfico|ver o gráfico|detalhes|compartilhar imagem|compartilhar a imagem deste card|⤴ imagem|imagem|whatsapp)$/i;
+  function limpa(t) { return (t || '').replace(/\s+/g, ' ').replace(/[›»→↓]+/g, '').replace(/\s*[:·]\s*$/, '').trim(); }
+  function visivel(n) { return n && n.getClientRects().length > 0; }
+  function contexto(n) {
+    /* linha de tabela (catálogos): a célula com mais texto (a proposta/promessa) */
+    var tr = n.closest('tr');
+    if (tr) {
+      var maior = '';
+      $$('td, th', tr).forEach(function (c) { if (!c.contains(n)) { var x = limpa(c.textContent); if (x.length > maior.length) maior = x; } });
+      if (maior) return maior;
+    }
+    /* botão que aponta para o card (data-card-img="id") */
+    var ref = n.getAttribute('data-card-img'), alvo = ref && doc.getElementById(ref);
+    var hRef = alvo && alvo.querySelector('h2, h3, h4');
+    if (hRef) return limpa(hRef.textContent);
+    /* 1º: o título do card do gráfico (charts.js) */
+    var card = n.closest('.bpd-card, [data-card], .vrd, .vrd-ind, figure');
+    /* contêiner com vários cards (ex.: grupo "no bolso"): vale o título da seção */
+    if (card && card.querySelectorAll('.bpd-card, .vrd-ind').length > 1) {
+      var sec = card.closest('section'), hs2 = sec && sec.querySelector('h2');
+      if (hs2) return limpa(hs2.textContent);
+      card = null;
+    }
+    var t = card && card.querySelector('h2, h3, h4, .figt, svg > title');
+    if (t && !n.contains(t) && limpa(t.textContent)) return limpa(t.textContent);
+    /* 2º: o título mais próximo ANTES do controle, na ordem do documento */
+    var hs = $$('h1, h2, h3, h4'), achado = null, i;
+    for (i = 0; i < hs.length; i += 1) {
+      var h = hs[i];
+      if (h.contains(n) || n.contains(h)) continue;
+      if (h.compareDocumentPosition(n) & 4) achado = h; else break;
+    }
+    return achado ? limpa(achado.textContent) : '';
+  }
+  function curto(t) {
+    /* "Salário mínimo real: Governo Lula à frente" → "Salário mínimo real" */
+    var p = t.split(/:\s/)[0];
+    p = p.length >= 4 ? p : t;
+    return p.length > 90 ? p.slice(0, 88).replace(/\s+\S*$/, '') + '…' : p;
+  }
+  function rotula(n, nome) {
+    if (n.hasAttribute('aria-label') && !n.hasAttribute('data-a11y-rotulo')) return; /* respeita o rótulo do autor */
+    if (n.getAttribute('aria-label') !== nome) n.setAttribute('aria-label', nome);
+    n.setAttribute('data-a11y-rotulo', '1');
+  }
+  var REPETIDOS = {};
+  function baseSummary(s) { var ab = s.querySelector('.ao-abrir'); return limpa(ab ? ab.textContent : s.textContent); }
+  function rotulaSummary(s) {
+    var fe = s.querySelector('.ao-fechar');
+    var base = baseSummary(s);
+    if (!base || s.querySelector('h1, h2, h3, h4, h5')) return; /* resumo com título dentro já tem nome próprio */
+    var gen = GENERICO.test(base), ctx = (gen || REPETIDOS[base] > 1) ? curto(contexto(s)) : '';
+    var nome = !ctx ? base : gen ? base + (/^ver /i.test(base) ? ': ' : ' sobre ') + ctx : base + ' – ' + ctx;
+    var tFe = limpa(fe && fe.textContent);
+    if (s.parentNode && s.parentNode.open && tFe && tFe !== base) nome = tFe + ': ' + nome;
+    if (!ctx && !(s.parentNode && s.parentNode.open && tFe && tFe !== base)) {
+      if (s.hasAttribute('data-a11y-rotulo')) { s.removeAttribute('aria-label'); s.removeAttribute('data-a11y-rotulo'); }
+      return;
+    }
+    rotula(s, nome);
+  }
+  function rotulaBotao(b) {
+    var txt = limpa(b.getAttribute('data-a11y-txt') || b.textContent);
+    if (!GENERICO.test(txt)) return;
+    b.setAttribute('data-a11y-txt', txt);
+    var ctx = curto(contexto(b));
+    if (!ctx) return;
+    var nome = /whatsapp/i.test(txt) ? txt + ': enviar “' + ctx + '”' : txt + ': ' + ctx;
+    if (b.target === '_blank') nome += ' (abre em nova aba)';
+    rotula(b, nome);
+  }
+  var rotT = null;
+  function rotulaTudo() {
+    rotT = null;
+    REPETIDOS = {};
+    var sums = $$('summary');
+    sums.forEach(function (s) { var b = baseSummary(s); REPETIDOS[b] = (REPETIDOS[b] || 0) + 1; });
+    sums.forEach(rotulaSummary);
+    $$('.bpd-btn, .card-img, .detail-btn, a[target="_blank"].bpd-btn').forEach(function (b) {
+      if (!b.hasAttribute('aria-label') || b.hasAttribute('data-a11y-rotulo') || GENERICO.test(limpa(b.getAttribute('aria-label')))) {
+        if (b.hasAttribute('aria-label') && !b.hasAttribute('data-a11y-rotulo')) { b.setAttribute('data-a11y-txt', limpa(b.getAttribute('aria-label'))); b.removeAttribute('aria-label'); }
+        rotulaBotao(b);
+      }
+    });
+    regioesRolaveis();
+  }
+  function agendaRotulos() { if (!rotT) rotT = setTimeout(rotulaTudo, 150); }
+  doc.addEventListener('toggle', function (e) {
+    var d = e.target;
+    if (d && d.tagName === 'DETAILS') { var s = d.querySelector(':scope > summary'); if (s) rotulaSummary(s); agendaRotulos(); }
+  }, true);
+
+  /* 4.2 tabelas largas em caixa rolável: focáveis pelo teclado e com nome (WCAG 2.1.1, 1.3.1) */
+  function regioesRolaveis() {
+    var usados = {};
+    $$('[data-a11y-rola][aria-label]').forEach(function (n) { usados[n.getAttribute('aria-label')] = 1; });
+    $$('main div, main figure, main section').forEach(function (n) {
+      if (!n.hasAttribute('data-a11y-rola') && n.scrollWidth <= n.clientWidth + 2 && n.scrollHeight <= n.clientHeight + 2) return;
+      if (n.closest('.sb-nav, .topnav, .bbar, .ui-sheet') || !visivel(n)) return;
+      var cs = win.getComputedStyle(n), rola = /(auto|scroll)/.test(cs.overflowX + cs.overflowY);
+      var precisa = rola && (n.scrollWidth > n.clientWidth + 2 || n.scrollHeight > n.clientHeight + 2);
+      var temFoco = n.querySelector('a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])');
+      if (precisa && !temFoco) {
+        if (!n.hasAttribute('tabindex')) { n.setAttribute('tabindex', '0'); n.setAttribute('data-a11y-rola', '1'); }
+        if (!n.hasAttribute('role')) n.setAttribute('role', 'region');
+        if (!n.hasAttribute('aria-label') && !n.hasAttribute('aria-labelledby')) {
+          var cap = n.querySelector('caption'), c = limpa(cap ? cap.textContent : contexto(n));
+          var nome = (c ? curto(c) : 'Tabela'), k = 2;
+          while (usados[nome + ' (role para os lados para ver tudo)']) { nome = (c ? curto(c) : 'Tabela') + ', tabela ' + k; k += 1; }
+          nome += ' (role para os lados para ver tudo)'; usados[nome] = 1;
+          n.setAttribute('aria-label', nome);
+        }
+      } else if (n.hasAttribute('data-a11y-rola') && !precisa) {
+        n.removeAttribute('tabindex'); n.removeAttribute('data-a11y-rola');
+      }
+    });
+  }
+
+  /* 4.3 foco nunca escondido atrás do menu de seções (topo) nem da barra inferior (WCAG 2.4.11) */
+  function folgaFoco(e) {
+    var t = e.target;
+    if (!t || !t.getBoundingClientRect || folhaAberta || t === doc.body || t.tagName === 'MAIN') return;
+    try { if (!t.matches(':focus-visible')) return; } catch (er) { /* navegador sem :focus-visible */ }
+    if (t.closest('.topnav, .bbar, .ui-sheet, .sitebar, .consent, .share--bar')) return;
+    var r = t.getBoundingClientRect(), topo = 0, base = win.innerHeight;
+    var tn = $('.topnav'); if (tn) { var rt = tn.getBoundingClientRect(); if (/(sticky|fixed)/.test(win.getComputedStyle(tn).position) && rt.top <= 1) topo = rt.bottom; }
+    var bb = $('.bbar.is-on'); if (bb) base = bb.getBoundingClientRect().top;
+    var sb = $$('.share--bar').filter(function (b) { return !b.hidden && visivel(b) && /(fixed|sticky)/.test(win.getComputedStyle(b).position); })[0];
+    if (sb) base = Math.min(base, sb.getBoundingClientRect().top);
+    var dy = 0;
+    if (r.bottom > base - 8) dy = r.bottom - base + 16;
+    else if (r.top < topo + 8) dy = r.top - topo - 16;
+    if (dy) { try { win.scrollBy({ top: dy, left: 0, behavior: 'instant' }); } catch (er) { win.scrollBy(0, dy); } }
+  }
+  doc.addEventListener('focusin', function (e) { raf(function () { folgaFoco(e); }); });
+  /* navegando pelo teclado, a rolagem que acompanha o foco é imediata (sem rolagem suave) */
+  doc.addEventListener('keydown', function (e) { if (e.key === 'Tab') html.classList.add('ui-teclado'); }, true);
+  doc.addEventListener('pointerdown', function () { html.classList.remove('ui-teclado'); }, true);
+
+  /* 4.4 menu de seções: a seção em leitura é anunciada (aria-current) */
+  function marcaSecaoAtual() {
+    var sec = $('.topnav .in'); if (!sec) return;
+    function upd() {
+      $$('a', sec).forEach(function (a) {
+        if (a.classList.contains('on')) { if (a.getAttribute('aria-current') !== 'location') a.setAttribute('aria-current', 'location'); }
+        else if (a.hasAttribute('aria-current')) a.removeAttribute('aria-current');
+      });
+    }
+    if (win.MutationObserver) new MutationObserver(function () { raf(upd); }).observe(sec, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    upd();
+  }
+
+  /* 4.5 "Pular para o conteúdo" e links internos: o foco acompanha a rolagem */
+  doc.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest ? e.target.closest('a.pular[href^="#"]') : null;
+    if (a) focaAlvo(alvoDoHash(a.getAttribute('href')));
+  });
+
+  function iniciaA11y() {
+    marcaSecaoAtual();
+    rotulaTudo();
+    /* cards e linhas de catálogo desenhados depois (charts.js, cards-*.js, catálogo) */
+    if (win.MutationObserver) {
+      new MutationObserver(function (ms) {
+        for (var i = 0; i < ms.length; i += 1) {
+          var t = ms[i].target;
+          if (t && t.closest && t.closest('.ui-sheet, .bbar')) continue;
+          if (ms[i].addedNodes && ms[i].addedNodes.length) { agendaRotulos(); return; }
+        }
+      }).observe(doc.body, { childList: true, subtree: true });
+    }
+    win.addEventListener('resize', function () { agendaRotulos(); });
+  }
+
   function inicia() {
     iniciaTrilhos();
     abreNoDesktop();
     barraInferior();
+    iniciaA11y();
     if (location.hash) vaiParaHash();
   }
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', inicia);

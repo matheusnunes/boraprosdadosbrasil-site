@@ -566,6 +566,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
 <link rel="stylesheet" href="/assets/css/catalogo.css">
 </head>
 <body class="pg-prop">
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <header class="sitebar">
   <div class="sb-in">
     <a class="sb-brand" href="/" aria-label="Bora pros dados Brasil, início"><img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil" width="200" height="113"></a>
@@ -578,7 +579,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
     </nav>
   </div>
 </header>
-<nav class="topnav" aria-label="Seções">
+<nav class="topnav" aria-label="Seções desta página">
   <div class="in">
     <a href="#resumo">Resumo</a>
     <a href="#regua">Régua</a>
@@ -593,6 +594,7 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </div>
   <div class="prog" id="prog"></div>
 </nav>
+<main id="conteudo" tabindex="-1">
 <div class="q-cred-wrap">
   <div class="q-cred" role="note" aria-label="Sobre a confiabilidade destes dados">
     <span class="q-cred-selo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 3.5v6c0 5-3.4 8.8-8 10.5-4.6-1.7-8-5.5-8-10.5v-6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg> Só fontes oficiais</span>
@@ -1159,22 +1161,24 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
   </section>
 
 
+</div>
+</main>
 <footer class="sitefoot">
   <div class="sf-in">
     <div class="sf-brand">
       <img src="/assets/img/logo-400.png" alt="Bora pros dados Brasil">
       <p>Análises descritivas com dados públicos oficiais do Brasil, sem juízo político. Tudo com fonte aberta e os arquivos originais disponíveis para download.</p>
     </div>
-    <div class="sf-col" id="quem-fez"><h4>Quem sou</h4>
+    <div class="sf-col" id="quem-fez"><h2>Quem sou</h2>
       <p>Profissional da área de tecnologia há 16 anos e atuo como Gerente de Desenvolvimento de Software. Lidero o time responsável pela plataformização e disponibilização de dados por diferentes meios em uma Big Tech brasileira, referência no mercado, atuando em um ambiente de altíssima volumetria e escala.</p>
     </div>
     <div class="sf-col-group">
-    <div class="sf-col"><h4>Análises</h4>
+    <div class="sf-col"><h2>Análises</h2>
       <a href="/">Governo Lula × Bolsonaro</a>
       <a href="/propostas/">Propostas 2026</a>
       <a href="/balanco/">Promessas e Realizações Lula × Bolsonaro</a>
     </div>
-    <div class="sf-col"><h4>Método e dados</h4>
+    <div class="sf-col"><h2>Método e dados</h2>
       <a href="/sobre/">Sobre e método</a>
       <a href="#metodo">Como calculamos</a>
       <a href="/fontes/">Dados abertos (50 arquivos)</a>
@@ -1184,7 +1188,6 @@ body .q-forca--regua::before{background:transparent;border:1.5px dashed currentC
 </div>
   <div class="sf-base">© 2026 Bora pros dados Brasil · dados públicos oficiais · atualizado em <time datetime="__UPDATED_ISO__">__UPDATED__</time> · <a href="/dados/SHA256SUMS.txt">integridade dos arquivos (SHA-256)</a></div>
 </footer>
-</div>
 
 <div class="modal-backdrop" id="mcat" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mcat-title">
