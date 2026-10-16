@@ -58,10 +58,11 @@
 /* ---- estrela (44 × 44), âmbar neutro ---- */
 .cat-star { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 12px; border: 1px solid #e4e4e7; background: #fff; color: #52525b; font-size: 24px; line-height: 1; cursor: pointer; padding: 0; }
 .cat-star[aria-pressed="true"] { color: #a35200; border-color: #a35200; background: #fff7ed; }
-.vrd-topo .cat-star--pg { margin-left: 8px; }
-.vrd-acoes .cat-star--pg, .bpd-card-acoes .cat-star--pg { order: 9; margin-left: auto; flex: 0 0 auto; }
-.chap-hd.cat-com-estrela { position: relative; padding-right: 54px; }
-.chap-hd.cat-com-estrela > .cat-star--pg { position: absolute; top: 8px; right: 0; }
+/* estrela das páginas: último item da linha de ações do cartão, à direita, na altura da 1ª linha de botões
+   (no celular os botões quebram em 2 linhas e a estrela continua alinhada à primeira) */
+.cat-com-estrela { position: relative; padding-right: 54px; }
+.cat-com-estrela > .cat-star--pg { position: absolute; top: 0; right: 0; z-index: 2; }
+.chap-hd.cat-com-estrela > .cat-star--pg { top: 8px; }
 .sb-nav .cat-n { color: #a35200; font-weight: 700; }
 .cat-ver-todas { margin: 10px 0 0; }
 

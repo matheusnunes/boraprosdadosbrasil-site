@@ -755,19 +755,20 @@
     for (k in mapa) if (mapa.hasOwnProperty(k)) {
       var alvo = D.getElementById(k); if (!alvo) continue;
       var id = mapa[k][0], rot = mapa[k][1];
-      // cartão .vrd: ao lado do compartilhar (.vrd-acoes, sempre visível); seções de planos/promessas: no cabeçalho
-      var host = alvo.querySelector('.vrd-acoes') || alvo.querySelector('.vrd-topo') || alvo.querySelector('.chap-hd') || alvo;
+      // na linha de ações do cartão ([Compartilhar imagem] [WhatsApp] ☆), à direita, como último item; o .bpd-card-acoes
+      // é montado pelo charts.js (inclusive dentro de .bpd-car-slide do carrossel), então a estrela é realocada depois
+      var host = alvo.querySelector('.bpd-card-acoes') || alvo.querySelector('.vrd-acoes') || alvo.querySelector('.chap-hd') || alvo;
       if (host.querySelector('.cat-star')) continue;
       var b = estrela(id, rot, null);
       b.classList.add('cat-star--pg');
-      if (host.classList.contains('chap-hd')) host.classList.add('cat-com-estrela');
+      host.classList.add('cat-com-estrela');
       host.appendChild(b); n += 1;
     }
-    // cartões montados pelo charts.js (montarCard) têm a linha [Compartilhar imagem] [WhatsApp]: a estrela vai para ela
+    // o charts.js monta o cartão (.card-slot) depois: a estrela muda para o canto do cartão montado
     function reloca() {
       Array.prototype.forEach.call(D.querySelectorAll('.cat-star--pg'), function (st) {
-        var card = st.closest('.vrd'), alvo = card && card.querySelector('.bpd-card-acoes');
-        if (alvo && st.parentNode !== alvo) alvo.appendChild(st);
+        var card = st.closest('.vrd, section'), alvo = card && card.querySelector('.bpd-card-acoes');
+        if (alvo && st.parentNode !== alvo) { alvo.classList.add('cat-com-estrela'); alvo.appendChild(st); }
       });
     }
     [0, 600, 1500, 3000].forEach(function (t) { setTimeout(reloca, t); });
