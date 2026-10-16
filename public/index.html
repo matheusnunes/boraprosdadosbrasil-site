@@ -1619,62 +1619,37 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
     });
   }
 
-  /* cards feitos com os gráficos da página, na MESMA moldura e com as MESMAS ações dos cards do sistema */
-  function cardPagina(slot, def){
-    slot.classList.add('bpd-card'); slot.classList.add('bpd-card--pagina');
-    var area = document.createElement('div'); area.className = 'bpd-card-img'; slot.appendChild(area);
-    var alvo = document.createElement('div'); area.appendChild(alvo);
-    def.desenhar(alvo);
-    /* a camada de toque das trajetórias (charts.js) é aria-hidden: não pode receber foco */
-    var semFoco = function(){ Array.prototype.forEach.call(alvo.querySelectorAll('[aria-hidden="true"][tabindex]'), function(r){ r.removeAttribute('tabindex'); }); };
-    semFoco(); if (window.MutationObserver) new MutationObserver(semFoco).observe(alvo, {childList:true, subtree:true});
-    var acoes = document.createElement('div'); acoes.className = 'bpd-card-acoes'; slot.appendChild(acoes);
-    var st = document.createElement('span'); st.className = 'bpd-card-status'; st.setAttribute('role', 'status');
-    var url = location.origin + location.pathname + '#' + def.id;
-    var bImg = document.createElement('button'); bImg.type = 'button'; bImg.className = 'bpd-btn bpd-btn--img'; bImg.textContent = 'Compartilhar imagem';
-    bImg.addEventListener('click', function(){
-      var svg = alvo.querySelector('svg'); if (!svg) return;
-      st.textContent = 'Gerando a imagem…';
-      try { if (window.__track) window.__track('share_click', {section:def.id, method:'image', placement:'card'}); } catch (e) {}
-      BPD.paraPNG(svg, 3, BPD.urlFonte).then(function(blob){
-        var nome = 'bora-pros-dados-' + def.id + '.png', f = null;
-        try { f = new File([blob], nome, {type:'image/png'}); } catch (e) {}
-        if (f && navigator.canShare && navigator.canShare({files:[f]})) { st.textContent = ''; return navigator.share({files:[f], text:def.texto + ' ' + url + '?o=img'}).catch(function(){}); }
-        var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome; document.body.appendChild(a); a.click();
-        setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 2000);
-        st.textContent = 'Imagem baixada. Agora é só anexar na conversa.';
-      }).catch(function(){ st.textContent = 'Não deu para gerar a imagem agora.'; });
-    });
-    var bWa = document.createElement('a'); bWa.className = 'bpd-btn bpd-btn--wa'; bWa.textContent = 'WhatsApp'; bWa.target = '_blank'; bWa.rel = 'noopener';
-    bWa.href = 'https://wa.me/?text=' + encodeURIComponent(def.texto + ' ' + url + '?o=wa');
-    acoes.appendChild(bImg); acoes.appendChild(bWa); acoes.appendChild(st);
-  }
-  function defsPagina(){
-    var MU = json('mundo-data'), anoX = function(s){ var a = s.slice(0, 4); return s.slice(5) === '01' && (a === '2019' || a === '2021' || a === '2023' || a === '2025') ? a : ''; };
-    var nB = MU.months.indexOf('2022-12'), nL = MU.months.length - 1, faixas = [{lado:'b', de:0, ate:nB}, {lado:'l', de:nB + 1, ate:nL}];
+  /* cards de contexto e de faixas de renda, no mesmo sistema dos outros (definições da página) */
+  function defsContexto(){
+    var MU = json('mundo-data'), nB = MU.months.indexOf('2022-12'), nL = MU.months.length - 1;
+    var faixas = [{lado:'b', de:0, ate:nB}, {lado:'l', de:nB + 1, ate:nL}];
+    var vals = [37.7, 25.2, 26.8, 21.6, 20.6, 17.3, 10.3], rA = [304, 674, 1094, 1676, 3553, 5501, 13017], rB = [418, 843, 1387, 2038, 4284, 6455, 14361], rot = ['P10 (base)', 'P30', 'P50 (meio)', 'P70', 'P90', 'P95', 'P99 (topo)'];
+    var pct = function(v){ return '+' + v.toLocaleString('pt-BR', {minimumFractionDigits:1}) + '%'; };
     return {
-      'q-mundo': {id:'q-mundo', texto:'📊 Juro básico, Brasil (Selic) × EUA (Fed), mês a mês, 2019–2026. Juro dos EUA na média: 1,1% no Governo Bolsonaro × 4,8% no Governo Lula. Contexto externo, não conta ponto. Fonte: Banco Central e Federal Reserve.',
-        desenhar:function(el){ BPD.trajetoria(el, {tamTitulo:19, titulo:'Juro básico: Brasil (Selic) e EUA (Fed), mês a mês', x:MU.months, rotuloX:anoX, altura:170,
-          series:[{lado:'ink', nome:'Selic (Brasil)', valores:MU.selic, marcadores:false}, {lado:'ctx', nome:'Fed (EUA)', valores:MU.fed, tracejado:true, marcadores:false}],
-          faixas:faixas, rotular:[{s:0, i:nL}, {s:1, i:nL, abaixo:true}], y:{min:0, max:16, passo:4, formato:{casas:0, sufixo:'%'}}, formato:{casas:1, sufixo:'%'},
-          nota:'Contexto externo, não conta ponto. Média do juro dos EUA: 1,1% × 4,8% ao ano.', fonte:'Banco Central (Selic, SGS 432) e Federal Reserve (taxa efetiva, NY Fed) · média mensal, jan/2019 a set/2026', atualizado:ATU, tabela:false}); }},
-      'q-dolar': {id:'q-dolar', texto:'📊 Dólar em reais, mês a mês, 2019–2026. Média: R$ 4,92 no Governo Bolsonaro × R$ 5,32 no Governo Lula. Contexto externo, não conta ponto. Fonte: Banco Central.',
-        desenhar:function(el){ BPD.trajetoria(el, {tamTitulo:19, titulo:'Dólar em reais, mês a mês', x:MU.months, rotuloX:anoX, altura:150, legenda:false,
-          series:[{lado:'ink', nome:'Dólar (R$/US$)', valores:MU.dolar, marcadores:false}], faixas:faixas,
-          anotacoes:[{i:MU.months.indexOf('2020-05'), texto:'pandemia (2020)', y:6.3}, {i:MU.months.indexOf('2024-12'), texto:'R$ 6,10 (fim de 2024)', y:3.9}],
-          y:{min:3.5, max:6.5, passo:1, formato:{prefixo:'R$ ', casas:2}}, formato:{prefixo:'R$ ', casas:2},
-          nota:'Contexto externo, não conta ponto. Média do dólar: R$ 4,92 × R$ 5,32.', fonte:'Banco Central (SGS 1, dólar comercial, venda) · média mensal, jan/2019 a set/2026', atualizado:ATU, tabela:false}); }},
-      'q-juro-real': {id:'q-juro-real', texto:'📊 Juro real da dívida, média ao ano: −1,5% no Governo Bolsonaro (2019-22) × +4,8% no Governo Lula (2023-25). Contexto: explica o quesito Dívida. Fonte: Banco Central e IBGE.',
-        desenhar:function(el){ BPD.duelo(el, {tamTitulo:19, titulo:'Juro real da dívida: quanto a dívida custou acima da inflação', criterio:null, criterioTexto:'contexto · explica o quesito Dívida', valores:{b:-1.5, l:4.8},
-          formato:{casas:1, sinal:true, sufixo:'%'}, legendaZero:'← abaixo da inflação · acima →', nota:'Inflação alta de 2021–22 deixou o juro real negativo. Crescimento: 1,4% × 3,0% ao ano.',
-          fonte:'Banco Central (NFSP e dívida bruta) e IBGE (PIB) · médias 2019–22 × 2023–25', atualizado:ATU, tabela:false}); }},
-      'q-renda-faixas': {id:'q-renda-faixas', texto:'📊 Ganho de renda por faixa, sem a inflação (limites das classes de percentil, IBGE/PNAD, SIDRA 7438): P10 +37,7%, P50 +26,8%, P99 +10,3%, do Governo Bolsonaro para o Governo Lula. Não conta ponto.',
-        desenhar:function(el){
-          var vals = [37.7, 31.7, 25.2, 23.8, 26.8, 17.9, 21.6, 21.9, 20.6, 17.3, 10.3], rA = [304, 491, 674, 870, 1094, 1356, 1676, 2254, 3553, 5501, 13017], rB = [418, 647, 843, 1076, 1387, 1598, 2038, 2748, 4284, 6455, 14361];
-          var rot = ['P10', 'P20', 'P30', 'P40', 'P50', 'P60', 'P70', 'P80', 'P90', 'P95', 'P99'], desc = {0:'base', 4:'meio', 10:'topo'};
-          BPD.distribuicao(el, {tamTitulo:19, titulo:'Em que faixa de renda o ganho, sem a inflação, foi maior?', chave:'P10 = limite de renda de quem está na posição dos 10% mais pobres.',
-            faixas:rot.map(function(r, i){ return {rotulo:r, desc:desc[i], a:rA[i], b:rB[i], 'var':vals[i]}; }).filter(function(f, i){ return [0, 2, 4, 6, 8, 9, 10].indexOf(i) >= 0; }),
-            nota:'Não conta ponto: mostra a distribuição. Limite de renda de cada faixa; R$ de dez/2025 (IPCA de dezembro).', fonte:'IBGE, PNAD Contínua (SIDRA 7438, limites das classes de percentil) · médias 2019–22 × 2023–25', atualizado:ATU, tabela:false}); }}
+      'q-mundo': {id:'q-mundo', titulo:'Juro básico: Brasil × EUA (contexto)', criterio:null, criterioTexto:'contexto externo · não conta ponto',
+        manchete:{valor:'1,1% × 4,8%', texto:'juro médio dos EUA (Fed) ao ano: Governo Bolsonaro × Governo Lula'},
+        grafico:{tipo:'serie', titulo:'Selic e Fed, mês a mês', sub:'% ao ano · faixas = período de cada governo', x:MU.months,
+          series:[{nome:'Selic (Brasil)', v:MU.selic, estilo:'ink'}, {nome:'Fed (EUA)', v:MU.fed, estilo:'ctx'}], faixas:faixas, yMin:0, formato:{casas:1, sufixo:'%'}, formatoEixo:{casas:0, sufixo:'%'}},
+        fonte:'Banco Central (Selic, SGS 432) e Federal Reserve (taxa efetiva, NY Fed)', periodo:'jan/2019 a set/2026, média mensal', dados:'set/2026', atualizado:ATU,
+        share:{texto:'📊 Juro básico, Brasil (Selic) × EUA (Fed), mês a mês. Juro médio dos EUA: 1,1% no Governo Bolsonaro × 4,8% no Governo Lula. Contexto externo, não conta ponto. Fonte: Banco Central e Federal Reserve.'}},
+      'q-dolar': {id:'q-dolar', titulo:'Dólar em reais (contexto)', criterio:null, criterioTexto:'contexto externo · não conta ponto',
+        manchete:{valor:'R$ 4,92 × R$ 5,32', texto:'dólar médio: Governo Bolsonaro × Governo Lula'},
+        grafico:{tipo:'serie', titulo:'Dólar, mês a mês', sub:'R$ por US$ · faixas = período de cada governo', x:MU.months,
+          series:[{nome:'Dólar (R$/US$)', v:MU.dolar, estilo:'ink'}], faixas:faixas, yMin:3.5, yMax:6.5, formato:{prefixo:'R$ ', casas:2}, formatoEixo:{prefixo:'R$ ', casas:1},
+          anotacoes:[{i:MU.months.indexOf('2020-05'), texto:'pandemia'}, {i:MU.months.indexOf('2024-12'), texto:'R$ 6,10 (fim de 2024)'}]},
+        fonte:'Banco Central (SGS 1, dólar comercial, venda)', periodo:'jan/2019 a set/2026, média mensal', dados:'set/2026', atualizado:ATU,
+        share:{texto:'📊 Dólar em reais, mês a mês. Média: R$ 4,92 no Governo Bolsonaro × R$ 5,32 no Governo Lula. Contexto externo, não conta ponto. Fonte: Banco Central.'}},
+      'q-juro-real': {id:'q-juro-real', titulo:'Juro real da dívida (contexto)', criterio:null, criterioTexto:'contexto · explica o quesito Dívida',
+        grafico:{tipo:'duelo', titulo:'Quanto a dívida custou acima da inflação, média ao ano', valores:{b:-1.5, l:4.8}, formato:{casas:1, sinal:true, sufixo:'%'}, periodos:{b:'2019–22', l:'2023–25'}},
+        nota:'Inflação alta de 2021–22 deixou o juro real negativo. Crescimento: 1,4% × 3,0% ao ano.',
+        fonte:'Banco Central (NFSP e dívida bruta) e IBGE (PIB)', periodo:'médias 2019–2022 × 2023–2025', dados:'2025', atualizado:ATU,
+        share:{texto:'📊 Juro real da dívida, média ao ano: −1,5% no Governo Bolsonaro (2019-22) × +4,8% no Governo Lula (2023-25). Contexto: explica o quesito Dívida. Fonte: Banco Central e IBGE.'}},
+      'q-renda-faixas': {id:'q-renda-faixas', titulo:'Ganho de renda por faixa, sem a inflação', criterio:null, criterioTexto:'não conta ponto · limite de renda de cada faixa',
+        grafico:{tipo:'pares', titulo:'Limite de renda de cada faixa, por pessoa e por mês', sub:'R$ de dez/2025 · escala própria em cada faixa · ganho real ao lado', escalaPropria:true, formato:{prefixo:'R$ ', casas:0},
+          grupos:rot.map(function(r, i){ return {rotulo:r, sub:pct(vals[i]), b:rA[i], l:rB[i]}; })},
+        nota:'P10 = limite de renda de quem está na posição dos 10% mais pobres.',
+        fonte:'IBGE, PNAD Contínua (SIDRA 7438, limites das classes de percentil), corrigido pelo IPCA de dezembro', periodo:'médias 2019–2022 × 2023–2025', dados:'2025', atualizado:ATU,
+        share:{texto:'📊 Ganho de renda por faixa, sem a inflação (IBGE, SIDRA 7438): P10 +37,7%, P50 +26,8%, P99 +10,3%, do Governo Bolsonaro para o Governo Lula. Não conta ponto.'}}
     };
   }
   var NEUTROS = {'q-salario':'Salário mínimo real: média de cada governo', 'q-renda':'Renda por pessoa: média de cada governo', 'q-gini':'Desigualdade (Gini): média de cada governo', 'q-renda-pobres':'Renda dos 50% mais pobres e dos 10% mais ricos'};
@@ -1682,9 +1657,8 @@ html[data-theme="dark"] .to .gain h3{color:#5eead4} html[data-theme="dark"] .to 
     var L = window.CARDS_HOME;
     if (!L || !window.BPD || !BPD.montarCard) return;
     var D = {}; (L.length ? L : []).forEach(function(d){ D[d.id] = d; }); D['q-areas'] = defAreas();
+    var DC = defsContexto(), kc; for (kc in DC) D[kc] = DC[kc];
     Array.prototype.forEach.call(document.querySelectorAll('[data-card]'), function(el){
-      var PG = montaCardsHome.pg || (montaCardsHome.pg = defsPagina()), pg = PG[el.getAttribute('data-card')];
-      if (pg) { var sl = document.createElement('div'); sl.className = 'card-slot'; sl.id = 'card-' + pg.id; el.insertBefore(sl, el.firstElementChild); cardPagina(sl, pg); el.classList.add('tem-card'); return; }
       var def = D[el.getAttribute('data-card')]; if (!def) return;
       var slot = document.createElement('div'); slot.className = 'card-slot'; slot.id = 'card-' + def.id;
       el.insertBefore(slot, el.firstElementChild);
