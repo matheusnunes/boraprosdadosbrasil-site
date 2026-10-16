@@ -93,12 +93,27 @@ window.__og = (function () {
   return { defReg: defReg, cartao: cartao, selecao: selecao, itemSel: itemSel, dataBR: dataBR };
 })();`;
 
+/* A charts.js do site fica idêntica à do data-viz. Só para gerar as prévias, injeta na página uma cópia com o formato 'og'
+   do cardSelecao (mosaicos de 1200×630), definido em scripts/og/cardselecao_og.js (mesmas regras do feed). */
+function chartsComOg() {
+  let s = fs.readFileSync(path.join(ROOT, 'public', 'assets', 'js', 'charts.js'), 'utf8');
+  if (s.includes('function cardSelecaoOG(')) return null;
+  const og = fs.readFileSync(path.join(__dirname, 'og', 'cardselecao_og.js'), 'utf8');
+  const i = s.indexOf('  function cardSelecao(cont, o) {');
+  if (i < 0) throw new Error('charts.js sem cardSelecao');
+  s = s.slice(0, i) + og + '\n' + s.slice(i);
+  s = s.replace("  function cardSelecao(cont, o) {\n", "  function cardSelecao(cont, o) {\n    if (o && o.formato === 'og') return cardSelecaoOG(cont, o);\n");
+  return s;
+}
+const CHARTS_OG = chartsComOg();
+
 async function abrir(ctx, base, url) {
   const p = await ctx.newPage();
   const erros = [];
   p.on('pageerror', e => erros.push(e.message));
   await p.goto(base + url, { waitUntil: 'networkidle' });
-  await p.evaluate(() => window.BPD && BPD.carregarFonte && BPD.carregarFonte());
+  if (CHARTS_OG) await p.addScriptTag({ content: CHARTS_OG });
+  await p.evaluate(() => window.BPD && Promise.all([BPD.carregarFonte && BPD.carregarFonte(), BPD.carregarLogo && BPD.carregarLogo()]));
   await p.waitForTimeout(800);
   await p.addScriptTag({ content: NA_PAGINA });
   p.__erros = erros;

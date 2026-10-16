@@ -53,3 +53,10 @@
 .share-toast.is-on{opacity:1;transform:translate(-50%,0)}
 @media (max-width:760px){.share-toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
 @media (prefers-reduced-motion:reduce){.share-toast{transition:none}}
+
+/* Stories e [Mais ▾] nas linhas de ações dos cards */
+.share-btn svg,.bpd-btn--stories svg{flex:0 0 auto}
+.bpd-btn--stories{gap:6px}
+.bpd-btn--mais[hidden],.bpd-mais-painel[hidden]{display:none}
+.bpd-mais-painel{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px 12px}
+.bpd-mais-painel .bpd-btn{flex:1 1 auto}

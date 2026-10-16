@@ -459,7 +459,8 @@
     var k = path + '|' + fmt; if (SELIMG[k]) return SELIMG[k].p;
     var reg = SELIMG[k] = { p: null, f: null };
     if (!W.BPD || !W.BPD.cardSelecao || !W.BPD.paraPNG) { reg.p = Promise.reject(new Error('charts.js')); delete SELIMG[k]; return reg.p; }
-    reg.p = Promise.resolve(W.BPD.carregarFonte ? W.BPD.carregarFonte().then(null, function () {}) : null).then(function () {
+    reg.p = Promise.all([W.BPD.carregarFonte ? W.BPD.carregarFonte().then(null, function () {}) : null,
+                         W.BPD.carregarLogo ? W.BPD.carregarLogo().then(null, function () {}) : null]).then(function () {
       var tmp = el('div', null, null, { style: 'position:absolute;left:-9999px;top:0;width:1080px', 'aria-hidden': 'true' }); D.body.appendChild(tmp);
       var svg = W.BPD.cardSelecao(tmp, defSelecao(itens, path, fmt));
       return W.BPD.paraPNG(svg, 1, W.BPD.urlFonte).then(function (bl) { tmp.parentNode.removeChild(tmp); return bl; },
